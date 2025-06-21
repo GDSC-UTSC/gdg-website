@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Calendar, Circle } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { Calendar, Circle } from "lucide-react";
 
 const EventsSection = () => {
   const upcomingEvents = [
@@ -12,7 +12,8 @@ const EventsSection = () => {
       date: "January 25, 2024",
       time: "6:00 PM - 8:00 PM",
       location: "IC-200",
-      description: "Learn to build your first Android app using Kotlin and modern development practices.",
+      description:
+        "Learn to build your first Android app using Kotlin and modern development practices.",
       type: "Workshop",
       color: "bg-google-green",
     },
@@ -21,7 +22,8 @@ const EventsSection = () => {
       date: "February 2, 2024",
       time: "1:00 PM - 4:00 PM",
       location: "SW-319",
-      description: "Hands-on experience with Google Cloud Platform and preparation for GCP certifications.",
+      description:
+        "Hands-on experience with Google Cloud Platform and preparation for GCP certifications.",
       type: "Study Session",
       color: "bg-google-blue",
     },
@@ -30,11 +32,12 @@ const EventsSection = () => {
       date: "February 15, 2024",
       time: "7:00 PM - 8:30 PM",
       location: "Virtual",
-      description: "Industry experts share insights on the latest trends in AI and ML technologies.",
+      description:
+        "Industry experts share insights on the latest trends in AI and ML technologies.",
       type: "Tech Talk",
       color: "bg-google-red",
     },
-  ]
+  ];
 
   const pastEvents = [
     "Hackathon 2023: 48-hour coding marathon",
@@ -42,7 +45,7 @@ const EventsSection = () => {
     "Google I/O Extended Toronto",
     "Flutter Development Bootcamp",
     "DevFest Toronto 2023",
-  ]
+  ];
 
   return (
     <section id="events" className="py-20">
@@ -54,10 +57,13 @@ const EventsSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Upcoming Events</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Upcoming Events
+          </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Join us for workshops, tech talks, hackathons, and networking events designed to expand your skills and
-            connect you with the developer community.
+            Join us for workshops, tech talks, hackathons, and networking events
+            designed to expand your skills and connect you with the developer
+            community.
           </p>
         </motion.div>
 
@@ -70,10 +76,14 @@ const EventsSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
             >
-              <Card className="bg-card/50 backdrop-blur-sm border-border hover:bg-card/80 transition-all duration-300 h-full">
+              <Card className="bg-card/50 backdrop-blur-sm  hover:bg-card/80 transition-all duration-300 h-full">
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs px-2 py-1 rounded-full text-white ${event.color}`}>{event.type}</span>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full text-white ${event.color}`}
+                    >
+                      {event.type}
+                    </span>
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <CardTitle className="text-xl">{event.title}</CardTitle>
@@ -84,10 +94,16 @@ const EventsSection = () => {
                       <Calendar className="h-4 w-4 mr-2" />
                       {event.date} • {event.time}
                     </p>
-                    <p className="text-sm text-muted-foreground">📍 {event.location}</p>
+                    <p className="text-sm text-muted-foreground">
+                      📍 {event.location}
+                    </p>
                   </div>
-                  <p className="text-muted-foreground mb-4">{event.description}</p>
-                  <Button className="w-full bg-primary hover:bg-primary/90">Register Now</Button>
+                  <p className="text-muted-foreground mb-4">
+                    {event.description}
+                  </p>
+                  <Button className="w-full bg-primary hover:bg-primary/90">
+                    Register Now
+                  </Button>
                 </CardContent>
               </Card>
             </motion.div>
@@ -120,7 +136,7 @@ const EventsSection = () => {
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default EventsSection
+export default EventsSection;

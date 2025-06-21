@@ -1,27 +1,30 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Card, CardContent } from "@/components/ui/card"
-import { Github, Circle, Menu } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { Circle, Github, Menu } from "lucide-react";
 
 const AboutSection = () => {
   const features = [
     {
       icon: <Github className="h-8 w-8 text-google-blue" />,
       title: "Learn by Building",
-      description: "Hands-on workshops, hackathons, and coding sessions that push your technical boundaries.",
+      description:
+        "Hands-on workshops, hackathons, and coding sessions that push your technical boundaries.",
     },
     {
       icon: <Circle className="h-8 w-8 text-google-green" />,
       title: "Industry Connections",
-      description: "Network with Google engineers, industry professionals, and like-minded developers.",
+      description:
+        "Network with Google engineers, industry professionals, and like-minded developers.",
     },
     {
       icon: <Menu className="h-8 w-8 text-google-yellow" />,
       title: "Career Growth",
-      description: "Access to exclusive opportunities, mentorship programs, and career development resources.",
+      description:
+        "Access to exclusive opportunities, mentorship programs, and career development resources.",
     },
-  ]
+  ];
 
   return (
     <section id="about" className="py-20 bg-secondary/50">
@@ -35,9 +38,11 @@ const AboutSection = () => {
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Who We Are</h2>
           <p className="text-xl text-muted-foreground max-w-4xl mx-auto">
-            GDG @ UTSC is more than just a tech club. We&apos;re a community of passionate developers, designers, and
-            innovators who believe in the power of technology to change the world. Backed by Google&apos;s resources and
-            expertise, we provide a platform for students to learn, grow, and make their mark in the tech industry.
+            GDG @ UTSC is more than just a tech club. We&apos;re a community of
+            passionate developers, designers, and innovators who believe in the
+            power of technology to change the world. Backed by Google&apos;s
+            resources and expertise, we provide a platform for students to
+            learn, grow, and make their mark in the tech industry.
           </p>
         </motion.div>
 
@@ -50,10 +55,12 @@ const AboutSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
             >
-              <Card className="bg-card/50 backdrop-blur-sm border-border hover:bg-card/80 transition-all duration-300 h-full">
+              <Card className="bg-card/50 backdrop-blur-sm  hover:bg-card/80 transition-all duration-300 h-full">
                 <CardContent className="p-8 text-center">
                   <div className="mb-4 flex justify-center">{feature.icon}</div>
-                  <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                  <h3 className="text-xl font-semibold mb-3">
+                    {feature.title}
+                  </h3>
                   <p className="text-muted-foreground">{feature.description}</p>
                 </CardContent>
               </Card>
@@ -70,13 +77,15 @@ const AboutSection = () => {
         >
           <h3 className="text-3xl font-bold mb-4">Our Mission</h3>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            To foster a vibrant community of developers at UTSC, providing access to cutting-edge technologies, industry
-            insights, and collaborative learning experiences that prepare students for successful careers in technology.
+            To foster a vibrant community of developers at UTSC, providing
+            access to cutting-edge technologies, industry insights, and
+            collaborative learning experiences that prepare students for
+            successful careers in technology.
           </p>
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default AboutSection
+export default AboutSection;
