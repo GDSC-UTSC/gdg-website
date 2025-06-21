@@ -55,7 +55,7 @@ const AboutSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
             >
-              <Card className="bg-card/50 backdrop-blur-sm  hover:bg-card/80 transition-all duration-300 h-full">
+              <Card className="bg-card/50 backdrop-blur-xs  hover:bg-card/80 transition-all duration-300 h-full">
                 <CardContent className="p-8 text-center">
                   <div className="mb-4 flex justify-center">{feature.icon}</div>
                   <h3 className="text-xl font-semibold mb-3">
@@ -73,7 +73,7 @@ const AboutSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="bg-gradient-to-r from-card to-accent rounded-2xl p-8 md:p-12 text-center"
+          className="bg-linear-to-r from-card to-accent rounded-2xl p-8 md:p-12 text-center"
         >
           <h3 className="text-3xl font-bold mb-4">Our Mission</h3>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">

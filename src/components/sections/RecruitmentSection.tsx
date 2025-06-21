@@ -78,7 +78,7 @@ const RecruitmentSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
             >
-              <Card className="bg-card/50 backdrop-blur-sm  hover:bg-card/80 transition-all duration-300 h-full">
+              <Card className="bg-card/50 backdrop-blur-xs  hover:bg-card/80 transition-all duration-300 h-full">
                 <CardHeader>
                   <CardTitle className="text-xl">{position.title}</CardTitle>
                   <p className="text-sm text-primary font-medium">
@@ -139,7 +139,7 @@ const RecruitmentSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-gradient-to-br from-card to-accent rounded-2xl p-8"
+            className="bg-linear-to-br from-card to-accent rounded-2xl p-8"
           >
             <h3 className="text-2xl font-bold mb-4">Ready to Apply?</h3>
             <p className="text-muted-foreground mb-6">

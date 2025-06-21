@@ -76,7 +76,7 @@ const EventsSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
             >
-              <Card className="bg-card/50 backdrop-blur-sm  hover:bg-card/80 transition-all duration-300 h-full">
+              <Card className="bg-card/50 backdrop-blur-xs  hover:bg-card/80 transition-all duration-300 h-full">
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
                     <span
