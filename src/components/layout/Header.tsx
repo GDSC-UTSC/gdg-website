@@ -100,9 +100,13 @@ const Header = () => {
       >
         <div className="container mx-auto px-4 py-4">
           <div className="relative flex items-center justify-between">
-            {/* logo section - no text */}
-            <motion.div className="flex items-center" whileHover={{ scale: 1.05 }}>
+            {/* logo section - with text */}
+            <motion.div className="flex items-center space-x-2 sm:space-x-3" whileHover={{ scale: 1.05 }}>
               <Image src="/gdg-logo.png" alt="GDG @ UTSC" width={60} height={60} className="h-12 w-auto sm:h-14" />
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold">GDG @ UTSC</h1>
+                <p className="text-xs text-muted-foreground hidden sm:block">Google Developer Group</p>
+              </div>
             </motion.div>
 
             {/* Centered desktop navigation */}

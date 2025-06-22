@@ -4,10 +4,8 @@
   // —————————————————————————————————————————————————————
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    // auto‐fix ESLint errors
-    "source.fixAll.eslint": true,
-    // auto‐organize TS/JS imports
-    "source.organizeImports": true
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
   },
 
   // —————————————————————————————————————————————————————
@@ -50,12 +48,7 @@
   // —————————————————————————————————————————————————————
   // ESLint integration
   // —————————————————————————————————————————————————————
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "javascriptreact",
-    "typescriptreact"
-  ],
+  "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact"],
 
   // —————————————————————————————————————————————————————
   // TypeScript import style
