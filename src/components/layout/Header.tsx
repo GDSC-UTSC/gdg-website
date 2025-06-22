@@ -223,7 +223,7 @@ const Header = () => {
                   <Button
                     variant="ghost"
                     onClick={() => scrollToSection("about")}
-                    className={`justify-start p-3 h-auto transition-colors ${
+                    className={`justify-center p-3 h-auto transition-colors ${
                       isActive("about")
                         ? "text-primary bg-primary/10 hover:bg-primary/20"
                         : "text-foreground hover:text-primary hover:bg-muted"
@@ -234,7 +234,7 @@ const Header = () => {
                   <Button
                     variant="ghost"
                     onClick={() => scrollToSection("events")}
-                    className={`justify-start p-3 h-auto transition-colors ${
+                    className={`justify-center p-3 h-auto transition-colors ${
                       isActive("events")
                         ? "text-primary bg-primary/10 hover:bg-primary/20"
                         : "text-foreground hover:text-primary hover:bg-muted"
@@ -245,21 +245,21 @@ const Header = () => {
                   <Button
                     variant="ghost"
                     onClick={() => router.push("/projects")}
-                    className="justify-start p-3 h-auto transition-colors text-foreground hover:text-primary hover:bg-muted"
+                    className="justify-center p-3 h-auto transition-colors text-foreground hover:text-primary hover:bg-muted"
                   >
                     Projects
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={() => router.push("/positions")}
-                    className="justify-start p-3 h-auto transition-colors text-foreground hover:text-primary hover:bg-muted"
+                    className="justify-center p-3 h-auto transition-colors text-foreground hover:text-primary hover:bg-muted"
                   >
                     Positions
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={() => scrollToSection("recruitment")}
-                    className={`justify-start p-3 h-auto transition-colors ${
+                    className={`justify-center p-3 h-auto transition-colors ${
                       isActive("recruitment")
                         ? "text-primary bg-primary/10 hover:bg-primary/20"
                         : "text-foreground hover:text-primary hover:bg-muted"
