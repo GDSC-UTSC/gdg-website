@@ -4,25 +4,20 @@
   // —————————————————————————————————————————————————————
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    // auto‐fix ESLint errors
-    "source.fixAll.eslint": true,
-    // auto‐organize TS/JS imports
-    "source.organizeImports": true
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
   },
-
   // —————————————————————————————————————————————————————
   // Indentation
   // —————————————————————————————————————————————————————
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
-
   // —————————————————————————————————————————————————————
   // Line endings & trimming
   // —————————————————————————————————————————————————————
   "files.eol": "\n",
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
-
   // —————————————————————————————————————————————————————
   // Default formatters per language
   // —————————————————————————————————————————————————————
@@ -38,7 +33,6 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-
   // —————————————————————————————————————————————————————
   // Prettier tweaks (if you’re using Prettier)
   // —————————————————————————————————————————————————————
@@ -46,7 +40,6 @@
   "prettier.trailingComma": "es5",
   "prettier.semi": true,
   "prettier.arrowParens": "always",
-
   // —————————————————————————————————————————————————————
   // ESLint integration
   // —————————————————————————————————————————————————————
@@ -56,14 +49,12 @@
     "javascriptreact",
     "typescriptreact"
   ],
-
   // —————————————————————————————————————————————————————
   // TypeScript import style
   // —————————————————————————————————————————————————————
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.preferences.quoteStyle": "single",
   "typescript.updateImportsOnFileMove.enabled": "always",
-
   // —————————————————————————————————————————————————————
   // Optional: GraphQL extension settings
   // —————————————————————————————————————————————————————
