@@ -40,12 +40,31 @@ const ProjectsSection = () => {
     {
       title: "Project 5",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      languages: ["Javascript", "SQL", "React"],
+      languages: ["JavaScript", "SQL", "React"],
       link: "https://www.google.com",
       color: "bg-google-yellow"
     },
 
   ]
+
+  const languageColors = {
+    "JavaScript": "bg-google-red",
+    "HTML": "bg-google-blue",
+    "CSS": "bg-google-green",
+    "TypeScript": "bg-google-red",
+    "Python": "bg-google-blue",
+    "Java": "bg-google-green",
+    "SQL": "bg-google-yellow",
+    "React": "bg-purple-500",
+    "Next.js": "bg-purple-500",
+    "Tailwind CSS": "bg-purple-500",
+    "Node.js": "bg-purple-500",
+    "Express": "bg-purple-500",
+    "MongoDB": "bg-purple-500",
+    "PostgreSQL": "bg-red-500",
+    "Kotlin": "bg-green-700",
+    "Spring": "bg-green-900",
+  }
   return (
     <section id="projects" className="py-20 min-h-screen gradient-bg">
       <Header />
@@ -76,8 +95,12 @@ const ProjectsSection = () => {
                   <CardTitle>{project.title}</CardTitle>
                   <CardDescription>{project.description}</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-2">
-                  <span className={`text-xs px-2 py-1 rounded-full w-fit text-white ${project.color}`}>{project.languages.join(", ")}</span>
+                <CardContent className="flex flex-row gap-2 justify-between">
+                  <div className="flex flex-row gap-2">
+                    {project.languages.map((language, index) => (
+                      <span key={index} className={`text-xs px-2 py-1 rounded-full w-fit text-white ${languageColors[language as keyof typeof languageColors] || "bg-gray-500"}`}>{language}</span>
+                    ))}
+                  </div>
                 </CardContent>
                 <Button variant="outline" className="w-full mt-4">
                   <Link href={project.link} className="flex items-center gap-2">
