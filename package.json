@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "firestore": "firebase emulators:start --import=./firebase-data --export-on-exit=./firebase-data"
+    "emulators": "firebase emulators:start --import=./firebase-data --export-on-exit=./firebase-data"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
