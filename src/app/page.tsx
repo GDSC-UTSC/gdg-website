@@ -5,7 +5,7 @@ import RecruitmentSection from "@/components/sections/RecruitmentSection";
 
 export default function Home() {
   return (
-    <div className="min-h-screen gradient-bg">
+    <div className="min-h-screen">
       <HeroSection />
       <AboutSection />
       <EventsSection />
