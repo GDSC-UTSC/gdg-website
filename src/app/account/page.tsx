@@ -12,7 +12,6 @@ export default function AccountPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  // 1) Redirect to login _after_ we know loading is finished and user is null
   useEffect(() => {
     if (!loading && !user) {
       router.push("/account/login");
@@ -28,7 +27,6 @@ export default function AccountPage() {
     }
   };
 
-  // 2) While we're either loading _or_ in the brief moment before the redirect, render nothing or a spinner
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -37,7 +35,6 @@ export default function AccountPage() {
     );
   }
 
-  // 3) Now that we’ve passed loading and have a user, render the account UI
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto max-w-2xl">
