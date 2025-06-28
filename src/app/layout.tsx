@@ -1,5 +1,6 @@
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import { AuthProvider } from "@/contexts/AuthContext";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
@@ -37,9 +38,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-black">
       <body className={`${inter.className} bg-black`}>
-        <Header />
-        <Providers>{children}</Providers>
-        <Footer />
+        <AuthProvider>
+          <Header />
+          <Providers>{children}</Providers>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

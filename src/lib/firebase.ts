@@ -12,20 +12,25 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+console.log('Firebase initializing...');
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+console.log('Firebase initialized', { auth: !!auth, db: !!db });
 
 if (process.env.NODE_ENV === "development") {
+  console.log('Development mode: connecting to emulators');
   try {
     connectFirestoreEmulator(db, "localhost", 8080);
+    console.log('Firestore emulator connected');
   } catch (error) {
-    console.log("Firestore emulator already connected");
+    console.log("Firestore emulator already connected or failed:", error);
   }
 
   try {
     connectAuthEmulator(auth, "http://localhost:9099");
+    console.log('Auth emulator connected');
   } catch (error) {
-    console.log("Auth emulator already connected");
+    console.log("Auth emulator already connected or failed:", error);
   }
 }

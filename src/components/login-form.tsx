@@ -94,21 +94,21 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input 
-                  id="password" 
-                  type="password" 
+                <Input
+                  id="password"
+                  type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required 
+                  required
                 />
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Signing in..." : "Login"}
                 </Button>
-                <Button 
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   className="w-full"
                   onClick={handleGoogleLogin}
                   disabled={loading}
