@@ -28,5 +28,7 @@ next-env.d.ts
 
 # firebase
 firestore-debug.log
+firebase-debug.log
 pglite-debug.log
 /firebase-data
+.firebase/

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileUpload } from "@/components/ui/file-upload";
 import { useAuth } from "@/contexts/AuthContext";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -67,6 +68,8 @@ export default function AccountPage() {
             </div>
           </CardContent>
         </Card>
+        
+        <FileUpload onFileSelect={() => {}} accept="image/*" maxSize={5} />
       </div>
     </div>
   );
