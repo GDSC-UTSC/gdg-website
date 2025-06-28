@@ -110,7 +110,6 @@ const Header = () => {
           </div>
         </div>
       </motion.header>
-
     </>
   );
 };
