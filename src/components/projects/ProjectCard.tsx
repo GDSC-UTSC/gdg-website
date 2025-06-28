@@ -1,4 +1,5 @@
 "use client";
+import { Project } from "@/app/types/project";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,12 +11,11 @@ import {
 import { motion } from "framer-motion";
 import { GithubIcon } from "lucide-react";
 import Link from "next/link";
-import { Project, LanguageColors } from "../types/project";
 
 interface ProjectCardProps {
   project: Project;
   index: number;
-  languageColors: LanguageColors;
+  languageColors?: any; // 
 }
 
 const ProjectCard = ({ project, index, languageColors }: ProjectCardProps) => {
