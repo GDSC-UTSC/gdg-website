@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Github, Linkedin, Twitter, Instagram } from "lucide-react"
-import Image from "next/image"
+import { motion } from "framer-motion";
+import { Github, Instagram, Linkedin, Twitter } from "lucide-react";
+import Image from "next/image";
 
 const Footer = () => {
   const socialLinks = [
@@ -10,10 +10,10 @@ const Footer = () => {
     { icon: <Linkedin className="h-5 w-5" />, href: "#", label: "LinkedIn" },
     { icon: <Twitter className="h-5 w-5" />, href: "#", label: "Twitter" },
     { icon: <Instagram className="h-5 w-5" />, href: "#", label: "Instagram" },
-  ]
+  ];
 
   return (
-    <footer className="py-12 border-t border-border">
+    <footer className="py-12 border-t ">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <motion.div
@@ -23,14 +23,23 @@ const Footer = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="flex items-center space-x-3 mb-4">
-              <Image src="/gdg-logo.png" alt="GDG @ UTSC" width={32} height={32} className="h-8 w-auto" />
+              <Image
+                src="/gdg-logo.png"
+                alt="GDG @ UTSC"
+                width={32}
+                height={32}
+                className="h-8 w-auto"
+              />
               <div>
                 <h3 className="font-bold">GDG @ UTSC</h3>
-                <p className="text-xs text-muted-foreground">Google Developer Group</p>
+                <p className="text-xs text-muted-foreground">
+                  Google Developer Group
+                </p>
               </div>
             </div>
             <p className="text-muted-foreground text-sm">
-              Building the next generation of developers at the University of Toronto Scarborough.
+              Building the next generation of developers at the University of
+              Toronto Scarborough.
             </p>
           </motion.div>
 
@@ -76,16 +85,18 @@ const Footer = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center"
+          className="border-t  pt-8 flex flex-col md:flex-row justify-between items-center"
         >
           <p className="text-sm text-muted-foreground mb-4 md:mb-0">
             © 2024 Google Developer Group @ UTSC. All rights reserved.
           </p>
-          <p className="text-sm text-muted-foreground">Made with ❤️ by the GDG @ UTSC team</p>
+          <p className="text-sm text-muted-foreground">
+            Made with ❤️ by the GDG @ UTSC team
+          </p>
         </motion.div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;
