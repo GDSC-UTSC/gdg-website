@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +11,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,7 +73,7 @@ const Header = () => {
             </div>
 
             {/* Navigation - centered on mobile and desktop */}
-            <div className="flex justify-center">
+            <div className="flex justify-center md:justify-between items-center w-full md:w-auto">
               <nav className="flex items-center space-x-1 lg:space-x-2 flex-wrap justify-center gap-y-2">
                 <Link href="/about">
                   <Button
@@ -106,6 +108,33 @@ const Header = () => {
                   </Button>
                 </Link>
               </nav>
+
+              {/* Auth Button */}
+              <div className=" md:flex ml-4">
+                {loading ? (
+                  <Button variant="ghost" disabled className="text-sm">
+                    Loading...
+                  </Button>
+                ) : user ? (
+                  <Link href="/account">
+                    <Button
+                      variant="ghost"
+                      className="transition-colors text-sm lg:text-base px-3 lg:px-4 text-foreground hover:text-primary"
+                    >
+                      Account
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href="/account/login">
+                    <Button
+                      variant="ghost"
+                      className="transition-colors text-sm lg:text-base px-3 lg:px-4 text-foreground hover:text-primary"
+                    >
+                      Login
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </div>
