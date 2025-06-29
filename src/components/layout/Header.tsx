@@ -110,7 +110,7 @@ const Header = () => {
               </nav>
 
               {/* Auth Button */}
-              <div className="hidden md:flex ml-4">
+              <div className=" md:flex ml-4">
                 {loading ? (
                   <Button variant="ghost" disabled className="text-sm">
                     Loading...
@@ -135,33 +135,6 @@ const Header = () => {
                   </Link>
                 )}
               </div>
-            </div>
-
-            {/* Mobile Auth Button */}
-            <div className="flex justify-center md:hidden">
-              {loading ? (
-                <Button variant="ghost" disabled className="text-sm">
-                  Loading...
-                </Button>
-              ) : user ? (
-                <Link href="/account">
-                  <Button
-                    variant="ghost"
-                    className="transition-colors text-sm px-3 text-foreground hover:text-primary"
-                  >
-                    Account
-                  </Button>
-                </Link>
-              ) : (
-                <Link href="/account/login">
-                  <Button
-                    variant="ghost"
-                    className="transition-colors text-sm px-3 text-foreground hover:text-primary"
-                  >
-                    Login
-                  </Button>
-                </Link>
-              )}
             </div>
           </div>
         </div>
