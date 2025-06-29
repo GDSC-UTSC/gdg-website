@@ -15,7 +15,7 @@ npm install -g firebase-tools
 
 2. Start the Firestore emulator (in a separate terminal):
    ```bash
-   npm run firestore
+   npm run firebase
    ```
 
 The app will be available at http://localhost:3000 and the Firestore emulator UI at http://localhost:4000.
