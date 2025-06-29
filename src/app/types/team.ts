@@ -33,6 +33,7 @@ export interface TeamMember {
   image?: string;
   linkedin?: string;
   github?: string;
-  email?: string;
   order?: number; // Optional custom ordering within role
 }
+
+

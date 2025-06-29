@@ -68,13 +68,6 @@ const TeamCard = ({ member, index }: TeamCardProps) => {
                 </a>
               </Button>
             )}
-            {member.email && (
-              <Button variant="outline" size="sm" asChild>
-                <a href={`mailto:${member.email}`}>
-                  <Mail className="h-4 w-4" />
-                </a>
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>

@@ -11,7 +11,6 @@ import { TEAM_ROLES, TeamMember } from "@/app/types/team";
         "https://media.licdn.com/dms/image/v2/D4E03AQF1tA59FujGDw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1727638440885?e=2147483647&v=beta&t=v3DpWVQgRscp1vvwZJLCjb4Xagt5-Tp8nKg89LEw-Co",
       linkedin: "https://linkedin.com/in/johndoe",
       github: "https://github.com/johndoe",
-      email: "john.doe@utsc.utoronto.ca",
       order: 1,
     },
     {
@@ -53,7 +52,6 @@ import { TEAM_ROLES, TeamMember } from "@/app/types/team";
         "https://media.licdn.com/dms/image/v2/D4E03AQF1tA59FujGDw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1727638440885?e=2147483647&v=beta&t=v3DpWVQgRscp1vvwZJLCjb4Xagt5-Tp8nKg89LEw-Co",
       bio: "Ensuring smooth operations and logistics for all GDG events and activities.",
       linkedin: "https://linkedin.com/in/alexchen",
-      email: "alex.chen@utsc.utoronto.ca",
       order: 1,
     },
     {
@@ -64,7 +62,6 @@ import { TEAM_ROLES, TeamMember } from "@/app/types/team";
         "https://media.licdn.com/dms/image/v2/D4E03AQF1tA59FujGDw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1727638440885?e=2147483647&v=beta&t=v3DpWVQgRscp1vvwZJLCjb4Xagt5-Tp8nKg89LEw-Co",
       bio: "Faculty advisor providing guidance and support for GDG initiatives and academic integration.",
       linkedin: "https://linkedin.com/in/emilyrodriguez",
-      email: "emily.rodriguez@utsc.utoronto.ca",
       order: 1,
     },
     {
@@ -107,7 +104,6 @@ import { TEAM_ROLES, TeamMember } from "@/app/types/team";
       "https://media.licdn.com/dms/image/v2/D4E03AQF1tA59FujGDw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1727638440885?e=2147483647&v=beta&t=v3DpWVQgRscp1vvwZJLCjb4Xagt5-Tp8nKg89LEw-Co",
       bio: "Creative marketing specialist focused on social media and community engagement.",
       linkedin: "https://linkedin.com/in/mariagarcia",
-      email: "maria.garcia@utsc.utoronto.ca",
       order: 2,
     },
   ];
