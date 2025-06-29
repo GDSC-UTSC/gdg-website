@@ -97,6 +97,14 @@ const Header = () => {
                     Projects
                   </Button>
                 </Link>
+                <Link href="/team">
+                  <Button
+                    variant="ghost"
+                    className="transition-colors text-sm lg:text-base px-3 lg:px-4 text-foreground hover:text-primary"
+                  >
+                    Team
+                  </Button>
+                </Link>
                 <Link href="/positions">
                   <Button
                     variant="ghost"
