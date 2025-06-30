@@ -12,6 +12,7 @@ import {
 
 export interface UserDataType {
   id: string;
+  publicName?: string;
   updatedAt: Date;
   profileImageUrl?: string;
   bio?: string;
@@ -21,6 +22,7 @@ export interface UserDataType {
 
 export class UserData {
   id: string;
+  publicName?: string;
   updatedAt: Date;
   profileImageUrl?: string;
   bio?: string;
@@ -28,6 +30,7 @@ export class UserData {
   github?: string;
   constructor(data: UserDataType) {
     this.id = data.id;
+    this.publicName = data.publicName;
     this.updatedAt = new Date(data.updatedAt);
     this.profileImageUrl = data.profileImageUrl;
     this.bio = data.bio;
@@ -38,6 +41,7 @@ export class UserData {
   static converter = {
     toFirestore: (user: UserData) => {
       return {
+        publicName: user.publicName,
         updatedAt: user.updatedAt.toISOString(),
         profileImageUrl: user.profileImageUrl,
         bio: user.bio,
@@ -49,6 +53,7 @@ export class UserData {
       const data = snapshot.data(options);
       return new UserData({
         id: snapshot.id,
+        publicName: data.publicName,
         updatedAt: data.updatedAt,
         profileImageUrl: data.profileImageUrl,
         bio: data.bio,

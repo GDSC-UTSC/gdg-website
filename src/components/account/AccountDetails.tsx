@@ -20,6 +20,7 @@ export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
     bio: userData?.bio || "",
     linkedin: userData?.linkedin || "",
     github: userData?.github || "",
+    publicName: userData?.publicName || "",
   });
   const { toast } = useToast();
 
@@ -28,12 +29,14 @@ export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
       bio: userData?.bio || "",
       linkedin: userData?.linkedin || "",
       github: userData?.github || "",
+      publicName: userData?.publicName || "",
     });
     setIsEditing(true);
   };
 
   const handleCancel = () => {
     setFormData({
+      publicName: userData?.publicName || "",
       bio: userData?.bio || "",
       linkedin: userData?.linkedin || "",
       github: userData?.github || "",
@@ -47,6 +50,7 @@ export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
     setIsSaving(true);
     try {
       // Update the userData instance
+      userData.publicName = formData.publicName || undefined;
       userData.bio = formData.bio || undefined;
       userData.linkedin = formData.linkedin || undefined;
       userData.github = formData.github || undefined;
@@ -121,6 +125,22 @@ export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
       </div>
 
       <div className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="publicName">Public Name</Label>
+          {isEditing ? (
+            <Input
+              id="publicName"
+              value={formData.publicName}
+              onChange={(e) => handleInputChange("publicName", e.target.value)}
+              placeholder="Your display name"
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {userData.publicName || "No public name provided"}
+            </p>
+          )}
+        </div>
+
         <div className="grid gap-2">
           <Label htmlFor="bio">Bio</Label>
           {isEditing ? (

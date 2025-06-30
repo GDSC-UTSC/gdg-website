@@ -4,6 +4,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Upload } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProfileImageUploadProps {
   onUpload: (file: File) => void | Promise<void>;
@@ -41,16 +42,35 @@ export function ProfileImageUpload({
           multiple={false}
         />
         
-        {selectedFiles.length > 0 && (
-          <Button
-            onClick={handleUpload}
-            disabled={isUploading}
-            className="w-full"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            {isUploading ? "Uploading..." : "Upload Profile Image"}
-          </Button>
-        )}
+        <AnimatePresence>
+          {selectedFiles.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={handleUpload}
+                  disabled={isUploading}
+                  className="w-full"
+                >
+                  <motion.div
+                    animate={isUploading ? { rotate: 360 } : { rotate: 0 }}
+                    transition={isUploading ? { duration: 1, repeat: Infinity, ease: "linear" } : {}}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                  </motion.div>
+                  {isUploading ? "Uploading..." : "Upload Profile Image"}
+                </Button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
