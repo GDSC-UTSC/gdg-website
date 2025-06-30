@@ -126,7 +126,7 @@ export default function AccountPage() {
               />
 
               <ProfileImageUpload
-                onSubmit={uploadProfileImage}
+                onUpload={uploadProfileImage}
                 isUploading={isUploading}
               />
 

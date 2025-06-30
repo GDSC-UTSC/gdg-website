@@ -5,81 +5,62 @@ import { useRef, useState } from "react";
 import { Button } from "./button";
 
 interface FileUploadProps {
-  onSubmit: (file: File) => void | Promise<void>;
-  onRemove?: () => void;
+  files: File[];
+  setFiles: (files: File[]) => void;
   accept?: string;
   maxSize?: number; // in MB
   className?: string;
-  previewUrl?: string;
   showPreview?: boolean;
-  isSubmitting?: boolean;
-  submitButtonText?: string;
-  clearOnSubmit?: boolean;
+  multiple?: boolean;
 }
 
 export function FileUpload({
-  onSubmit,
-  onRemove,
+  files,
+  setFiles,
   accept = "image/*",
   maxSize = 5,
   className,
-  previewUrl,
   showPreview = true,
-  isSubmitting = false,
-  submitButtonText = "Upload",
-  clearOnSubmit = true,
+  multiple = false,
 }: FileUploadProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(previewUrl || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const newFiles = Array.from(event.target.files || []);
+    if (newFiles.length === 0) return;
 
-    // Validate file size
-    if (file.size > maxSize * 1024 * 1024) {
-      alert(`File size must be less than ${maxSize}MB`);
-      return;
-    }
-
-    setSelectedFile(file);
-
-    // Create preview for images
-    if (showPreview && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!selectedFile) return;
-    try {
-      await onSubmit(selectedFile);
-      if (clearOnSubmit) {
-        // Clear the selected file and preview after successful submission
-        setSelectedFile(null);
-        setPreview(previewUrl || null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
+    // Validate file sizes
+    const validFiles = newFiles.filter(file => {
+      if (file.size > maxSize * 1024 * 1024) {
+        alert(`File "${file.name}" size must be less than ${maxSize}MB`);
+        return false;
       }
-    } catch (error) {
-      // Don't clear on error - let the user retry
-      console.error("Upload failed:", error);
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    // Add files to the array
+    if (multiple) {
+      setFiles([...files, ...validFiles]);
+    } else {
+      setFiles(validFiles.slice(0, 1)); // Only take the first file for single mode
     }
   };
 
-  const removeFile = () => {
-    setSelectedFile(null);
-    setPreview(null);
+  const removeFile = (index: number) => {
+    const newFiles = files.filter((_, i) => i !== index);
+    setFiles(newFiles);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-    onRemove?.();
+  };
+
+  const removeAllFiles = () => {
+    setFiles([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -97,6 +78,7 @@ export function FileUpload({
           ref={fileInputRef}
           type="file"
           accept={accept}
+          multiple={multiple}
           onChange={handleFileSelect}
           className="hidden"
           id="file-upload"
@@ -105,70 +87,64 @@ export function FileUpload({
           type="button"
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
-          disabled={isSubmitting}
         >
           <Upload className="w-4 h-4 mr-2" />
-          Select File
+          {multiple ? "Select Files" : "Select File"}
         </Button>
-        {selectedFile && (
+        {files.length > 0 && (
           <Button
             type="button"
-            variant="outline"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="min-w-[100px]"
+            variant="ghost"
+            onClick={removeAllFiles}
+            size="sm"
           >
-            {isSubmitting ? "Uploading..." : submitButtonText}
+            Clear All
           </Button>
         )}
       </div>
 
-      {/* Image Preview */}
-      {showPreview && preview && (
-        <div className="relative">
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-32 h-32 object-cover rounded-lg border border-gray-200"
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={removeFile}
-            className="absolute -top-2 -right-2 p-1 rounded-full bg-white border border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+      {/* File List */}
+      {files.length > 0 && (
+        <div className="space-y-3">
+          {files.map((file, index) => (
+            <div key={`${file.name}-${index}`} className="flex items-center justify-between p-3 border border-border rounded-lg bg-card">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                {showPreview && file.type.startsWith("image/") ? (
+                  <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden border border-border">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex-shrink-0 w-10 h-10 bg-muted rounded flex items-center justify-center">
+                    <Upload className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {file.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatFileSize(file.size)} • {file.type}
+                  </p>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeFile(index)}
+                className="flex-shrink-0 hover:bg-red-50 hover:text-red-500"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
         </div>
       )}
 
-      {selectedFile && !showPreview && (
-        <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="flex-shrink-0 w-8 h-8 bg-muted rounded flex items-center justify-center">
-              <Upload className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                {selectedFile.name}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {formatFileSize(selectedFile.size)} • {selectedFile.type}
-              </p>
-            </div>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={removeFile}
-            className="flex-shrink-0 hover:bg-red-50 hover:text-red-500"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
