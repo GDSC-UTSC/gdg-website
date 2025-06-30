@@ -1,10 +1,10 @@
 "use client";
-import { TeamMember } from "@/app/types/team";
+import { TeamMember } from "@/app/types/team/team";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Github, Linkedin, Mail } from "lucide-react";
+import { Github, Linkedin } from "lucide-react";
 
 interface TeamCardProps {
   member: TeamMember;
