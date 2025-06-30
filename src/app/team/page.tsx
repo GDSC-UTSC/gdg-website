@@ -1,6 +1,7 @@
 "use client";
 import { ROLE_ORDER, TeamMember } from "@/app/types/team/team";
 import TeamCard from "@/components/team/TeamCard";
+import PageTitle from "@/components/ui/PageTitle";
 import { motion } from "framer-motion";
 import { teamMembers } from "./team";
 
@@ -39,20 +40,11 @@ const TeamPage = () => {
     <div className="min-h-screen gradient-bg pt-20">
       <div className="container mx-auto px-4 py-20">
         {/* Page Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-5xl md:text-7xl font-bold mb-7 bg-gradient-to-bl from-foreground via-primary to-foreground bg-clip-text text-transparent">
-            Our Team
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-4xl mx-auto">
-            Meet the passionate individuals driving innovation and community
-            growth at GDG @ UTSC.
-          </p>
-        </motion.div>
+        <PageTitle 
+          title="Our Team"
+          description="Meet the passionate individuals driving innovation and community growth at GDG @ UTSC."
+          className="mb-16"
+        />
 
         {/* Team Sections */}
         {sortedRoles.map((role, roleIndex) => (
