@@ -1,5 +1,5 @@
 "use client";
-import { Project } from "@/app/types/project";
+import { Project } from "@/app/types/projects/project";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,7 +15,7 @@ import Link from "next/link";
 interface ProjectCardProps {
   project: Project;
   index: number;
-  languageColors?: any; // 
+  languageColors?: any; //
 }
 
 const ProjectCard = ({ project, index, languageColors }: ProjectCardProps) => {
