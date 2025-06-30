@@ -1,7 +1,7 @@
 "use client";
 import ProjectCard from "@/components/projects/ProjectCard";
 import { motion } from "framer-motion";
-import { Project } from "../types/project";
+import { Project } from "../types/projects/project";
 
 const ProjectsSection = () => {
   const projects: Project[] = [

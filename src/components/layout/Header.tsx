@@ -115,12 +115,9 @@ const Header = () => {
                     Positions
                   </Button>
                 </Link>
-              </nav>
-
-              {/* Auth Button */}
-              <div className=" md:flex ml-4">
+                {/* Auth Button */}
                 {loading ? (
-                  <Button variant="ghost" disabled className="text-sm">
+                  <Button variant="ghost" disabled className="text-sm lg:text-base px-3 lg:px-4">
                     Loading...
                   </Button>
                 ) : user ? (
@@ -142,7 +139,7 @@ const Header = () => {
                     </Button>
                   </Link>
                 )}
-              </div>
+              </nav>
             </div>
           </div>
         </div>

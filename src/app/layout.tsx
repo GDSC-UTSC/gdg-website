@@ -40,7 +40,9 @@ export default function RootLayout({
       <body className={`${inter.className} bg-black`}>
         <AuthProvider>
           <Header />
-          <Providers>{children}</Providers>
+          <main className="pt-20 md:pt-24">
+            <Providers>{children}</Providers>
+          </main>
           <Footer />
         </AuthProvider>
       </body>

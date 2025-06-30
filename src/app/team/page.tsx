@@ -1,5 +1,5 @@
 "use client";
-import { ROLE_ORDER, TeamMember } from "@/app/types/team";
+import { ROLE_ORDER, TeamMember } from "@/app/types/team/team";
 import TeamCard from "@/components/team/TeamCard";
 import { motion } from "framer-motion";
 import { teamMembers } from "./team";
