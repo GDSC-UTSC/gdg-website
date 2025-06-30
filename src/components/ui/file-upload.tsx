@@ -14,6 +14,7 @@ interface FileUploadProps {
   showPreview?: boolean;
   isSubmitting?: boolean;
   submitButtonText?: string;
+  clearOnSubmit?: boolean;
 }
 
 export function FileUpload({
@@ -26,6 +27,7 @@ export function FileUpload({
   showPreview = true,
   isSubmitting = false,
   submitButtonText = "Upload",
+  clearOnSubmit = true,
 }: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(previewUrl || null);
@@ -55,7 +57,20 @@ export function FileUpload({
 
   const handleSubmit = async () => {
     if (!selectedFile) return;
-    await onSubmit(selectedFile);
+    try {
+      await onSubmit(selectedFile);
+      if (clearOnSubmit) {
+        // Clear the selected file and preview after successful submission
+        setSelectedFile(null);
+        setPreview(previewUrl || null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    } catch (error) {
+      // Don't clear on error - let the user retry
+      console.error("Upload failed:", error);
+    }
   };
 
   const removeFile = () => {
@@ -89,7 +104,6 @@ export function FileUpload({
         <Button
           type="button"
           variant="outline"
-          className="cursor-pointer hover:bg-gray-50"
           onClick={() => fileInputRef.current?.click()}
           disabled={isSubmitting}
         >
@@ -99,6 +113,7 @@ export function FileUpload({
         {selectedFile && (
           <Button
             type="button"
+            variant="outline"
             onClick={handleSubmit}
             disabled={isSubmitting}
             className="min-w-[100px]"
@@ -121,7 +136,7 @@ export function FileUpload({
             variant="ghost"
             size="sm"
             onClick={removeFile}
-            className="absolute -top-2 -right-2 text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition-colors bg-white border border-gray-200"
+            className="absolute -top-2 -right-2 p-1 rounded-full bg-white border border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -129,26 +144,29 @@ export function FileUpload({
       )}
 
       {selectedFile && !showPreview && (
-        <div className="relative p-4 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 min-w-0 pr-4">
-              <p className="text-sm font-medium text-gray-900 truncate">
+        <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="flex-shrink-0 w-8 h-8 bg-muted rounded flex items-center justify-center">
+              <Upload className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">
                 {selectedFile.name}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 {formatFileSize(selectedFile.size)} • {selectedFile.type}
               </p>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={removeFile}
-              className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </Button>
           </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={removeFile}
+            className="flex-shrink-0 hover:bg-red-50 hover:text-red-500"
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
       )}
     </div>

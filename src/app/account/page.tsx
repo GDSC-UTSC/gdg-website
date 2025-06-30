@@ -1,9 +1,9 @@
 "use client";
 
 import { UserData } from "@/app/types/userdata";
+import { AccountDetails } from "@/components/account/AccountDetails";
 import { ProfileImage } from "@/components/account/ProfileImage";
 import { ProfileImageUpload } from "@/components/account/ProfileImageUpload";
-import { AccountDetails } from "@/components/account/AccountDetails";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
@@ -56,7 +56,7 @@ export default function AccountPage() {
     }
   }, [user, toast]);
 
-  const handleFileSelect = async (file: File) => {
+  const uploadProfileImage = async (file: File) => {
     if (!user || !userData) return;
 
     setIsUploading(true);
@@ -77,27 +77,6 @@ export default function AccountPage() {
       });
     } finally {
       setIsUploading(false);
-    }
-  };
-
-  const handleRemoveProfileImage = async () => {
-    if (!user || !userData || !profileImageUrl) return;
-
-    try {
-      await userData.deleteProfileImage();
-      setProfileImageUrl(null);
-
-      toast({
-        title: "Success",
-        description: "Profile image removed successfully!",
-      });
-    } catch (error) {
-      console.error("Error removing profile image:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove profile image. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -147,8 +126,7 @@ export default function AccountPage() {
               />
 
               <ProfileImageUpload
-                onSubmit={handleFileSelect}
-                onRemove={handleRemoveProfileImage}
+                onSubmit={uploadProfileImage}
                 isUploading={isUploading}
               />
 
