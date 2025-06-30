@@ -75,14 +75,6 @@ const Header = () => {
             {/* Navigation - centered on mobile and desktop */}
             <div className="flex justify-center md:justify-between items-center w-full md:w-auto">
               <nav className="flex items-center space-x-1 lg:space-x-2 flex-wrap justify-center gap-y-2">
-                <Link href="/about">
-                  <Button
-                    variant="ghost"
-                    className="transition-colors text-sm lg:text-base px-3 lg:px-4 text-foreground hover:text-primary"
-                  >
-                    About
-                  </Button>
-                </Link>
                 <Link href="/events">
                   <Button
                     variant="ghost"
@@ -117,7 +109,11 @@ const Header = () => {
                 </Link>
                 {/* Auth Button */}
                 {loading ? (
-                  <Button variant="ghost" disabled className="text-sm lg:text-base px-3 lg:px-4">
+                  <Button
+                    variant="ghost"
+                    disabled
+                    className="text-sm lg:text-base px-3 lg:px-4"
+                  >
                     Loading...
                   </Button>
                 ) : user ? (

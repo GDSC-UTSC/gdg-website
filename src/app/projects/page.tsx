@@ -1,6 +1,6 @@
 "use client";
 import ProjectCard from "@/components/projects/ProjectCard";
-import { motion } from "framer-motion";
+import PageTitle from "@/components/ui/PageTitle";
 import { Project } from "../types/projects/project";
 
 const ProjectsSection = () => {
@@ -68,17 +68,10 @@ const ProjectsSection = () => {
   return (
     <section id="projects" className="py-20 min-h-screen gradient-bg">
       <div className="container mx-auto px-4 pb-10 flex flex-col items-center justify-center gap-10">
-        <motion.h1
-          className="text-5xl md:text-7xl font-bold mb-7 bg-gradient-to-bl from-foreground via-primary to-foreground bg-clip-text text-transparent text-center"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          Projects
-          <div className="text-lg text-gray-400 text-center">
-            Explore our latest projects and contributions to the tech community.
-          </div>
-        </motion.h1>
+        <PageTitle 
+          title="Projects"
+          description="Explore our latest projects and contributions to the tech community."
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, index) => (
             <ProjectCard
