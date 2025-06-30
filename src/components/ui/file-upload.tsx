@@ -5,23 +5,27 @@ import { useRef, useState } from "react";
 import { Button } from "./button";
 
 interface FileUploadProps {
-  onFileSelect: (file: File) => void;
+  onSubmit: (file: File) => void | Promise<void>;
   onRemove?: () => void;
   accept?: string;
   maxSize?: number; // in MB
   className?: string;
   previewUrl?: string;
   showPreview?: boolean;
+  isSubmitting?: boolean;
+  submitButtonText?: string;
 }
 
 export function FileUpload({
-  onFileSelect,
+  onSubmit,
   onRemove,
   accept = "image/*",
   maxSize = 5,
   className,
   previewUrl,
   showPreview = true,
+  isSubmitting = false,
+  submitButtonText = "Upload",
 }: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(previewUrl || null);
@@ -38,7 +42,6 @@ export function FileUpload({
     }
 
     setSelectedFile(file);
-    onFileSelect(file);
 
     // Create preview for images
     if (showPreview && file.type.startsWith("image/")) {
@@ -48,6 +51,11 @@ export function FileUpload({
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedFile) return;
+    await onSubmit(selectedFile);
   };
 
   const removeFile = () => {
@@ -83,10 +91,21 @@ export function FileUpload({
           variant="outline"
           className="cursor-pointer hover:bg-gray-50"
           onClick={() => fileInputRef.current?.click()}
+          disabled={isSubmitting}
         >
           <Upload className="w-4 h-4 mr-2" />
           Select File
         </Button>
+        {selectedFile && (
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="min-w-[100px]"
+          >
+            {isSubmitting ? "Uploading..." : submitButtonText}
+          </Button>
+        )}
       </div>
 
       {/* Image Preview */}

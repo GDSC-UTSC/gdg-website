@@ -1,3 +1,6 @@
+import { doc, getDoc, addDoc, updateDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
 export type PositionType = {
   id: number;
   name: string;
@@ -58,9 +61,6 @@ export class Position {
   }
 
   async create(): Promise<string> {
-    const { addDoc, collection } = await import("firebase/firestore");
-    const { db } = await import("@/lib/firebase");
-
     const docRef = await addDoc(
       collection(db, "positions").withConverter(Position.converter),
       this
@@ -70,9 +70,6 @@ export class Position {
   }
 
   static async read(id: string): Promise<Position | null> {
-    const { doc, getDoc } = await import("firebase/firestore");
-    const { db } = await import("@/lib/firebase");
-
     const docSnap = await getDoc(
       doc(db, "positions", id).withConverter(Position.converter)
     );
@@ -83,9 +80,6 @@ export class Position {
   }
 
   static async readAll(): Promise<Position[]> {
-    const { collection, getDocs } = await import("firebase/firestore");
-    const { db } = await import("@/lib/firebase");
-
     const querySnapshot = await getDocs(
       collection(db, "positions").withConverter(Position.converter)
     );
@@ -93,9 +87,6 @@ export class Position {
   }
 
   async update(): Promise<void> {
-    const { doc, updateDoc } = await import("firebase/firestore");
-    const { db } = await import("@/lib/firebase");
-
     this.updatedAt = new Date();
     await updateDoc(
       doc(db, "positions", this.id.toString()),
@@ -104,9 +95,6 @@ export class Position {
   }
 
   async delete(): Promise<void> {
-    const { doc, deleteDoc } = await import("firebase/firestore");
-    const { db } = await import("@/lib/firebase");
-
     await deleteDoc(doc(db, "positions", this.id.toString()));
   }
 }

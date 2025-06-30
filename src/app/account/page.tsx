@@ -1,33 +1,109 @@
 "use client";
 
+import { UserData } from "@/app/types/userdata";
 import { ProfileImage } from "@/components/account/ProfileImage";
 import { ProfileImageUpload } from "@/components/account/ProfileImageUpload";
-import { ProfileInfo } from "@/components/account/ProfileInfo";
+import { AccountDetails } from "@/components/account/AccountDetails";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProfile } from "@/hooks/useProfile";
+import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function AccountPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const {
-    profileImageUrl,
-    isUploading,
-    isLoadingProfile,
-    handleFileSelect,
-    handleRemoveProfileImage,
-  } = useProfile(user);
+  const { toast } = useToast();
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/account/login");
     }
   }, [loading, user, router]);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!user) return;
+
+      try {
+        setIsLoadingProfile(true);
+        const userData = await UserData.read(user.uid);
+        if (userData) {
+          setUserData(userData);
+          setProfileImageUrl(userData.profileImageUrl || null);
+        }
+      } catch (error) {
+        console.error("Error loading user data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    if (user) {
+      loadUserData();
+    }
+  }, [user, toast]);
+
+  const handleFileSelect = async (file: File) => {
+    if (!user || !userData) return;
+
+    setIsUploading(true);
+    try {
+      const downloadURL = await userData.uploadProfileImage(file);
+      setProfileImageUrl(downloadURL);
+
+      toast({
+        title: "Success",
+        description: "Profile image uploaded successfully!",
+      });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload profile image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveProfileImage = async () => {
+    if (!user || !userData || !profileImageUrl) return;
+
+    try {
+      await userData.deleteProfileImage();
+      setProfileImageUrl(null);
+
+      toast({
+        title: "Success",
+        description: "Profile image removed successfully!",
+      });
+    } catch (error) {
+      console.error("Error removing profile image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove profile image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUserDataUpdate = (updatedUserData: UserData) => {
+    setUserData(updatedUserData);
+  };
 
   const handleSignOut = async () => {
     try {
@@ -65,10 +141,13 @@ export default function AccountPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              <ProfileInfo user={user} />
+              <AccountDetails
+                userData={userData}
+                onUpdate={handleUserDataUpdate}
+              />
 
               <ProfileImageUpload
-                onFileSelect={handleFileSelect}
+                onSubmit={handleFileSelect}
                 onRemove={handleRemoveProfileImage}
                 isUploading={isUploading}
               />
