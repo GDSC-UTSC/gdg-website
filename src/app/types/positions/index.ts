@@ -1,13 +1,23 @@
-import { doc, getDoc, addDoc, updateDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  serverTimestamp,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
 
 export type PositionType = {
   id: number;
   name: string;
   description: string;
   tags: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
   status: "draft" | "active" | "inactive";
 };
 
@@ -16,8 +26,8 @@ export class Position {
   name: string;
   description: string;
   tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
   status: "draft" | "active" | "inactive";
 
   constructor(data: PositionType) {
@@ -25,8 +35,8 @@ export class Position {
     this.name = data.name;
     this.description = data.description;
     this.tags = data.tags;
-    this.createdAt = new Date(data.createdAt);
-    this.updatedAt = new Date(data.updatedAt);
+    this.createdAt = data.createdAt || (serverTimestamp() as Timestamp);
+    this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
     this.status = data.status;
   }
   static converter = {
@@ -35,8 +45,8 @@ export class Position {
         name: position.name,
         description: position.description,
         tags: position.tags,
-        createdAt: position.createdAt.toISOString(),
-        updatedAt: position.updatedAt.toISOString(),
+        createdAt: position.createdAt,
+        updatedAt: serverTimestamp(),
         status: position.status,
       };
     },
@@ -87,7 +97,6 @@ export class Position {
   }
 
   async update(): Promise<void> {
-    this.updatedAt = new Date();
     await updateDoc(
       doc(db, "positions", this.id.toString()),
       Position.converter.toFirestore(this)

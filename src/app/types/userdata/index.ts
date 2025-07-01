@@ -1,19 +1,21 @@
 import { db } from "@/lib/firebase";
-import { deleteProfileImage, uploadProfileImage } from "@/lib/storage";
+import { deleteFile, uploadFile } from "@/lib/storage";
 import {
   collection,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
+  serverTimestamp,
   setDoc,
+  Timestamp,
   updateDoc,
 } from "firebase/firestore";
 
 export interface UserDataType {
   id: string;
   publicName?: string;
-  updatedAt: Date;
+  updatedAt: Timestamp;
   profileImageUrl?: string;
   bio?: string;
   linkedin?: string;
@@ -23,7 +25,7 @@ export interface UserDataType {
 export class UserData {
   id: string;
   publicName?: string;
-  updatedAt: Date;
+  updatedAt: Timestamp;
   profileImageUrl?: string;
   bio?: string;
   linkedin?: string;
@@ -31,7 +33,7 @@ export class UserData {
   constructor(data: UserDataType) {
     this.id = data.id;
     this.publicName = data.publicName;
-    this.updatedAt = new Date(data.updatedAt);
+    this.updatedAt = data.updatedAt || serverTimestamp() as Timestamp;
     this.profileImageUrl = data.profileImageUrl;
     this.bio = data.bio;
     this.linkedin = data.linkedin;
@@ -42,7 +44,7 @@ export class UserData {
     toFirestore: (user: UserData) => {
       return {
         publicName: user.publicName,
-        updatedAt: user.updatedAt.toISOString(),
+        updatedAt: serverTimestamp(),
         profileImageUrl: user.profileImageUrl,
         bio: user.bio,
         linkedin: user.linkedin,
@@ -93,7 +95,6 @@ export class UserData {
   }
 
   async update(): Promise<void> {
-    this.updatedAt = new Date();
     await updateDoc(
       doc(db, "users", this.id),
       UserData.converter.toFirestore(this)
@@ -105,14 +106,16 @@ export class UserData {
   }
 
   async uploadProfileImage(file: File): Promise<string> {
-    const downloadURL = await uploadProfileImage(this.id, file);
+    if (this.profileImageUrl) {
+      // If there's an existing profile image, delete it first
+      await this.deleteProfileImage();
+    }
+    const { downloadURL } = await uploadFile(
+      file,
+      `users/${this.id}/profile/image`
+    );
     this.profileImageUrl = downloadURL;
-    this.updatedAt = new Date();
-
-    await updateDoc(doc(db, "users", this.id), {
-      profileImageUrl: downloadURL,
-      updatedAt: this.updatedAt.toISOString(),
-    });
+    await this.update();
 
     return downloadURL;
   }
@@ -120,16 +123,9 @@ export class UserData {
   async deleteProfileImage(): Promise<void> {
     if (!this.profileImageUrl) return;
 
-    const urlParts = this.profileImageUrl.split("/");
-    const fileName = urlParts[urlParts.length - 1].split("?")[0];
-
-    await deleteProfileImage(this.id, fileName);
+    await deleteFile(`users/${this.id}/profile/image`);
     this.profileImageUrl = undefined;
-    this.updatedAt = new Date();
 
-    await updateDoc(doc(db, "users", this.id), {
-      profileImageUrl: null,
-      updatedAt: this.updatedAt.toISOString(),
-    });
+    await this.update();
   }
 }

@@ -3,6 +3,7 @@
 import { Position } from "@/app/types/positions";
 import PositionCard from "@/components/positions/PositionCard";
 import PageTitle from "@/components/ui/PageTitle";
+import { Timestamp } from "@firebase/firestore";
 
 const samplePositions: Position[] = [
   new Position({
@@ -11,8 +12,8 @@ const samplePositions: Position[] = [
     description:
       "Join our team as a Frontend Developer to build amazing user interfaces using React, Next.js, and modern web technologies. You'll work on creating responsive, accessible, and performant web applications.",
     tags: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
     status: "active",
   }),
   new Position({
@@ -21,8 +22,8 @@ const samplePositions: Position[] = [
     description:
       "We're looking for a creative UI/UX Designer to help design intuitive and beautiful user experiences. You'll collaborate with developers and stakeholders to create user-centered designs.",
     tags: ["Figma", "Adobe Creative Suite", "User Research", "Prototyping"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
     status: "active",
   }),
   new Position({
@@ -31,8 +32,8 @@ const samplePositions: Position[] = [
     description:
       "Join us as a Backend Developer Intern to gain hands-on experience with server-side development, APIs, and database management. Perfect opportunity for students looking to grow their skills.",
     tags: ["Node.js", "Python", "Firebase", "REST APIs"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
     status: "draft",
   }),
 ];
@@ -41,7 +42,7 @@ export default function PositionsPage() {
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
-        <PageTitle 
+        <PageTitle
           title="Open Positions"
           description="Join our team and help us build amazing projects. We're always looking for talented individuals to contribute to our community."
         />
