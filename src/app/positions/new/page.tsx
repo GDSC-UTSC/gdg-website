@@ -6,13 +6,14 @@ import { Position, PositionType, QuestionType } from "@/app/types/positions";
 import { Button } from "@/components/ui/button";
 import { TextInput, TextareaInput, SelectInput } from "@/components/positions/questions";
 import QuestionBuilder from "@/components/positions/QuestionBuilder";
+import TagsInput from "@/components/ui/tags-input";
 import { toast } from "sonner";
 import { Timestamp } from "firebase/firestore";
 
 type FormData = {
   name: string;
   description: string;
-  tags: string;
+  tags: string[];
   status: "draft" | "active" | "inactive";
   questions: QuestionType[];
 };
@@ -23,7 +24,7 @@ export default function NewPositionPage() {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     description: "",
-    tags: "",
+    tags: [],
     status: "draft",
     questions: [],
   });
@@ -34,16 +35,11 @@ export default function NewPositionPage() {
     setIsSubmitting(true);
 
     try {
-      const tagsArray = formData.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0);
-
       const positionData: PositionType = {
         id: "", // Will be set by Firebase
         name: formData.name,
         description: formData.description,
-        tags: tagsArray,
+        tags: formData.tags,
         status: formData.status,
         createdAt: Timestamp.now(), // Will be overridden by serverTimestamp
         updatedAt: Timestamp.now(), // Will be overridden by serverTimestamp
@@ -94,16 +90,13 @@ export default function NewPositionPage() {
               rows={8}
             />
 
-            <TextInput
+            <TagsInput
               id="tags"
               label="Skills/Tags"
               value={formData.tags}
-              onChange={(value) => setFormData(prev => ({ ...prev, tags: value }))}
-              placeholder="React, TypeScript, Next.js (comma-separated)"
+              onChange={(tags) => setFormData(prev => ({ ...prev, tags }))}
+              placeholder="Type a skill and press Enter..."
             />
-            <p className="text-sm text-muted-foreground -mt-2">
-              Enter skills or technologies separated by commas
-            </p>
 
             <SelectInput
               id="status"

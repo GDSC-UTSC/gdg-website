@@ -106,18 +106,23 @@ export class UserData implements UserDataType {
   }
 
   async uploadProfileImage(file: File): Promise<string> {
-    if (this.profileImageUrl) {
-      // If there's an existing profile image, delete it first
-      await this.deleteProfileImage();
-    }
-    const { downloadURL } = await uploadFile(
-      file,
-      `users/${this.id}/profile/image`
-    );
-    this.profileImageUrl = downloadURL;
-    await this.update();
+    try {
+      if (this.profileImageUrl) {
+        // If there's an existing profile image, delete it first
+        await this.deleteProfileImage();
+      }
+    } catch (error) {
+      console.error("Error deleting existing profile image:", error);
+    } finally {
+      const { downloadURL } = await uploadFile(
+        file,
+        `users/${this.id}/profile/image`
+      );
+      this.profileImageUrl = downloadURL;
+      await this.update();
 
-    return downloadURL;
+      return downloadURL;
+    }
   }
 
   async deleteProfileImage(): Promise<void> {
