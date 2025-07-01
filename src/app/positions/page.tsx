@@ -3,9 +3,12 @@
 import { Position } from "@/app/types/positions";
 import PositionCard from "@/components/positions/PositionCard";
 import PageTitle from "@/components/ui/PageTitle";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function PositionsPage() {
+  const router = useRouter();
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,6 +46,15 @@ export default function PositionsPage() {
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
+        <div className="flex justify-end mb-6">
+          <Button 
+            onClick={() => router.push('/positions/new')}
+            className="px-6 py-2"
+          >
+            Create New Position
+          </Button>
+        </div>
+        
         <PageTitle
           title="Open Positions"
           description="Join our team and help us build amazing projects. We're always looking for talented individuals to contribute to our community."
