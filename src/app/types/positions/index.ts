@@ -19,6 +19,14 @@ export type PositionType = {
   createdAt: Timestamp;
   updatedAt: Timestamp;
   status: "draft" | "active" | "inactive";
+  questions?: QuestionType[];
+};
+
+export type QuestionType = {
+  type: "text" | "textarea" | "select" | "checkbox" | "file";
+  label: string;
+  options?: string[]; // For select and checkbox types
+  required?: boolean;
 };
 
 export class Position {
