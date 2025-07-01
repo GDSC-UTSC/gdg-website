@@ -13,20 +13,22 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [newQuestion, setNewQuestion] = useState<QuestionType>({
     type: "text",
-    question: "",
-    options: [],
+    label: "",
+    options: undefined,
     required: false,
   });
+  const [optionsText, setOptionsText] = useState("");
 
   const addQuestion = () => {
-    if (newQuestion.question.trim()) {
+    if (newQuestion.label.trim()) {
       onChange([...questions, { ...newQuestion }]);
       setNewQuestion({
         type: "text",
-        question: "",
-        options: [],
+        label: "",
+        options: undefined,
         required: false,
       });
+      setOptionsText("");
     }
   };
 
@@ -43,10 +45,10 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
   };
 
   const handleNewQuestionOptionsChange = (optionsString: string) => {
-    const options = optionsString
-      .split(",")
-      .map((opt) => opt.trim())
-      .filter((opt) => opt.length > 0);
+    setOptionsText(optionsString);
+    const options = optionsString.length > 0
+      ? optionsString.split(",").map((opt) => opt.trim()).filter((opt) => opt.length > 0)
+      : [];
     setNewQuestion({ ...newQuestion, options });
   };
 
@@ -91,8 +93,8 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-2">{question.question}</p>
-                {question.options.length > 0 && (
+                <p className="text-sm text-muted-foreground mb-2">{question.label}</p>
+                {question.options && question.options.length > 0 && (
                   <div className="text-xs text-muted-foreground">
                     Options: {question.options.join(", ")}
                   </div>
@@ -113,7 +115,15 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
             id="question-type"
             label="Question Type"
             value={newQuestion.type}
-            onChange={(value) => setNewQuestion({ ...newQuestion, type: value as QuestionType["type"] })}
+            onChange={(value) => {
+              const newType = value as QuestionType["type"];
+              setNewQuestion({
+                ...newQuestion,
+                type: newType,
+                options: needsOptions(newType) ? [] : undefined
+              });
+              setOptionsText("");
+            }}
             options={[
               { value: "text", label: "Text Input" },
               { value: "textarea", label: "Long Text" },
@@ -126,10 +136,9 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
           <TextareaInput
             id="question-text"
             label="Question"
-            value={newQuestion.question}
-            onChange={(value) => setNewQuestion({ ...newQuestion, question: value })}
+            value={newQuestion.label}
+            onChange={(value) => setNewQuestion({ ...newQuestion, label: value })}
             placeholder="Enter your question here..."
-            required
             rows={3}
           />
 
@@ -137,7 +146,7 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
             <TextInput
               id="question-options"
               label="Options"
-              value={newQuestion.options.join(", ")}
+              value={optionsText}
               onChange={handleNewQuestionOptionsChange}
               placeholder="Option 1, Option 2, Option 3"
             />
@@ -156,7 +165,7 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
             </label>
           </div>
 
-          <Button type="button" onClick={addQuestion} disabled={!newQuestion.question.trim()}>
+          <Button type="button" onClick={addQuestion} disabled={!newQuestion.label.trim()}>
             Add Question
           </Button>
         </CardContent>

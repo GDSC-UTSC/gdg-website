@@ -6,20 +6,22 @@ import {
   doc,
   getDoc,
   getDocs,
+  query,
   serverTimestamp,
   Timestamp,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
 export type PositionType = {
-  id: number;
+  id: string;
   name: string;
   description: string;
   tags: string[];
   createdAt: Timestamp;
   updatedAt: Timestamp;
   status: "draft" | "active" | "inactive";
-  questions?: QuestionType[];
+  questions: QuestionType[];
 };
 
 export type QuestionType = {
@@ -29,14 +31,15 @@ export type QuestionType = {
   required?: boolean;
 };
 
-export class Position {
-  id: number;
+export class Position implements PositionType {
+  id: string;
   name: string;
   description: string;
   tags: string[];
   createdAt: Timestamp;
   updatedAt: Timestamp;
   status: "draft" | "active" | "inactive";
+  questions: QuestionType[];
 
   constructor(data: PositionType) {
     this.id = data.id;
@@ -46,6 +49,7 @@ export class Position {
     this.createdAt = data.createdAt || (serverTimestamp() as Timestamp);
     this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
     this.status = data.status;
+    this.questions = data.questions || [];
   }
   static converter = {
     toFirestore: (position: Position) => {
@@ -56,18 +60,20 @@ export class Position {
         createdAt: position.createdAt,
         updatedAt: serverTimestamp(),
         status: position.status,
+        questions: position.questions,
       };
     },
     fromFirestore: (snapshot: any, options: any) => {
       const data = snapshot.data(options);
       return new Position({
-        id: parseInt(snapshot.id),
+        id: snapshot.id,
         name: data.name,
         description: data.description,
         tags: data.tags,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
         status: data.status,
+        questions: data.questions || [],
       });
     },
   };
@@ -83,7 +89,7 @@ export class Position {
       collection(db, "positions").withConverter(Position.converter),
       this
     );
-    this.id = parseInt(docRef.id);
+    this.id = docRef.id;
     return docRef.id;
   }
 
@@ -104,6 +110,15 @@ export class Position {
     return querySnapshot.docs.map((doc) => doc.data());
   }
 
+  static async readAllActive(): Promise<Position[]> {
+    const querySnapshot = await getDocs(
+      query(
+        collection(db, "positions").withConverter(Position.converter),
+        where("status", "==", "active")
+      )
+    );
+    return querySnapshot.docs.map((doc) => doc.data());
+  }
   async update(): Promise<void> {
     await updateDoc(
       doc(db, "positions", this.id.toString()),

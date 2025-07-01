@@ -40,7 +40,7 @@ export default function NewPositionPage() {
         .filter((tag) => tag.length > 0);
 
       const positionData: PositionType = {
-        id: 0, // Will be set by Firebase
+        id: "", // Will be set by Firebase
         name: formData.name,
         description: formData.description,
         tags: tagsArray,

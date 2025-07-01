@@ -22,7 +22,7 @@ export interface UserDataType {
   github?: string;
 }
 
-export class UserData {
+export class UserData implements UserDataType {
   id: string;
   publicName?: string;
   updatedAt: Timestamp;
@@ -33,7 +33,7 @@ export class UserData {
   constructor(data: UserDataType) {
     this.id = data.id;
     this.publicName = data.publicName;
-    this.updatedAt = data.updatedAt || serverTimestamp() as Timestamp;
+    this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
     this.profileImageUrl = data.profileImageUrl;
     this.bio = data.bio;
     this.linkedin = data.linkedin;
