@@ -1,33 +1,55 @@
-import { doc, getDoc, addDoc, updateDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  serverTimestamp,
+  Timestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 
 export type PositionType = {
-  id: number;
+  id: string;
   name: string;
   description: string;
   tags: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
   status: "draft" | "active" | "inactive";
+  questions: QuestionType[];
 };
 
-export class Position {
-  id: number;
+export type QuestionType = {
+  type: "text" | "textarea" | "select" | "checkbox" | "file";
+  label: string;
+  options?: string[]; // For select and checkbox types
+  required?: boolean;
+};
+
+export class Position implements PositionType {
+  id: string;
   name: string;
   description: string;
   tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
   status: "draft" | "active" | "inactive";
+  questions: QuestionType[];
 
   constructor(data: PositionType) {
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
     this.tags = data.tags;
-    this.createdAt = new Date(data.createdAt);
-    this.updatedAt = new Date(data.updatedAt);
+    this.createdAt = data.createdAt || (serverTimestamp() as Timestamp);
+    this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
     this.status = data.status;
+    this.questions = data.questions || [];
   }
   static converter = {
     toFirestore: (position: Position) => {
@@ -35,21 +57,23 @@ export class Position {
         name: position.name,
         description: position.description,
         tags: position.tags,
-        createdAt: position.createdAt.toISOString(),
-        updatedAt: position.updatedAt.toISOString(),
+        createdAt: position.createdAt,
+        updatedAt: serverTimestamp(),
         status: position.status,
+        questions: position.questions,
       };
     },
     fromFirestore: (snapshot: any, options: any) => {
       const data = snapshot.data(options);
       return new Position({
-        id: parseInt(snapshot.id),
+        id: snapshot.id,
         name: data.name,
         description: data.description,
         tags: data.tags,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
         status: data.status,
+        questions: data.questions || [],
       });
     },
   };
@@ -65,7 +89,7 @@ export class Position {
       collection(db, "positions").withConverter(Position.converter),
       this
     );
-    this.id = parseInt(docRef.id);
+    this.id = docRef.id;
     return docRef.id;
   }
 
@@ -86,8 +110,16 @@ export class Position {
     return querySnapshot.docs.map((doc) => doc.data());
   }
 
+  static async readAllActive(): Promise<Position[]> {
+    const querySnapshot = await getDocs(
+      query(
+        collection(db, "positions").withConverter(Position.converter),
+        where("status", "==", "active")
+      )
+    );
+    return querySnapshot.docs.map((doc) => doc.data());
+  }
   async update(): Promise<void> {
-    this.updatedAt = new Date();
     await updateDoc(
       doc(db, "positions", this.id.toString()),
       Position.converter.toFirestore(this)
