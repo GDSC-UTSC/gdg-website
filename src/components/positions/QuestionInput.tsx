@@ -20,7 +20,9 @@ export default function QuestionInput({
   onChange,
   index,
 }: QuestionInputProps) {
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<File[]>(
+    value && value instanceof File ? [value] : []
+  );
 
   const handleFilesChange = (newFiles: File[]) => {
     setFiles(newFiles);
@@ -28,7 +30,13 @@ export default function QuestionInput({
   };
 
   const handleCheckboxChange = (option: string, checked: boolean) => {
-    const currentValues = Array.isArray(value) ? value : [];
+    // Parse the current value to get the array
+    const currentValues = typeof value === 'string' && value 
+      ? value.split(', ').filter(Boolean) 
+      : Array.isArray(value) 
+        ? value 
+        : [];
+        
     if (checked) {
       onChange([...currentValues, option]);
     } else {
@@ -77,13 +85,20 @@ export default function QuestionInput({
         );
 
       case "checkbox":
+        // Parse the string value back to array for checkboxes
+        const selectedOptions = typeof value === 'string' && value 
+          ? value.split(', ').filter(Boolean) 
+          : Array.isArray(value) 
+            ? value 
+            : [];
+            
         return (
           <div className="space-y-3">
             {question.options?.map((option) => (
               <div key={option} className="flex items-center space-x-2">
                 <Checkbox
                   id={`${index}-${option}`}
-                  checked={Array.isArray(value) ? value.includes(option) : false}
+                  checked={selectedOptions.includes(option)}
                   onCheckedChange={(checked) =>
                     handleCheckboxChange(option, checked as boolean)
                   }

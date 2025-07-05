@@ -35,27 +35,6 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
     fetchPosition();
   }, [id]);
 
-  const handleApplicationSubmit = async (formData: Record<string, any>) => {
-    setSubmitting(true);
-    
-    try {
-      // TODO: Implement application submission logic
-      console.log("Application submitted:", { positionId: id, answers: formData });
-      // You would typically send this to your backend/Firebase
-      alert("Application submitted successfully!");
-      router.push("/positions");
-    } catch (error) {
-      console.error("Error submitting application:", error);
-      alert("Error submitting application. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleCancel = () => {
-    router.push("/positions");
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen py-12">
@@ -100,14 +79,14 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
         </div>
 
         <div className="text-center mb-12">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl font-bold mb-4"
           >
             {position.name}
           </motion.h1>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -125,7 +104,7 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
             >
               {position.status.charAt(0).toUpperCase() + position.status.slice(1)}
             </span>
-            
+
             {position.tags.map((tag, index) => (
               <span
                 key={index}
@@ -150,7 +129,7 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
                 {position.description}
               </p>
             </div>
-            
+
             <div className="mt-8 pt-6 border-t border-border/50">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                 <div>
@@ -177,9 +156,6 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
         >
           <ApplicationForm
             position={position}
-            onSubmit={handleApplicationSubmit}
-            onCancel={handleCancel}
-            isSubmitting={submitting}
           />
         </motion.div>
       </div>

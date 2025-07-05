@@ -1,12 +1,12 @@
 import { db } from "@/lib/firebase";
 import { uploadFile } from "@/lib/storage";
 import {
-  addDoc,
   collection,
   doc,
   getDoc,
   getDocs,
   serverTimestamp,
+  setDoc,
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
@@ -66,13 +66,8 @@ export class Application implements ApplicationType {
   };
 
   async create(positionId: string): Promise<string> {
-    const docRef = await addDoc(
-      collection(db, "applications", positionId).withConverter(
-        Application.converter
-      ),
-      this
-    );
-    this.id = docRef.id;
+    const docRef = doc(db, "positions", positionId, "applications", this.id);
+    await setDoc(docRef.withConverter(Application.converter), this);
     return this.id;
   }
 
@@ -81,7 +76,7 @@ export class Application implements ApplicationType {
     userId: string
   ): Promise<Application | null> {
     const docSnap = await getDoc(
-      doc(db, "applications", positionId, userId).withConverter(
+      doc(db, "positions", positionId, "applications", userId).withConverter(
         Application.converter
       )
     );
@@ -93,7 +88,7 @@ export class Application implements ApplicationType {
 
   static async readAll(positionId: string): Promise<Application[]> {
     const querySnapshot = await getDocs(
-      collection(db, "applications", positionId).withConverter(
+      collection(db, "positions", positionId, "applications").withConverter(
         Application.converter
       )
     );
@@ -103,7 +98,7 @@ export class Application implements ApplicationType {
   async update(): Promise<void> {
     const converter = Application.converter;
     await updateDoc(
-      doc(db, "applications", this.id),
+      doc(db, "positions", this.id, "applications", this.id),
       converter.toFirestore(this)
     );
   }
@@ -126,7 +121,7 @@ export class Application implements ApplicationType {
     userId: string,
     filename: string
   ): Promise<string> {
-    const filePath = `applications/${positionId}/${userId}/${filename}`;
+    const filePath = `positions/${positionId}/applications/${userId}/${filename}`;
     const { downloadURL } = await uploadFile(file, filePath);
     return downloadURL;
   }

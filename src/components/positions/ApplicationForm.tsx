@@ -1,34 +1,42 @@
+import { Application } from "@/app/types/applications";
 import { Position } from "@/app/types/positions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, CheckCircle, Send, X } from "lucide-react";
+import { AlertCircle, Send } from "lucide-react";
 import { useState } from "react";
 import QuestionInput from "./QuestionInput";
 
 interface ApplicationFormProps {
   position: Position;
-  onSubmit: (formData: Record<string, any>) => void;
-  onCancel: () => void;
-  isSubmitting?: boolean;
 }
 
-export default function ApplicationForm({
-  position,
-  onSubmit,
-  onCancel,
-  isSubmitting = false,
-}: ApplicationFormProps) {
-  const [formData, setFormData] = useState<Record<string, any>>({});
+export default function ApplicationForm({ position }: ApplicationFormProps) {
+  const { user } = useAuth();
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [applicantName, setApplicantName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (questionLabel: string, value: any) => {
+    let stringValue: string;
+
+    if (Array.isArray(value)) {
+      stringValue = value.join(", ");
+    } else if (typeof value === "string") {
+      stringValue = value;
+    } else {
+      stringValue = String(value);
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [questionLabel]: value,
+      [questionLabel]: stringValue,
     }));
 
-    // Clear error when user starts typing
     if (errors[questionLabel]) {
       setErrors((prev) => ({
         ...prev,
@@ -39,6 +47,13 @@ export default function ApplicationForm({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+
+    if (!applicantName.trim()) {
+      newErrors.applicantName = "Name is required";
+    }
+    if (!user?.email) {
+      newErrors.auth = "You must be logged in to submit an application";
+    }
 
     position.questions.forEach((question) => {
       if (question.required) {
@@ -56,61 +71,26 @@ export default function ApplicationForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      onSubmit(formData);
+    if (validateForm() && user?.email) {
+      const application = new Application({
+        id: user.uid,
+        name: applicantName,
+        email: user.email,
+        quesitons: formData,
+        status: "pending",
+        createdAt: new Date() as any,
+        updatedAt: new Date() as any,
+      });
+      console.log(user.uid);
+      application.create(position.id);
     }
   };
 
   if (!position.questions || position.questions.length === 0) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-2xl mx-auto"
-      >
-        <Card className="p-8 text-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
-          >
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          </motion.div>
-          <h3 className="text-2xl font-semibold mb-4">Ready to Apply</h3>
-          <p className="text-muted-foreground mb-8 text-lg">
-            This position doesn't have any application questions. You can apply
-            directly.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                onClick={() => onSubmit({})}
-                disabled={isSubmitting}
-                size="lg"
-                className="px-8"
-              >
-                <Send className="w-4 h-4 mr-2" />
-                {isSubmitting ? "Submitting..." : "Submit Application"}
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                variant="outline"
-                onClick={onCancel}
-                size="lg"
-                className="px-8"
-              >
-                <X className="w-4 h-4 mr-2" />
-                Cancel
-              </Button>
-            </motion.div>
-          </div>
-        </Card>
-      </motion.div>
-    );
+    return null;
   }
 
   return (
@@ -135,7 +115,81 @@ export default function ApplicationForm({
           </p>
         </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleFormSubmit} className="space-y-8">
+          {/* Applicant Information */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-6"
+          >
+            <div className="bg-muted/30 p-6 rounded-lg border border-border/50">
+              <h3 className="text-lg font-semibold mb-4">
+                Applicant Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="applicantName">
+                    Full Name <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="applicantName"
+                    type="text"
+                    value={applicantName}
+                    onChange={(e) => {
+                      setApplicantName(e.target.value);
+                      if (errors.applicantName) {
+                        setErrors((prev) => ({ ...prev, applicantName: "" }));
+                      }
+                    }}
+                    placeholder="Enter your full name"
+                    className={errors.applicantName ? "border-red-500" : ""}
+                  />
+                  <AnimatePresence>
+                    {errors.applicantName && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center gap-2 text-red-500 text-sm"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.applicantName}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="applicantEmail">Email Address</Label>
+                  <Input
+                    id="applicantEmail"
+                    type="email"
+                    value={user?.email || ""}
+                    disabled
+                    placeholder="Email from your account"
+                    className="bg-muted/50"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Using email from your logged-in account
+                  </p>
+                </div>
+              </div>
+              <AnimatePresence>
+                {errors.auth && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-center gap-2 text-red-500 text-sm mt-4"
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.auth}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+
+          {/* Application Questions */}
           <AnimatePresence mode="wait">
             {position.questions.map((question, index) => (
               <motion.div
@@ -200,22 +254,6 @@ export default function ApplicationForm({
                 {isSubmitting
                   ? "Submitting Application..."
                   : "Submit Application"}
-              </Button>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex-1"
-            >
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                className="w-full h-12 text-lg font-semibold"
-                size="lg"
-              >
-                <X className="w-5 h-5 mr-2" />
-                Cancel
               </Button>
             </motion.div>
           </motion.div>
