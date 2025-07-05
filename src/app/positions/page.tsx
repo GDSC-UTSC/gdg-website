@@ -65,10 +65,6 @@ export default function PositionsPage() {
             <PositionCard
               key={position.id}
               position={position}
-              onApply={(position) => {
-                console.log("Apply clicked for:", position.name);
-                // TODO: Implement application logic
-              }}
             />
           ))}
         </div>

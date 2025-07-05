@@ -1,0 +1,188 @@
+"use client";
+
+import { Position } from "@/app/types/positions";
+import PageTitle from "@/components/ui/PageTitle";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useEffect, useState, use } from "react";
+import { useRouter } from "next/navigation";
+import ApplicationForm from "@/components/positions/ApplicationForm";
+import { motion } from "framer-motion";
+
+interface PositionDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function PositionDetailPage({ params }: PositionDetailPageProps) {
+  const router = useRouter();
+  const { id } = use(params);
+  const [position, setPosition] = useState<Position | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchPosition = async () => {
+      try {
+        const fetchedPosition = await Position.read(id);
+        setPosition(fetchedPosition);
+      } catch (error) {
+        console.error("Error fetching position:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosition();
+  }, [id]);
+
+  const handleApplicationSubmit = async (formData: Record<string, any>) => {
+    setSubmitting(true);
+    
+    try {
+      // TODO: Implement application submission logic
+      console.log("Application submitted:", { positionId: id, answers: formData });
+      // You would typically send this to your backend/Firebase
+      alert("Application submitted successfully!");
+      router.push("/positions");
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      alert("Error submitting application. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    router.push("/positions");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-12">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading position...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!position) {
+    return (
+      <div className="min-h-screen py-12">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold mb-4">Position Not Found</h1>
+            <p className="text-muted-foreground mb-6">
+              The position you're looking for doesn't exist or has been removed.
+            </p>
+            <Button onClick={() => router.push("/positions")}>
+              Back to Positions
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen py-12">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/positions")}
+            className="mb-4"
+          >
+            ← Back to Positions
+          </Button>
+        </div>
+
+        <div className="text-center mb-12">
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold mb-4"
+          >
+            {position.name}
+          </motion.h1>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex items-center justify-center gap-4 flex-wrap"
+          >
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                position.isActive
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : position.isDraft
+                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                  : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+              }`}
+            >
+              {position.status.charAt(0).toUpperCase() + position.status.slice(1)}
+            </span>
+            
+            {position.tags.map((tag, index) => (
+              <span
+                key={index}
+                className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium"
+              >
+                {tag}
+              </span>
+            ))}
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-12"
+        >
+          <Card className="p-8">
+            <h2 className="text-2xl font-semibold mb-6">Position Description</h2>
+            <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed">
+              <p className="whitespace-pre-wrap text-muted-foreground">
+                {position.description}
+              </p>
+            </div>
+            
+            <div className="mt-8 pt-6 border-t border-border/50">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div>
+                  <p className="text-sm text-muted-foreground">Created</p>
+                  <p className="font-medium">{position.createdAt.toDate().toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Last Updated</p>
+                  <p className="font-medium">{position.updatedAt.toDate().toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Application Questions</p>
+                  <p className="font-medium">{position.questions?.length || 0} question(s)</p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <ApplicationForm
+            position={position}
+            onSubmit={handleApplicationSubmit}
+            onCancel={handleCancel}
+            isSubmitting={submitting}
+          />
+        </motion.div>
+      </div>
+    </div>
+  );
+}

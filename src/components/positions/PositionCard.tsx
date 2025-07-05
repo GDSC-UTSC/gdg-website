@@ -1,6 +1,7 @@
 import { Position } from "@/app/types/positions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 interface PositionCardProps {
   position: Position;
@@ -8,10 +9,10 @@ interface PositionCardProps {
 }
 
 export default function PositionCard({ position, onApply }: PositionCardProps) {
+  const router = useRouter();
+  
   const handleApply = () => {
-    if (onApply) {
-      onApply(position);
-    }
+    router.push(`/positions/${position.id}`);
   };
 
   return (
