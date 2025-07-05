@@ -1,12 +1,10 @@
 import { QuestionType } from "@/app/types/positions";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, X } from "lucide-react";
+import { FileUpload } from "@/components/ui/file-upload";
 import { useState } from "react";
 
 interface QuestionInputProps {
@@ -22,14 +20,11 @@ export default function QuestionInput({
   onChange,
   index,
 }: QuestionInputProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      onChange(file);
-    }
+  const handleFilesChange = (newFiles: File[]) => {
+    setFiles(newFiles);
+    onChange(newFiles.length > 0 ? newFiles[0] : null);
   };
 
   const handleCheckboxChange = (option: string, checked: boolean) => {
@@ -106,58 +101,14 @@ export default function QuestionInput({
 
       case "file":
         return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-center w-full">
-              <Label
-                htmlFor={`file-${index}`}
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted/20 hover:bg-muted/30 transition-colors"
-              >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-8 h-8 mb-3 text-muted-foreground" />
-                  <p className="mb-2 text-sm text-muted-foreground">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    PDF, DOC, DOCX files (Max 10MB)
-                  </p>
-                </div>
-                <Input
-                  id={`file-${index}`}
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx"
-                />
-              </Label>
-            </div>
-            {selectedFile && (
-              <Card className="p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
-                      <Upload className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{selectedFile.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedFile(null);
-                      onChange(null);
-                    }}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              </Card>
-            )}
-          </div>
+          <FileUpload
+            files={files}
+            setFiles={handleFilesChange}
+            accept=".pdf,.doc,.docx"
+            maxSize={10}
+            multiple={false}
+            showPreview={false}
+          />
         );
 
       default:
