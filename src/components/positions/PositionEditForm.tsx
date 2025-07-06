@@ -19,19 +19,16 @@ import {
 import TagsInput from "@/components/ui/tags-input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface PositionEditFormProps {
   position: Position;
-  onSave: (position: Position) => void;
-  onCancel: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export default function PositionEditForm({
   position,
-  onSave,
-  onCancel,
   open,
   onOpenChange,
 }: PositionEditFormProps) {
@@ -45,34 +42,42 @@ export default function PositionEditForm({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    try {
+      e.preventDefault();
 
-    const newErrors: Record<string, string> = {};
+      const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Position name is required";
-    }
+      if (!formData.name.trim()) {
+        newErrors.name = "Position name is required";
+      }
 
-    if (!formData.description.trim()) {
-      newErrors.description = "Position description is required";
-    }
+      if (!formData.description.trim()) {
+        newErrors.description = "Position description is required";
+      }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+
+      const updatedPosition = new Position({
+        ...position,
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        tags: formData.tags,
+        status: formData.status,
+        questions: formData.questions,
+      });
+
+      await updatedPosition.update();
+    } catch (error) {
+      toast.error("Failed to update position");
       return;
     }
 
-    const updatedPosition = new Position({
-      ...position,
-      name: formData.name.trim(),
-      description: formData.description.trim(),
-      tags: formData.tags,
-      status: formData.status,
-      questions: formData.questions,
-    });
+    toast.success("Position updated successfully");
 
-    onSave(updatedPosition);
     onOpenChange(false);
   };
 
@@ -112,7 +117,6 @@ export default function PositionEditForm({
   };
 
   const handleCancel = () => {
-    onCancel();
     onOpenChange(false);
   };
 

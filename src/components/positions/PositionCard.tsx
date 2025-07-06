@@ -7,17 +7,9 @@ import PositionEditForm from "./PositionEditForm";
 
 interface PositionCardProps {
   position: Position;
-  onApply?: (position: Position) => void;
-  onEdit?: (position: Position) => void;
-  showEdit?: boolean;
 }
 
-export default function PositionCard({
-  position,
-  onApply,
-  onEdit,
-  showEdit = false,
-}: PositionCardProps) {
+export default function PositionCard({ position }: PositionCardProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(position);
@@ -28,16 +20,6 @@ export default function PositionCard({
 
   const handleEdit = () => {
     setIsEditing(true);
-  };
-
-  const handleSave = (updatedPosition: Position) => {
-    setCurrentPosition(updatedPosition);
-    setIsEditing(false);
-    onEdit?.(updatedPosition);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
   };
 
   return (
@@ -96,21 +78,14 @@ export default function PositionCard({
             {currentPosition.isActive ? "Apply Now" : "Not Available"}
           </Button>
 
-          <Button
-            className="w-full"
-            variant="outline"
-            onClick={handleEdit}
-            disabled={isEditing}
-          >
-            {isEditing ? "Editing..." : "Edit Position"}
+          <Button className="w-full" variant="outline" onClick={handleEdit}>
+            Edit Position
           </Button>
         </div>
       </Card>
 
       <PositionEditForm
         position={currentPosition}
-        onCancel={handleCancel}
-        onSave={handleSave}
         open={isEditing}
         onOpenChange={setIsEditing}
       />
