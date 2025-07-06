@@ -4,11 +4,15 @@ import { User } from "firebase/auth";
 
 interface ProfileImageProps {
   user: User;
-  profileImageUrl: string | null;
+  profileImageBase64: string | null;
   isLoading: boolean;
 }
 
-export function ProfileImage({ user, profileImageUrl, isLoading }: ProfileImageProps) {
+export function ProfileImage({
+  user,
+  profileImageBase64,
+  isLoading,
+}: ProfileImageProps) {
   if (isLoading) {
     return (
       <div className="w-32 h-32 rounded-full bg-gray-200 border-4 border-white shadow-lg flex items-center justify-center">
@@ -17,10 +21,10 @@ export function ProfileImage({ user, profileImageUrl, isLoading }: ProfileImageP
     );
   }
 
-  if (profileImageUrl) {
+  if (profileImageBase64) {
     return (
       <img
-        src={profileImageUrl}
+        src={profileImageBase64}
         alt="Profile"
         className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
       />

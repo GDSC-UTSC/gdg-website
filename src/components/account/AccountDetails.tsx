@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Edit, Save, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AccountDetailsProps {
   userData: UserData | null;
@@ -22,6 +22,16 @@ export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
     github: userData?.github || "",
     publicName: userData?.publicName || "",
   });
+
+  // Update form data when userData changes
+  useEffect(() => {
+    setFormData({
+      bio: userData?.bio || "",
+      linkedin: userData?.linkedin || "",
+      github: userData?.github || "",
+      publicName: userData?.publicName || "",
+    });
+  }, [userData]);
   const { toast } = useToast();
 
   const handleEdit = () => {
@@ -126,6 +136,18 @@ export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
 
       <div className="grid gap-4">
         <div className="grid gap-2">
+          <Label htmlFor="email">Email</Label>
+          <p className="text-sm text-muted-foreground">{userData.email}</p>
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="role">Role</Label>
+          <p className="text-sm text-muted-foreground capitalize">
+            {userData.role}
+          </p>
+        </div>
+
+        <div className="grid gap-2">
           <Label htmlFor="publicName">Public Name</Label>
           {isEditing ? (
             <Input
@@ -214,8 +236,6 @@ export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
             </p>
           )}
         </div>
-
-
       </div>
     </div>
   );

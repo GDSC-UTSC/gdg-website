@@ -1,24 +1,33 @@
 "use client";
 
-import { User } from "firebase/auth";
+import { UserData } from "@/app/types/userdata";
 
 interface ProfileInfoProps {
-  user: User;
+  userData: UserData | null;
 }
 
-export function ProfileInfo({ user }: ProfileInfoProps) {
+export function ProfileInfo({ userData }: ProfileInfoProps) {
+  if (!userData) {
+    return (
+      <div>
+        <h3 className="text-lg font-medium mb-4">Profile Information</h3>
+        <p className="text-muted-foreground">Loading profile information...</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h3 className="text-lg font-medium mb-4">Profile Information</h3>
       <div className="mt-4 space-y-2">
         <p>
-          <strong>Email:</strong> {user.email}
+          <strong>Email:</strong> {userData.email}
         </p>
         <p>
-          <strong>Display Name:</strong> {user.displayName || "Not set"}
+          <strong>Public Name:</strong> {userData.publicName || "Not set"}
         </p>
         <p>
-          <strong>User ID:</strong> {user.uid}
+          <strong>User ID:</strong> {userData.id}
         </p>
       </div>
     </div>

@@ -1,5 +1,4 @@
 import { db } from "@/lib/firebase";
-import { deleteFile, uploadFile } from "@/lib/storage";
 import {
   collection,
   deleteDoc,
@@ -12,69 +11,132 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
+export const USER_ROLES = {
+  SUPERADMIN: "superadmin",
+  ADMIN: "admin",
+  MEMBER: "member",
+} as const;
+
+export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
+
 export interface UserDataType {
   id: string;
+  email: string;
   publicName?: string;
-  updatedAt: Timestamp;
-  profileImageUrl?: string;
+  updatedAt?: Timestamp;
+  profileImageBase64?: string;
   bio?: string;
   linkedin?: string;
   github?: string;
+  role?: UserRole;
 }
 
 export class UserData implements UserDataType {
   id: string;
+  email: string;
   publicName?: string;
   updatedAt: Timestamp;
-  profileImageUrl?: string;
+  profileImageBase64?: string;
   bio?: string;
   linkedin?: string;
   github?: string;
+  role: UserRole;
+
   constructor(data: UserDataType) {
     this.id = data.id;
+    this.email = data.email;
     this.publicName = data.publicName;
     this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
-    this.profileImageUrl = data.profileImageUrl;
+    this.profileImageBase64 = data.profileImageBase64;
     this.bio = data.bio;
     this.linkedin = data.linkedin;
     this.github = data.github;
+    this.role = data.role || USER_ROLES.MEMBER; // Default to member if not specified
   }
 
   static converter = {
     toFirestore: (user: UserData) => {
-      return {
-        publicName: user.publicName,
+      const data: any = {
+        email: user.email,
         updatedAt: serverTimestamp(),
-        profileImageUrl: user.profileImageUrl,
-        bio: user.bio,
-        linkedin: user.linkedin,
-        github: user.github,
+        role: user.role,
       };
+
+      // Only include fields that are not undefined
+      if (user.publicName !== undefined) data.publicName = user.publicName;
+      if (user.profileImageBase64 !== undefined)
+        data.profileImageBase64 = user.profileImageBase64;
+      if (user.bio !== undefined) data.bio = user.bio;
+      if (user.linkedin !== undefined) data.linkedin = user.linkedin;
+      if (user.github !== undefined) data.github = user.github;
+
+      return data;
     },
     fromFirestore: (snapshot: any, options: any) => {
       const data = snapshot.data(options);
       return new UserData({
         id: snapshot.id,
+        email: data.email,
         publicName: data.publicName,
         updatedAt: data.updatedAt,
-        profileImageUrl: data.profileImageUrl,
+        profileImageBase64: data.profileImageBase64,
         bio: data.bio,
         linkedin: data.linkedin,
         github: data.github,
+        role: data.role,
       });
     },
   };
+
   get isAdmin(): boolean {
-    // check custom claims or we just query the db
-    return false;
+    return (
+      this.role === USER_ROLES.ADMIN || this.role === USER_ROLES.SUPERADMIN
+    );
+  }
+
+  get isSuperAdmin(): boolean {
+    return this.role === USER_ROLES.SUPERADMIN;
+  }
+
+  get isMember(): boolean {
+    return this.role === USER_ROLES.MEMBER;
   }
 
   async create(): Promise<string> {
-    await setDoc(
-      doc(db, "users", this.id).withConverter(UserData.converter),
-      this
-    );
-    return this.id;
+    try {
+      console.log(
+        "UserData.create: Attempting to create user document for:",
+        this.id
+      );
+      console.log("UserData.create: User data to be saved:", {
+        id: this.id,
+        email: this.email,
+        publicName: this.publicName,
+        profileImageBase64: this.profileImageBase64
+          ? "Base64 data present"
+          : "No profile image",
+      });
+
+      await setDoc(
+        doc(db, "users", this.id).withConverter(UserData.converter),
+        this
+      );
+
+      console.log(
+        "UserData.create: Successfully created user document for:",
+        this.id
+      );
+      return this.id;
+    } catch (error) {
+      console.error("UserData.create: Error creating user document:", error);
+      console.error("UserData.create: Error details:", {
+        errorMessage: error instanceof Error ? error.message : "Unknown error",
+        errorStack: error instanceof Error ? error.stack : "No stack trace",
+        userId: this.id,
+        userEmail: this.email,
+      });
+      throw error; // Re-throw the error so it can be caught by the caller
+    }
   }
 
   static async read(id: string): Promise<UserData | null> {
@@ -105,32 +167,39 @@ export class UserData implements UserDataType {
     await deleteDoc(doc(db, "users", this.id));
   }
 
+  /**
+   * Converts a File to base64 string and saves it as the profile image
+   * @param file - The image file to convert and save
+   * @returns Promise<string> - The base64 string of the image
+   */
   async uploadProfileImage(file: File): Promise<string> {
-    try {
-      if (this.profileImageUrl) {
-        // If there's an existing profile image, delete it first
-        await this.deleteProfileImage();
-      }
-    } catch (error) {
-      console.error("Error deleting existing profile image:", error);
-    } finally {
-      const { downloadURL } = await uploadFile(
-        file,
-        `users/${this.id}/profile/image`
-      );
-      this.profileImageUrl = downloadURL;
-      await this.update();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
-      return downloadURL;
-    }
+      reader.onload = async (e) => {
+        try {
+          const base64String = e.target?.result as string;
+          this.profileImageBase64 = base64String;
+          await this.update();
+          resolve(base64String);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      reader.onerror = () => {
+        reject(new Error("Failed to read file"));
+      };
+
+      reader.readAsDataURL(file);
+    });
   }
 
+  /**
+   * Removes the profile image by clearing the base64 data
+   */
   async deleteProfileImage(): Promise<void> {
-    if (!this.profileImageUrl) return;
-
-    await deleteFile(`users/${this.id}/profile/image`);
-    this.profileImageUrl = undefined;
-
+    this.profileImageBase64 = undefined;
     await this.update();
   }
 }

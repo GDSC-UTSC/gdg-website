@@ -67,9 +67,9 @@ export function ProfileCard({ userId }: ProfileCardProps) {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-border bg-muted flex items-center justify-center">
-                {userData.profileImageUrl ? (
+                {userData.profileImageBase64 ? (
                   <motion.img
-                    src={userData.profileImageUrl}
+                    src={userData.profileImageBase64}
                     alt="Profile"
                     className="w-full h-full object-cover"
                     initial={{ opacity: 0, scale: 0.8 }}
