@@ -28,6 +28,7 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<UserData[]>([]);
   const [promotingUserId, setPromotingUserId] = useState<string | null>(null);
+  const [demotingUserId, setDemotingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -87,10 +88,8 @@ export default function AdminPage() {
     if (!searchQuery.trim()) {
       setFilteredUsers(allUsers);
     } else {
-      const filtered = allUsers.filter(
-        (user) =>
-          user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.publicName?.toLowerCase().includes(searchQuery.toLowerCase())
+      const filtered = allUsers.filter((user) =>
+        user.publicName?.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredUsers(filtered);
     }
@@ -132,9 +131,7 @@ export default function AdminPage() {
 
       toast({
         title: "Success",
-        description: `${
-          targetUser.publicName || targetUser.email
-        } has been promoted to admin.`,
+        description: `${targetUser.publicName} has been promoted to admin.`,
       });
 
       await loadAllUsers(); // Refresh the users list
@@ -147,6 +144,50 @@ export default function AdminPage() {
       });
     } finally {
       setPromotingUserId(null);
+    }
+  };
+
+  const removeAdminPrivileges = async (targetUser: UserData) => {
+    if (!userData?.isSuperAdmin) return;
+
+    setDemotingUserId(targetUser.id);
+    try {
+      if (targetUser.role === USER_ROLES.SUPERADMIN) {
+        toast({
+          title: "Cannot Remove",
+          description: "Cannot remove superadmin privileges.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (targetUser.role !== USER_ROLES.ADMIN) {
+        toast({
+          title: "Not Admin",
+          description: "This user is not an admin.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      targetUser.role = USER_ROLES.MEMBER;
+      await targetUser.update();
+
+      toast({
+        title: "Success",
+        description: `${targetUser.publicName} has been removed from admin.`,
+      });
+
+      await loadAllUsers(); // Refresh the users list
+    } catch (error) {
+      console.error("Error removing admin privileges:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove admin privileges.",
+        variant: "destructive",
+      });
+    } finally {
+      setDemotingUserId(null);
     }
   };
 
@@ -210,7 +251,7 @@ export default function AdminPage() {
                     ) : (
                       <ShieldCheck className="h-5 w-5 text-blue-500" />
                     )}
-                    Welcome, {userData.publicName || userData.email}
+                    Welcome, {userData.publicName}
                   </div>
                 </CardTitle>
                 <CardDescription>
@@ -307,7 +348,7 @@ export default function AdminPage() {
                   <Input
                     id="search"
                     type="text"
-                    placeholder="Search by name or email..."
+                    placeholder="Search by name"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="mt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -347,12 +388,7 @@ export default function AdminPage() {
                             )}
                           </div>
                           <div>
-                            <p className="font-medium">
-                              {user.publicName || user.email}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {user.email}
-                            </p>
+                            <p className="font-medium">{user.publicName}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -371,6 +407,22 @@ export default function AdminPage() {
                                 {promotingUserId === user.id
                                   ? "Promoting..."
                                   : "Make Admin"}
+                              </Button>
+                            )}
+
+                          {/* Remove Admin Button - Only for Super Admins and Admin Users */}
+                          {userData.isSuperAdmin &&
+                            user.role === USER_ROLES.ADMIN && (
+                              <Button
+                                onClick={() => removeAdminPrivileges(user)}
+                                disabled={demotingUserId === user.id}
+                                size="sm"
+                                variant="destructive"
+                                className="ml-2"
+                              >
+                                {demotingUserId === user.id
+                                  ? "Removing..."
+                                  : "Remove Admin"}
                               </Button>
                             )}
                         </div>

@@ -4,6 +4,7 @@ import { UserData } from "@/app/types/userdata";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Edit, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -14,6 +15,7 @@ interface AccountDetailsProps {
 }
 
 export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
+  const { user, loading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -137,7 +139,7 @@ export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
       <div className="grid gap-4">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <p className="text-sm text-muted-foreground">{userData.email}</p>
+          <p className="text-sm text-muted-foreground">{user?.email}</p>
         </div>
 
         <div className="grid gap-2">

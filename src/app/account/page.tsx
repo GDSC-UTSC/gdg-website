@@ -20,9 +20,6 @@ export default function AccountPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [profileImageBase64, setProfileImageBase64] = useState<string | null>(
-    null
-  );
   const [isUploading, setIsUploading] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
@@ -41,7 +38,6 @@ export default function AccountPage() {
         const userData = await UserData.read(user.uid);
         if (userData) {
           setUserData(userData);
-          setProfileImageBase64(userData.profileImageBase64 || null);
         }
       } catch (error) {
         console.error("Error loading user data:", error);
@@ -65,8 +61,10 @@ export default function AccountPage() {
 
     setIsUploading(true);
     try {
-      const base64String = await userData.uploadProfileImage(file);
-      setProfileImageBase64(base64String);
+      await userData.uploadProfileImage(file);
+
+      // Update the local state with the updated userData
+      setUserData(userData);
 
       toast({
         title: "Success",
@@ -126,7 +124,7 @@ export default function AccountPage() {
           >
             <ProfileImage
               user={user}
-              profileImageBase64={profileImageBase64}
+              profileImageUrl={userData?.profileImageUrl || null}
               isLoading={isLoadingProfile}
             />
           </motion.div>
