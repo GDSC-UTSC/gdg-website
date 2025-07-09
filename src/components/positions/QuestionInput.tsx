@@ -31,12 +31,12 @@ export default function QuestionInput({
 
   const handleCheckboxChange = (option: string, checked: boolean) => {
     // Parse the current value to get the array
-    const currentValues = typeof value === 'string' && value 
-      ? value.split(', ').filter(Boolean) 
-      : Array.isArray(value) 
-        ? value 
+    const currentValues = typeof value === 'string' && value
+      ? value.split(', ').filter(Boolean)
+      : Array.isArray(value)
+        ? value
         : [];
-        
+
     if (checked) {
       onChange([...currentValues, option]);
     } else {
@@ -86,12 +86,12 @@ export default function QuestionInput({
 
       case "checkbox":
         // Parse the string value back to array for checkboxes
-        const selectedOptions = typeof value === 'string' && value 
-          ? value.split(', ').filter(Boolean) 
-          : Array.isArray(value) 
-            ? value 
+        const selectedOptions = typeof value === 'string' && value
+          ? value.split(', ').filter(Boolean)
+          : Array.isArray(value)
+            ? value
             : [];
-            
+
         return (
           <div className="space-y-3">
             {question.options?.map((option) => (

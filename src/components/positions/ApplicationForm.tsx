@@ -16,25 +16,28 @@ interface ApplicationFormProps {
 
 export default function ApplicationForm({ position }: ApplicationFormProps) {
   const { user } = useAuth();
-  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState<Record<string, any>>({});
   const [applicantName, setApplicantName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (questionLabel: string, value: any) => {
-    let stringValue: string;
+    let processedValue: any;
 
-    if (Array.isArray(value)) {
-      stringValue = value.join(", ");
+    // Handle File objects - store them as-is
+    if (value instanceof File) {
+      processedValue = value;
+    } else if (Array.isArray(value)) {
+      processedValue = value.join(", ");
     } else if (typeof value === "string") {
-      stringValue = value;
+      processedValue = value;
     } else {
-      stringValue = String(value);
+      processedValue = String(value);
     }
 
     setFormData((prev) => ({
       ...prev,
-      [questionLabel]: stringValue,
+      [questionLabel]: processedValue,
     }));
 
     if (errors[questionLabel]) {
@@ -57,11 +60,13 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
 
     position.questions.forEach((question) => {
       if (question.required) {
-        const value = formData[question.label];
+        const value: any = formData[question.label];
 
         if (!value || (Array.isArray(value) && value.length === 0)) {
           newErrors[question.label] = `${question.label} is required`;
         } else if (typeof value === "string" && value.trim() === "") {
+          newErrors[question.label] = `${question.label} is required`;
+        } else if (question.type === "file" && !(value instanceof File)) {
           newErrors[question.label] = `${question.label} is required`;
         }
       }
@@ -71,10 +76,12 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (validateForm() && user?.email) {
+      const files: File[] = [];
+
       const application = new Application({
         id: user.uid,
         name: applicantName,
@@ -84,8 +91,21 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         createdAt: new Date() as any,
         updatedAt: new Date() as any,
       });
-      console.log(user.uid);
-      application.create(position.id);
+      for (const question of position.questions) {
+        if (question.type === "file") {
+          const file = formData[question.label] as unknown as File;
+          if (file) {
+            const downloadURL = await application.uploadFile(
+              file,
+              position.id,
+              user.uid,
+              question.label
+            );
+            application.quesitons[question.label] = downloadURL;
+          }
+        }
+      }
+      await application.create(position.id);
     }
   };
 

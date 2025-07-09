@@ -123,6 +123,7 @@ export class Application implements ApplicationType {
   ): Promise<string> {
     const filePath = `positions/${positionId}/applications/${userId}/${filename}`;
     const { downloadURL } = await uploadFile(file, filePath);
+
     return downloadURL;
   }
 }
