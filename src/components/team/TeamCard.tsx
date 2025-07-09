@@ -21,12 +21,7 @@ const TeamCard = ({ member, index }: TeamCardProps) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: 0.2 * index }}
-    >
+
       <Card className="bg-card/20 backdrop-blur-sm border-border hover:bg-card/80 transition-all duration-300 h-full">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -69,9 +64,8 @@ const TeamCard = ({ member, index }: TeamCardProps) => {
               </Button>
             )}
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+      </CardContent>
+    </Card>
   );
 };
 
