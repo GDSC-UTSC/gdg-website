@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/ui/file-upload";
-import { AnimatePresence, motion } from "framer-motion";
-import { Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Upload } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProfileImageUploadProps {
   onUpload: (file: File) => void | Promise<void>;
@@ -19,13 +19,13 @@ export function ProfileImageUpload({
 
   const handleUpload = async () => {
     if (selectedFiles.length === 0) return;
-
+    
     try {
       await onUpload(selectedFiles[0]); // Only upload the first file for profile image
       setSelectedFiles([]); // Clear files after successful upload
     } catch (error) {
       // Keep files selected on error so user can retry
-      console.error("Upload failed:", error);
+      console.error('Upload failed:', error);
     }
   };
 
@@ -41,7 +41,7 @@ export function ProfileImageUpload({
           showPreview={true}
           multiple={false}
         />
-
+        
         <AnimatePresence>
           {selectedFiles.length > 0 && (
             <motion.div
@@ -61,11 +61,7 @@ export function ProfileImageUpload({
                 >
                   <motion.div
                     animate={isUploading ? { rotate: 360 } : { rotate: 0 }}
-                    transition={
-                      isUploading
-                        ? { duration: 1, repeat: Infinity, ease: "linear" }
-                        : {}
-                    }
+                    transition={isUploading ? { duration: 1, repeat: Infinity, ease: "linear" } : {}}
                   >
                     <Upload className="w-4 h-4 mr-2" />
                   </motion.div>

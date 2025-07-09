@@ -28,7 +28,7 @@ export interface UserDataType {
   bio?: string;
   linkedin?: string;
   github?: string;
-  role: Role;
+  role?: Role;
 }
 
 export class UserData implements UserDataType {
@@ -55,12 +55,12 @@ export class UserData implements UserDataType {
   static converter = {
     toFirestore: (user: UserData) => {
       return {
-        publicName: user.publicName || "",
+        publicName: user.publicName,
         updatedAt: serverTimestamp(),
-        profileImageUrl: user.profileImageUrl || "",
-        bio: user.bio || "",
-        linkedin: user.linkedin || "",
-        github: user.github || "",
+        profileImageUrl: user.profileImageUrl,
+        bio: user.bio,
+        linkedin: user.linkedin,
+        github: user.github,
         role: user.role,
       };
     },

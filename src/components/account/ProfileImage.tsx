@@ -8,11 +8,7 @@ interface ProfileImageProps {
   isLoading: boolean;
 }
 
-export function ProfileImage({
-  user,
-  profileImageUrl,
-  isLoading,
-}: ProfileImageProps) {
+export function ProfileImage({ user, profileImageUrl, isLoading }: ProfileImageProps) {
   if (isLoading) {
     return (
       <div className="w-32 h-32 rounded-full bg-gray-200 border-4 border-white shadow-lg flex items-center justify-center">

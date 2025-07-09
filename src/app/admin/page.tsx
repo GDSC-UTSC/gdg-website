@@ -12,7 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Crown, Shield, ShieldCheck, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -21,7 +20,6 @@ import { useEffect, useState } from "react";
 export default function AdminPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const [allUsers, setAllUsers] = useState<UserData[]>([]);
@@ -47,32 +45,16 @@ export default function AdminPage() {
           setUserData(userData);
           if (!userData.isAdmin) {
             router.push("/");
-            toast({
-              title: "Access Denied",
-              description:
-                "You don't have permission to access the admin panel.",
-              variant: "destructive",
-            });
           } else {
             // Load all users automatically
             loadAllUsers();
           }
         } else {
           router.push("/");
-          toast({
-            title: "Error",
-            description: "User data not found.",
-            variant: "destructive",
-          });
         }
       } catch (error) {
         console.error("Error loading user data:", error);
         router.push("/");
-        toast({
-          title: "Error",
-          description: "Failed to load user data.",
-          variant: "destructive",
-        });
       } finally {
         setIsLoadingUserData(false);
       }
@@ -81,7 +63,7 @@ export default function AdminPage() {
     if (user) {
       loadUserData();
     }
-  }, [user, router, toast]);
+  }, [user, router]);
 
   // Filter users based on search query
   useEffect(() => {
@@ -101,11 +83,6 @@ export default function AdminPage() {
       setAllUsers(users);
     } catch (error) {
       console.error("Error loading users:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load users.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -118,30 +95,15 @@ export default function AdminPage() {
         targetUser.role === USER_ROLES.ADMIN ||
         targetUser.role === USER_ROLES.SUPERADMIN
       ) {
-        toast({
-          title: "Already Admin",
-          description: "This user is already an admin or superadmin.",
-          variant: "destructive",
-        });
         return;
       }
 
       targetUser.role = USER_ROLES.ADMIN;
       await targetUser.update();
 
-      toast({
-        title: "Success",
-        description: `${targetUser.publicName} has been promoted to admin.`,
-      });
-
       await loadAllUsers(); // Refresh the users list
     } catch (error) {
       console.error("Error promoting user:", error);
-      toast({
-        title: "Error",
-        description: "Failed to promote user to admin.",
-        variant: "destructive",
-      });
     } finally {
       setPromotingUserId(null);
     }
@@ -153,39 +115,19 @@ export default function AdminPage() {
     setDemotingUserId(targetUser.id);
     try {
       if (targetUser.role === USER_ROLES.SUPERADMIN) {
-        toast({
-          title: "Cannot Remove",
-          description: "Cannot remove superadmin privileges.",
-          variant: "destructive",
-        });
         return;
       }
 
       if (targetUser.role !== USER_ROLES.ADMIN) {
-        toast({
-          title: "Not Admin",
-          description: "This user is not an admin.",
-          variant: "destructive",
-        });
         return;
       }
 
       targetUser.role = USER_ROLES.MEMBER;
       await targetUser.update();
 
-      toast({
-        title: "Success",
-        description: `${targetUser.publicName} has been removed from admin.`,
-      });
-
       await loadAllUsers(); // Refresh the users list
     } catch (error) {
       console.error("Error removing admin privileges:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove admin privileges.",
-        variant: "destructive",
-      });
     } finally {
       setDemotingUserId(null);
     }
@@ -200,18 +142,7 @@ export default function AdminPage() {
   }
 
   if (!user || !userData?.isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center">Access Denied</CardTitle>
-            <CardDescription className="text-center">
-              You don't have permission to access this page.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
+    return null;
   }
 
   return (
