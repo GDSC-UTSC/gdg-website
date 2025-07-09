@@ -129,71 +129,86 @@ export default function AccountPage() {
             />
           </motion.div>
         </motion.div>
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle>Account</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <motion.div
-              className="space-y-6"
-              initial="hidden"
-              animate="visible"
-              variants={{
-                hidden: { opacity: 0 },
-                visible: {
-                  opacity: 1,
-                  transition: {
-                    staggerChildren: 0.1,
-                    delayChildren: 0.3,
+
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle>Account</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <motion.div
+                className="space-y-6"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.1,
+                      delayChildren: 0.3,
+                    },
                   },
-                },
-              }}
-            >
-              <motion.div
-                variants={{
-                  hidden: { y: 20, opacity: 0 },
-                  visible: { y: 0, opacity: 1 },
-                }}
-              >
-                <AccountDetails
-                  userData={userData}
-                  onUpdate={handleUserDataUpdate}
-                />
-              </motion.div>
-
-              <motion.div
-                variants={{
-                  hidden: { y: 20, opacity: 0 },
-                  visible: { y: 0, opacity: 1 },
-                }}
-              >
-                <ProfileImageUpload
-                  onUpload={uploadProfileImage}
-                  isUploading={isUploading}
-                />
-              </motion.div>
-
-              <motion.div
-                className="pt-6 border-t"
-                variants={{
-                  hidden: { y: 20, opacity: 0 },
-                  visible: { y: 0, opacity: 1 },
                 }}
               >
                 <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  variants={{
+                    hidden: { y: 20, opacity: 0 },
+                    visible: { y: 0, opacity: 1 },
+                  }}
                 >
-                  <Button onClick={handleSignOut} variant="outline">
-                    Sign Out
-                  </Button>
+                  <AccountDetails
+                    userData={userData}
+                    onUpdate={handleUserDataUpdate}
+                  />
+                </motion.div>
+
+                <motion.div
+                  variants={{
+                    hidden: { y: 20, opacity: 0 },
+                    visible: { y: 0, opacity: 1 },
+                  }}
+                >
+                  <ProfileImageUpload
+                    onUpload={uploadProfileImage}
+                    isUploading={isUploading}
+                  />
+                </motion.div>
+
+                <motion.div
+                  className="pt-6 border-t"
+                  variants={{
+                    hidden: { y: 20, opacity: 0 },
+                    visible: { y: 0, opacity: 1 },
+                  }}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button onClick={handleSignOut} variant="outline">
+                      Sign Out
+                    </Button>
+                  </motion.div>
                 </motion.div>
               </motion.div>
-            </motion.div>
-          </CardContent>
-        </Card>
-        Users will be able to view your profile card below:
-        <ProfileCard userId={user.uid} />
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          className="mt-8"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          Users will be able to view your profile card below:
+          <ProfileCard userId={user.uid} />
+        </motion.div>
       </div>
     </motion.div>
   );

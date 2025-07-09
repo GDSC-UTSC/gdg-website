@@ -48,7 +48,13 @@ const AboutSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => (
-            <div key={index}>
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+            >
               <Card className="bg-card/50 backdrop-blur-xs  hover:bg-card/80 transition-all duration-300 h-full">
                 <CardContent className="p-8 text-center">
                   <div className="mb-4 flex justify-center">{feature.icon}</div>
@@ -58,7 +64,7 @@ const AboutSection = () => {
                   <p className="text-muted-foreground">{feature.description}</p>
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           ))}
         </div>
 
