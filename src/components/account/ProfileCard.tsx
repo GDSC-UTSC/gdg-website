@@ -1,5 +1,3 @@
-// THIS SOMETIMES BREAKS ON DEV, (BUILD WORKS FINE)
-
 "use client";
 
 import { UserData } from "@/app/types/userdata";
