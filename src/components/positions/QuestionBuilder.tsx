@@ -1,16 +1,19 @@
-import { useState } from "react";
 import { QuestionType } from "@/app/types/positions";
+import { SelectInput, TextareaInput } from "@/components/positions/questions";
 import { Button } from "@/components/ui/button";
-import { TextInput, TextareaInput, SelectInput, CheckboxInput } from "@/components/positions/questions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TagsInput from "@/components/ui/tags-input";
+import { useState } from "react";
 
 interface QuestionBuilderProps {
   questions: QuestionType[];
   onChange: (questions: QuestionType[]) => void;
 }
 
-export default function QuestionBuilder({ questions, onChange }: QuestionBuilderProps) {
+export default function QuestionBuilder({
+  questions,
+  onChange,
+}: QuestionBuilderProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [newQuestion, setNewQuestion] = useState<QuestionType>({
     type: "text",
@@ -18,7 +21,9 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
     options: [],
     required: false,
   });
-  const [editingQuestion, setEditingQuestion] = useState<QuestionType | null>(null);
+  const [editingQuestion, setEditingQuestion] = useState<QuestionType | null>(
+    null
+  );
 
   const addQuestion = () => {
     if (newQuestion.label.trim()) {
@@ -57,13 +62,16 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
     onChange(updatedQuestions);
   };
 
-  const needsOptions = (type: string) => type === "select" || type === "checkbox";
+  const needsOptions = (type: string) =>
+    type === "select" || type === "checkbox";
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold">Application Questions</h3>
-        <span className="text-sm text-muted-foreground">{questions.length} questions</span>
+        <span className="text-sm text-muted-foreground">
+          {questions.length} questions
+        </span>
       </div>
 
       {/* Existing Questions */}
@@ -75,7 +83,9 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">
                     Question {index + 1} • {question.type.toUpperCase()}
-                    {question.required && <span className="text-red-500 ml-1">*</span>}
+                    {question.required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                   </CardTitle>
                   <div className="flex gap-2">
                     <Button
@@ -109,7 +119,7 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
                         setEditingQuestion({
                           ...editingQuestion,
                           type: newType,
-                          options: needsOptions(newType) ? [] : undefined
+                          options: [],
                         });
                       }}
                       options={[
@@ -125,7 +135,9 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
                       id={`edit-question-text-${index}`}
                       label="Question"
                       value={editingQuestion.label}
-                      onChange={(value) => setEditingQuestion({ ...editingQuestion, label: value })}
+                      onChange={(value) =>
+                        setEditingQuestion({ ...editingQuestion, label: value })
+                      }
                       placeholder="Enter your question here..."
                       rows={3}
                     />
@@ -135,7 +147,9 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
                         id={`edit-question-options-${index}`}
                         label="Options"
                         value={editingQuestion.options || []}
-                        onChange={(options) => setEditingQuestion({ ...editingQuestion, options })}
+                        onChange={(options) =>
+                          setEditingQuestion({ ...editingQuestion, options })
+                        }
                         placeholder="Type an option and press Enter..."
                       />
                     )}
@@ -145,10 +159,18 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
                         type="checkbox"
                         id={`edit-question-required-${index}`}
                         checked={editingQuestion.required || false}
-                        onChange={(e) => setEditingQuestion({ ...editingQuestion, required: e.target.checked })}
+                        onChange={(e) =>
+                          setEditingQuestion({
+                            ...editingQuestion,
+                            required: e.target.checked,
+                          })
+                        }
                         className="w-4 h-4 text-primary bg-background border-input rounded focus:ring-2 focus:ring-ring focus:ring-offset-2"
                       />
-                      <label htmlFor={`edit-question-required-${index}`} className="text-sm font-medium cursor-pointer">
+                      <label
+                        htmlFor={`edit-question-required-${index}`}
+                        className="text-sm font-medium cursor-pointer"
+                      >
                         Required question
                       </label>
                     </div>
@@ -172,7 +194,9 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
                   </div>
                 ) : (
                   <>
-                    <p className="text-sm text-muted-foreground mb-2">{question.label}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {question.label}
+                    </p>
                     {question.options && question.options.length > 0 && (
                       <div className="text-xs text-muted-foreground">
                         Options: {question.options.join(", ")}
@@ -201,7 +225,7 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
               setNewQuestion({
                 ...newQuestion,
                 type: newType,
-                options: needsOptions(newType) ? [] : undefined
+                options: [],
               });
             }}
             options={[
@@ -217,7 +241,9 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
             id="question-text"
             label="Question"
             value={newQuestion.label}
-            onChange={(value) => setNewQuestion({ ...newQuestion, label: value })}
+            onChange={(value) =>
+              setNewQuestion({ ...newQuestion, label: value })
+            }
             placeholder="Enter your question here..."
             rows={3}
           />
@@ -227,7 +253,9 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
               id="question-options"
               label="Options"
               value={newQuestion.options || []}
-              onChange={(options) => setNewQuestion({ ...newQuestion, options })}
+              onChange={(options) =>
+                setNewQuestion({ ...newQuestion, options })
+              }
               placeholder="Type an option and press Enter..."
             />
           )}
@@ -237,15 +265,24 @@ export default function QuestionBuilder({ questions, onChange }: QuestionBuilder
               type="checkbox"
               id="question-required"
               checked={newQuestion.required}
-              onChange={(e) => setNewQuestion({ ...newQuestion, required: e.target.checked })}
+              onChange={(e) =>
+                setNewQuestion({ ...newQuestion, required: e.target.checked })
+              }
               className="w-4 h-4 text-primary bg-background border-input rounded focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
-            <label htmlFor="question-required" className="text-sm font-medium cursor-pointer">
+            <label
+              htmlFor="question-required"
+              className="text-sm font-medium cursor-pointer"
+            >
               Required question
             </label>
           </div>
 
-          <Button type="button" onClick={addQuestion} disabled={!newQuestion.label.trim()}>
+          <Button
+            type="button"
+            onClick={addQuestion}
+            disabled={!newQuestion.label.trim()}
+          >
             Add Question
           </Button>
         </CardContent>
