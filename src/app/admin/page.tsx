@@ -168,202 +168,179 @@ export default function AdminPage() {
 
         <div className="grid gap-6">
           {/* Welcome Card */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    {userData.isSuperAdmin ? (
-                      <Crown className="h-5 w-5 text-yellow-500" />
-                    ) : (
-                      <ShieldCheck className="h-5 w-5 text-blue-500" />
-                    )}
-                    Welcome, {userData.publicName}
-                  </div>
-                </CardTitle>
-                <CardDescription>
-                  Your role:{" "}
-                  <span className="font-semibold capitalize text-primary">
-                    {userData.role}
-                  </span>
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </motion.div>
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  {userData.isSuperAdmin ? (
+                    <Crown className="h-5 w-5 text-yellow-500" />
+                  ) : (
+                    <ShieldCheck className="h-5 w-5 text-blue-500" />
+                  )}
+                  Welcome, {userData.publicName}
+                </div>
+              </CardTitle>
+              <CardDescription>
+                Your role:{" "}
+                <span className="font-semibold capitalize text-primary">
+                  {userData.role}
+                </span>
+              </CardDescription>
+            </CardHeader>
+          </Card>
 
           {/* Admin Stats */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">
-                    Total Users
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-2xl font-bold">
-                      {allUsers.length}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Admins</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-blue-500" />
-                    <span className="text-2xl font-bold">
-                      {
-                        allUsers.filter((u) => u.role === USER_ROLES.ADMIN)
-                          .length
-                      }
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">
-                    Super Admins
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <Crown className="h-4 w-4 text-yellow-500" />
-                    <span className="text-2xl font-bold">
-                      {
-                        allUsers.filter((u) => u.role === USER_ROLES.SUPERADMIN)
-                          .length
-                      }
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </motion.div>
-
-          {/* User Management */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  User Management
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">
+                  Total Users
                 </CardTitle>
-                <CardDescription>
-                  Search and manage users in the system
-                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Search Input */}
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="search">Search Users</Label>
-                  <Input
-                    id="search"
-                    type="text"
-                    placeholder="Search by name"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="mt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
-                </div>
-
-                {/* Users List */}
-                <div
-                  className="space-y-3 max-h-96 overflow-y-auto mt-8 pr-3"
-                  style={{
-                    scrollbarColor: "rgba(156, 163, 175, 0.3) transparent",
-                  }}
-                >
-                  {filteredUsers.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8">
-                      {searchQuery
-                        ? "No users found matching your search."
-                        : "No users found."}
-                    </div>
-                  ) : (
-                    filteredUsers.map((user, index) => (
-                      <motion.div
-                        key={user.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-2">
-                            {user.role === USER_ROLES.SUPERADMIN ? (
-                              <Crown className="h-5 w-5 text-yellow-500" />
-                            ) : user.role === USER_ROLES.ADMIN ? (
-                              <ShieldCheck className="h-5 w-5 text-blue-500" />
-                            ) : (
-                              <Users className="h-5 w-5 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-medium">{user.publicName}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-sm font-medium capitalize px-3 py-1 rounded-full bg-primary/10 text-primary">
-                            {user.role}
-                          </div>
-                          {/* Promote Button - Only for Super Admins and Member Users */}
-                          {userData.isSuperAdmin &&
-                            user.role === USER_ROLES.MEMBER && (
-                              <Button
-                                onClick={() => promoteUserToAdmin(user)}
-                                disabled={promotingUserId === user.id}
-                                size="sm"
-                                className="ml-2"
-                              >
-                                {promotingUserId === user.id
-                                  ? "Promoting..."
-                                  : "Make Admin"}
-                              </Button>
-                            )}
-
-                          {/* Remove Admin Button - Only for Super Admins and Admin Users */}
-                          {userData.isSuperAdmin &&
-                            user.role === USER_ROLES.ADMIN && (
-                              <Button
-                                onClick={() => removeAdminPrivileges(user)}
-                                disabled={demotingUserId === user.id}
-                                size="sm"
-                                variant="destructive"
-                                className="ml-2"
-                              >
-                                {demotingUserId === user.id
-                                  ? "Removing..."
-                                  : "Remove Admin"}
-                              </Button>
-                            )}
-                        </div>
-                      </motion.div>
-                    ))
-                  )}
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-2xl font-bold">{allUsers.length}</span>
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Admins</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-blue-500" />
+                  <span className="text-2xl font-bold">
+                    {allUsers.filter((u) => u.role === USER_ROLES.ADMIN).length}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">
+                  Super Admins
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <Crown className="h-4 w-4 text-yellow-500" />
+                  <span className="text-2xl font-bold">
+                    {
+                      allUsers.filter((u) => u.role === USER_ROLES.SUPERADMIN)
+                        .length
+                    }
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* User Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                User Management
+              </CardTitle>
+              <CardDescription>
+                Search and manage users in the system
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Search Input */}
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="search">Search Users</Label>
+                <Input
+                  id="search"
+                  type="text"
+                  placeholder="Search by name"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="mt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+
+              {/* Users List */}
+              <div
+                className="space-y-3 max-h-96 overflow-y-auto mt-8 pr-3"
+                style={{
+                  scrollbarColor: "rgba(156, 163, 175, 0.3) transparent",
+                }}
+              >
+                {filteredUsers.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    {searchQuery
+                      ? "No users found matching your search."
+                      : "No users found."}
+                  </div>
+                ) : (
+                  filteredUsers.map((user, index) => (
+                    <motion.div
+                      key={user.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                      className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          {user.role === USER_ROLES.SUPERADMIN ? (
+                            <Crown className="h-5 w-5 text-yellow-500" />
+                          ) : user.role === USER_ROLES.ADMIN ? (
+                            <ShieldCheck className="h-5 w-5 text-blue-500" />
+                          ) : (
+                            <Users className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium">{user.publicName}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-sm font-medium capitalize px-3 py-1 rounded-full bg-primary/10 text-primary">
+                          {user.role}
+                        </div>
+                        {/* Promote Button - Only for Super Admins and Member Users */}
+                        {userData.isSuperAdmin &&
+                          user.role === USER_ROLES.MEMBER && (
+                            <Button
+                              onClick={() => promoteUserToAdmin(user)}
+                              disabled={promotingUserId === user.id}
+                              size="sm"
+                              className="ml-2"
+                            >
+                              {promotingUserId === user.id
+                                ? "Promoting..."
+                                : "Make Admin"}
+                            </Button>
+                          )}
+
+                        {/* Remove Admin Button - Only for Super Admins and Admin Users */}
+                        {userData.isSuperAdmin &&
+                          user.role === USER_ROLES.ADMIN && (
+                            <Button
+                              onClick={() => removeAdminPrivileges(user)}
+                              disabled={demotingUserId === user.id}
+                              size="sm"
+                              variant="destructive"
+                              className="ml-2"
+                            >
+                              {demotingUserId === user.id
+                                ? "Removing..."
+                                : "Remove Admin"}
+                            </Button>
+                          )}
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </motion.div>
