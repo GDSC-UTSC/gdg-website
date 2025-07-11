@@ -81,8 +81,11 @@ export default function NewProjectPage() {
       const project = new Project(projectData);
       const newId = await project.create();
 
+      // Upload all selected images
       if (selectedFiles.length > 0) {
-        await project.uploadImage(selectedFiles[0]);
+        for (const file of selectedFiles) {
+          await project.uploadImage(file);
+        }
       }
 
       toast.success("Project created successfully!");
@@ -185,7 +188,7 @@ export default function NewProjectPage() {
                 accept="image/*"
                 maxSize={5}
                 showPreview={true}
-                multiple={false}
+                multiple={true}
               />
             </div>
 

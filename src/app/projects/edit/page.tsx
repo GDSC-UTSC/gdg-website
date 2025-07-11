@@ -114,12 +114,18 @@ export default function EditProjectPage() {
 
       await project.update();
 
+      // Upload all selected images
       if (selectedFiles.length > 0) {
-        const imageUrl = await project.uploadImage(selectedFiles[0]);
+        const uploadedUrls: string[] = [];
+        for (const file of selectedFiles) {
+          const imageUrl = await project.uploadImage(file);
+          uploadedUrls.push(imageUrl);
+        }
         setFormData(prev => ({
           ...prev,
-          imageUrls: [...prev.imageUrls, imageUrl]
+          imageUrls: [...prev.imageUrls, ...uploadedUrls]
         }));
+        setSelectedFiles([]);
       }
 
       toast.success("Project updated successfully!");
@@ -289,7 +295,7 @@ export default function EditProjectPage() {
                 accept="image/*"
                 maxSize={5}
                 showPreview={true}
-                multiple={false}
+                multiple={true}
               />
             </div>
 
