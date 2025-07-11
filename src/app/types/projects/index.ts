@@ -1,113 +1,83 @@
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { deleteFile, uploadFile } from "@/lib/storage";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
   serverTimestamp,
-  setDoc,
   Timestamp,
   updateDoc,
-  addDoc,
 } from "firebase/firestore";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject,
-} from "firebase/storage";
 
 export interface Contributor {
   name: string;
   initial: string;
-  color: string;
+  color?: string;
 }
 
 export interface ProjectType {
-  id?: string;
+  id: string;
   title: string;
   description: string;
-  languages: string[];
-  link: string;
-  color: string;
+  languages?: string[];
   contributors?: Contributor[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
-  createdBy?: string; // User ID who created the project
-  imageUrl?: string;
+  imageUrls?: string[];
+  link?: string;
 }
 
-export class ProjectDB implements ProjectType {
-  id?: string;
+export class Project implements ProjectType {
+  id: string;
   title: string;
   description: string;
-  languages: string[];
-  link: string;
-  color: string;
+  languages?: string[];
   contributors?: Contributor[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
-  createdBy?: string;
-  imageUrl?: string;
+  imageUrls?: string[];
+  link?: string;
 
   constructor(data: ProjectType) {
     this.id = data.id;
     this.title = data.title;
     this.description = data.description;
     this.languages = data.languages;
+    this.contributors = data.contributors;
+    this.createdAt = data.createdAt || (serverTimestamp() as Timestamp);
+    this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
+    this.imageUrls = data.imageUrls;
     this.link = data.link;
-    this.color = data.color;
-    this.contributors = data.contributors || [];
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
-    this.createdBy = data.createdBy;
-    this.imageUrl = data.imageUrl;
   }
 
   static converter = {
-    toFirestore: (project: ProjectDB) => {
-      const data: any = {
+    toFirestore: (project: Project) => {
+      return {
         title: project.title,
         description: project.description,
         languages: project.languages,
-        link: project.link,
-        color: project.color,
-        contributors: project.contributors || [],
+        contributors: project.contributors,
+        createdAt: project.createdAt,
         updatedAt: serverTimestamp(),
+        imageUrls: project.imageUrls,
+        link: project.link,
       };
-
-      // Only add createdAt if it doesn't exist (for new projects)
-      if (!project.createdAt) {
-        data.createdAt = serverTimestamp();
-      }
-
-      // Only add createdBy if it's defined
-      if (project.createdBy) {
-        data.createdBy = project.createdBy;
-      }
-
-      // Only add imageUrl if it's defined
-      if (project.imageUrl) {
-        data.imageUrl = project.imageUrl;
-      }
-
-      return data;
     },
     fromFirestore: (snapshot: any, options: any) => {
       const data = snapshot.data(options);
-      return new ProjectDB({
+      return new Project({
         id: snapshot.id,
         title: data.title,
         description: data.description,
         languages: data.languages,
-        link: data.link,
-        color: data.color,
         contributors: data.contributors,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
-        createdBy: data.createdBy,
-        imageUrl: data.imageUrl,
+        imageUrls: data.imageUrls,
+        link: data.link,
       });
     },
   };
@@ -115,7 +85,7 @@ export class ProjectDB implements ProjectType {
   // Create a new project
   async create(): Promise<string> {
     const docRef = await addDoc(
-      collection(db, "projects").withConverter(ProjectDB.converter),
+      collection(db, "projects").withConverter(Project.converter),
       this
     );
     this.id = docRef.id;
@@ -123,9 +93,9 @@ export class ProjectDB implements ProjectType {
   }
 
   // Read a single project by ID
-  static async read(id: string): Promise<ProjectDB | null> {
+  static async read(id: string): Promise<Project | null> {
     const docSnap = await getDoc(
-      doc(db, "projects", id).withConverter(ProjectDB.converter)
+      doc(db, "projects", id).withConverter(Project.converter)
     );
     if (docSnap.exists()) {
       return docSnap.data();
@@ -134,90 +104,68 @@ export class ProjectDB implements ProjectType {
   }
 
   // Read all projects
-  static async readAll(): Promise<ProjectDB[]> {
+  static async readAll(): Promise<Project[]> {
     const querySnapshot = await getDocs(
-      collection(db, "projects").withConverter(ProjectDB.converter)
+      collection(db, "projects").withConverter(Project.converter)
     );
     return querySnapshot.docs.map((doc) => doc.data());
   }
 
-  // Update an existing project
   async update(): Promise<void> {
-    if (!this.id) {
-      throw new Error("Cannot update project without ID");
-    }
-    this.updatedAt = serverTimestamp() as Timestamp;
-
     await updateDoc(
       doc(db, "projects", this.id),
-      ProjectDB.converter.toFirestore(this)
+      Project.converter.toFirestore(this)
     );
   }
 
-  // Delete a project
   async delete(): Promise<void> {
-    if (!this.id) {
-      throw new Error("Cannot delete project without ID");
+    if (this.imageUrls && this.imageUrls.length > 0) {
+      await this.deleteAllImages();
     }
-    
-    // Delete associated image if it exists
-    if (this.imageUrl) {
-      await this.deleteImage();
-    }
-    
+
     await deleteDoc(doc(db, "projects", this.id));
   }
 
-  // Upload image to Firebase Storage
   async uploadImage(file: File): Promise<string> {
-    if (!this.id) {
-      throw new Error("Project must be saved before uploading image");
+    const { downloadURL } = await uploadFile(
+      file,
+      `projects/${this.id}/images/${file.name}`
+    );
+
+    if (!this.imageUrls) {
+      this.imageUrls = [];
     }
-    
-    const imageRef = ref(storage, `projects/${this.id}/${file.name}`);
-    const snapshot = await uploadBytes(imageRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    
-    // Update the project with the new image URL
-    this.imageUrl = downloadURL;
+    this.imageUrls.push(downloadURL);
     await this.update();
-    
+
     return downloadURL;
   }
 
-  // Delete image from Firebase Storage
-  async deleteImage(): Promise<void> {
-    if (!this.imageUrl) {
+  async deleteImage(imageUrl: string): Promise<void> {
+    if (!this.imageUrls || !this.imageUrls.includes(imageUrl)) {
       return;
     }
-    
+
     try {
-      const imageRef = ref(storage, this.imageUrl);
-      await deleteObject(imageRef);
-      
-      // Update the project to remove the image URL
-      this.imageUrl = undefined;
+      await deleteFile(`projects/${this.id}/images`);
+      this.imageUrls = this.imageUrls.filter(url => url !== imageUrl);
       await this.update();
     } catch (error) {
       console.error("Error deleting image:", error);
-      // Continue even if image deletion fails
     }
   }
 
-  // Convert to plain object for local state management
-  toPlainObject(): ProjectType {
-    return {
-      id: this.id,
-      title: this.title,
-      description: this.description,
-      languages: this.languages,
-      link: this.link,
-      color: this.color,
-      contributors: this.contributors,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      createdBy: this.createdBy,
-      imageUrl: this.imageUrl,
-    };
+  async deleteAllImages(): Promise<void> {
+    if (!this.imageUrls || this.imageUrls.length === 0) {
+      return;
+    }
+
+    try {
+      await deleteFile(`projects/${this.id}/images`);
+      this.imageUrls = [];
+      await this.update();
+    } catch (error) {
+      console.error("Error deleting images:", error);
+    }
   }
 }

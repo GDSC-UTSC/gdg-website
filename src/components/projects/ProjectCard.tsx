@@ -1,5 +1,5 @@
 "use client";
-import { Project } from "@/app/types/projects/project";
+import { ProjectType } from "@/app/types/projects";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,17 +9,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { GithubIcon, Camera } from "lucide-react";
+import { ExternalLink, Camera } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 interface ProjectCardProps {
-  project: Project;
+  project: ProjectType;
   index: number;
-  languageColors?: any; //
+  languageColors?: Record<string, string>;
 }
 
 const ProjectCard = ({ project, index, languageColors }: ProjectCardProps) => {
+  const firstImage = project.imageUrls?.[0];
+  
   return (
     <motion.div
       key={index}
@@ -27,14 +29,14 @@ const ProjectCard = ({ project, index, languageColors }: ProjectCardProps) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8, delay: 0.2 * index }}
-      className="bg-card/20 backdrop-blur-sm border-border hover:bg-card/80 bg-blue transition-all duration-300 h-full"
+      className="bg-card/20 backdrop-blur-sm border-border hover:bg-card/80 transition-all duration-300 w-full"
     >
-      <Card>
+      <Card className="aspect-square flex flex-col">
         {/* Project Image */}
-        <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
-          {project.imageUrl ? (
+        <div className="relative w-full h-56 overflow-hidden rounded-t-lg flex-shrink-0">
+          {firstImage ? (
             <Image
-              src={project.imageUrl}
+              src={firstImage}
               alt={project.title}
               fill
               className="object-cover transition-transform duration-300 hover:scale-105"
@@ -46,37 +48,64 @@ const ProjectCard = ({ project, index, languageColors }: ProjectCardProps) => {
           )}
         </div>
         
-        <CardHeader>
-          <CardTitle>{project.title}</CardTitle>
-          <CardDescription className="line-clamp-3">{project.description}</CardDescription>
+        <CardHeader className="flex-shrink-0 pb-3">
+          <CardTitle className="text-lg line-clamp-1">{project.title}</CardTitle>
+          <CardDescription className="line-clamp-2 text-sm">{project.description}</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-row gap-2 justify-between">
-          <div className="flex flex-row gap-2">
-            {project.languages.map((language, index) => {
-              // Clean up the language name and find matching color
-              const cleanLanguage = language.trim();
-              const languageKey = Object.keys(languageColors || {}).find(key => 
-                key.toLowerCase() === cleanLanguage.toLowerCase()
-              );
-              const colorClass = languageKey ? languageColors[languageKey] : "bg-gray-500";
-              
-              return (
-                <span
-                  key={index}
-                  className={`text-xs px-2 py-1 rounded-full w-fit text-white ${colorClass}`}
+        
+        <CardContent className="flex-1 flex flex-col justify-between space-y-3">
+          {/* Technologies */}
+          <div className="h-12 flex flex-col justify-start">
+            {project.languages && project.languages.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {project.languages.slice(0, 4).map((language, langIndex) => {
+                  const cleanLanguage = language.trim();
+                  const languageKey = Object.keys(languageColors || {}).find(key => 
+                    key.toLowerCase() === cleanLanguage.toLowerCase()
+                  );
+                  const colorClass = languageKey ? languageColors[languageKey] : "bg-gray-500";
+                  
+                  return (
+                    <span
+                      key={langIndex}
+                      className={`text-xs px-2 py-1 rounded-full text-white ${colorClass} whitespace-nowrap`}
+                    >
+                      {cleanLanguage}
+                    </span>
+                  );
+                })}
+                {project.languages.length > 4 && (
+                  <span className="text-xs px-2 py-1 rounded-full bg-gray-600 text-white">
+                    +{project.languages.length - 4}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground">No technologies listed</div>
+            )}
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex gap-2 mt-auto">
+            <Link href={`/projects/${project.id}`} className="flex-1">
+              <Button variant="outline" className="w-full text-sm h-9">
+                View Details
+              </Button>
+            </Link>
+            {project.link && (
+              <Button size="sm" variant="outline" asChild className="h-9 w-9 p-0">
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="View Project"
                 >
-                  {cleanLanguage}
-                </span>
-              );
-            })}
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </Button>
+            )}
           </div>
         </CardContent>
-        <Button variant="outline" className="w-full mt-4">
-          <Link href={project.link} className="flex items-center gap-2">
-            <GithubIcon className="w-4 h-4" />
-            View Project
-          </Link>
-        </Button>
       </Card>
     </motion.div>
   );
