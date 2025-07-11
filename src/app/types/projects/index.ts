@@ -1,20 +1,21 @@
 import { db, storage } from "@/lib/firebase";
 import {
-  addDoc,
   collection,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
   serverTimestamp,
+  setDoc,
   Timestamp,
-  updateDoc
+  updateDoc,
+  addDoc,
 } from "firebase/firestore";
 import {
-  deleteObject,
-  getDownloadURL,
   ref,
   uploadBytes,
+  getDownloadURL,
+  deleteObject,
 } from "firebase/storage";
 
 export interface Contributor {
@@ -158,12 +159,12 @@ export class ProjectDB implements ProjectType {
     if (!this.id) {
       throw new Error("Cannot delete project without ID");
     }
-
+    
     // Delete associated image if it exists
     if (this.imageUrl) {
       await this.deleteImage();
     }
-
+    
     await deleteDoc(doc(db, "projects", this.id));
   }
 
@@ -172,15 +173,15 @@ export class ProjectDB implements ProjectType {
     if (!this.id) {
       throw new Error("Project must be saved before uploading image");
     }
-
+    
     const imageRef = ref(storage, `projects/${this.id}/${file.name}`);
     const snapshot = await uploadBytes(imageRef, file);
     const downloadURL = await getDownloadURL(snapshot.ref);
-
+    
     // Update the project with the new image URL
     this.imageUrl = downloadURL;
     await this.update();
-
+    
     return downloadURL;
   }
 
@@ -189,11 +190,11 @@ export class ProjectDB implements ProjectType {
     if (!this.imageUrl) {
       return;
     }
-
+    
     try {
       const imageRef = ref(storage, this.imageUrl);
       await deleteObject(imageRef);
-
+      
       // Update the project to remove the image URL
       this.imageUrl = undefined;
       await this.update();
