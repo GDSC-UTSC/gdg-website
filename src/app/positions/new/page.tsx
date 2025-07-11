@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Position, PositionType, QuestionType } from "@/app/types/positions";
-import { Button } from "@/components/ui/button";
-import { TextInput, TextareaInput, SelectInput } from "@/components/positions/questions";
 import QuestionBuilder from "@/components/positions/QuestionBuilder";
+import {
+  SelectInput,
+  TextInput,
+  TextareaInput,
+} from "@/components/positions/questions";
+import { Button } from "@/components/ui/button";
 import TagsInput from "@/components/ui/tags-input";
-import { toast } from "sonner";
 import { Timestamp } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type FormData = {
   name: string;
@@ -29,7 +33,6 @@ export default function NewPositionPage() {
     questions: [],
   });
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -46,6 +49,7 @@ export default function NewPositionPage() {
         questions: formData.questions,
       };
 
+      console.log(positionData);
       const position = new Position(positionData);
 
       await position.create();
@@ -75,7 +79,9 @@ export default function NewPositionPage() {
               id="name"
               label="Position Name"
               value={formData.name}
-              onChange={(value) => setFormData(prev => ({ ...prev, name: value }))}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, name: value }))
+              }
               placeholder="e.g., Frontend Developer"
               required
             />
@@ -84,7 +90,9 @@ export default function NewPositionPage() {
               id="description"
               label="Description"
               value={formData.description}
-              onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, description: value }))
+              }
               placeholder="Describe the role, responsibilities, and requirements..."
               required
               rows={8}
@@ -94,7 +102,7 @@ export default function NewPositionPage() {
               id="tags"
               label="Skills/Tags"
               value={formData.tags}
-              onChange={(tags) => setFormData(prev => ({ ...prev, tags }))}
+              onChange={(tags) => setFormData((prev) => ({ ...prev, tags }))}
               placeholder="Type a skill and press Enter..."
             />
 
@@ -102,17 +110,24 @@ export default function NewPositionPage() {
               id="status"
               label="Status"
               value={formData.status}
-              onChange={(value) => setFormData(prev => ({ ...prev, status: value as "draft" | "active" | "inactive" }))}
+              onChange={(value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  status: value as "draft" | "active" | "inactive",
+                }))
+              }
               options={[
                 { value: "draft", label: "Draft" },
                 { value: "active", label: "Active" },
-                { value: "inactive", label: "Inactive" }
+                { value: "inactive", label: "Inactive" },
               ]}
             />
 
             <QuestionBuilder
               questions={formData.questions}
-              onChange={(questions) => setFormData(prev => ({ ...prev, questions }))}
+              onChange={(questions) =>
+                setFormData((prev) => ({ ...prev, questions }))
+              }
             />
 
             <div className="flex gap-4 pt-8 justify-center">
@@ -125,7 +140,11 @@ export default function NewPositionPage() {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="px-8 py-3 text-base">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-8 py-3 text-base"
+              >
                 {isSubmitting ? "Creating..." : "Create Position"}
               </Button>
             </div>

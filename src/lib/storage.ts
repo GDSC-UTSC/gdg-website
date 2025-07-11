@@ -26,11 +26,12 @@ export async function uploadFile(
 
     const storageRef = ref(storage, path);
 
+    console.log(file.name);
     // Prepare metadata
     const uploadMetadata = {
       contentType: metadata?.contentType || file.type,
       customMetadata: {
-        originalName: file.name,
+        originalName: file.name || "unknown",
         fileSize: file.size.toString(),
         uploadedAt: new Date().toISOString(),
         ...metadata?.customMetadata,

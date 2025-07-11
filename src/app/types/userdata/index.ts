@@ -12,6 +12,14 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
+export const USER_ROLES = {
+  SUPERADMIN: "superadmin",
+  ADMIN: "admin",
+  MEMBER: "member",
+} as const;
+
+export type Role = (typeof USER_ROLES)[keyof typeof USER_ROLES];
+
 export interface UserDataType {
   id: string;
   publicName?: string;
@@ -20,6 +28,7 @@ export interface UserDataType {
   bio?: string;
   linkedin?: string;
   github?: string;
+  role?: Role;
 }
 
 export class UserData implements UserDataType {
@@ -30,6 +39,8 @@ export class UserData implements UserDataType {
   bio?: string;
   linkedin?: string;
   github?: string;
+  role: Role;
+
   constructor(data: UserDataType) {
     this.id = data.id;
     this.publicName = data.publicName;
@@ -38,6 +49,7 @@ export class UserData implements UserDataType {
     this.bio = data.bio;
     this.linkedin = data.linkedin;
     this.github = data.github;
+    this.role = data.role || "member";
   }
 
   static converter = {
@@ -49,6 +61,7 @@ export class UserData implements UserDataType {
         bio: user.bio,
         linkedin: user.linkedin,
         github: user.github,
+        role: user.role,
       };
     },
     fromFirestore: (snapshot: any, options: any) => {
@@ -61,12 +74,17 @@ export class UserData implements UserDataType {
         bio: data.bio,
         linkedin: data.linkedin,
         github: data.github,
+        role: data.role || "member",
       });
     },
   };
+
   get isAdmin(): boolean {
-    // check custom claims or we just query the db
-    return false;
+    return this.role === "admin" || this.role === "superadmin";
+  }
+
+  get isSuperAdmin(): boolean {
+    return this.role === "superadmin";
   }
 
   async create(): Promise<string> {
