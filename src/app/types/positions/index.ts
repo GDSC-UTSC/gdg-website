@@ -1,16 +1,14 @@
-import { db } from "@/lib/firebase";
 import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  query,
+  addDocument,
+  deleteDocument,
+  getDocument,
+  getDocuments,
+  getDocumentsWithQuery,
+  updateDocument,
+} from "@/lib/firestore";
+import {
   serverTimestamp,
   Timestamp,
-  updateDoc,
-  where,
 } from "firebase/firestore";
 
 export type PositionType = {
@@ -85,48 +83,38 @@ export class Position implements PositionType {
   }
 
   async create(): Promise<string> {
-    const docRef = await addDoc(
-      collection(db, "positions").withConverter(Position.converter),
-      this
-    );
-    this.id = docRef.id;
-    return docRef.id;
+    const collectionPath = "positions";
+    this.id = await addDocument(collectionPath, this, Position.converter);
+    return this.id;
   }
 
   static async read(id: string): Promise<Position | null> {
-    const docSnap = await getDoc(
-      doc(db, "positions", id).withConverter(Position.converter)
-    );
-    if (docSnap.exists()) {
-      return docSnap.data();
-    }
-    return null;
+    const documentPath = `positions/${id}`;
+    return await getDocument(documentPath, Position.converter);
   }
 
   static async readAll(): Promise<Position[]> {
-    const querySnapshot = await getDocs(
-      collection(db, "positions").withConverter(Position.converter)
-    );
-    return querySnapshot.docs.map((doc) => doc.data());
+    const collectionPath = "positions";
+    return await getDocuments(collectionPath, Position.converter);
   }
 
   static async readAllActive(): Promise<Position[]> {
-    const querySnapshot = await getDocs(
-      query(
-        collection(db, "positions").withConverter(Position.converter),
-        where("status", "==", "active")
-      )
+    const collectionPath = "positions";
+    return await getDocumentsWithQuery(
+      collectionPath,
+      "status",
+      "==",
+      "active",
+      Position.converter
     );
-    return querySnapshot.docs.map((doc) => doc.data());
   }
   async update(): Promise<void> {
-    await updateDoc(
-      doc(db, "positions", this.id.toString()),
-      Position.converter.toFirestore(this)
-    );
+    const documentPath = `positions/${this.id.toString()}`;
+    await updateDocument(documentPath, Position.converter.toFirestore(this));
   }
 
   async delete(): Promise<void> {
-    await deleteDoc(doc(db, "positions", this.id.toString()));
+    const documentPath = `positions/${this.id.toString()}`;
+    await deleteDocument(documentPath);
   }
 }

@@ -1,15 +1,14 @@
-import { db } from "@/lib/firebase";
 import { deleteFile, uploadFile } from "@/lib/storage";
 import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
+  addDocument,
+  deleteDocument,
+  getDocument,
+  getDocuments,
+  updateDocument,
+} from "@/lib/firestore";
+import {
   serverTimestamp,
   Timestamp,
-  updateDoc,
 } from "firebase/firestore";
 
 export interface Organizer {
@@ -137,39 +136,27 @@ export class Event implements EventType {
 
   // Create a new event
   async create(): Promise<string> {
-    const docRef = await addDoc(
-      collection(db, "events").withConverter(Event.converter),
-      this
-    );
-    this.id = docRef.id;
+    const collectionPath = "events";
+    this.id = await addDocument(collectionPath, this, Event.converter);
     return this.id;
   }
 
   // Read a single event by ID
   static async read(id: string): Promise<Event | null> {
-    const docSnap = await getDoc(
-      doc(db, "events", id).withConverter(Event.converter)
-    );
-    if (docSnap.exists()) {
-      return docSnap.data();
-    }
-    return null;
+    const documentPath = `events/${id}`;
+    return await getDocument(documentPath, Event.converter);
   }
 
   // Read all events
   static async readAll(): Promise<Event[]> {
-    const querySnapshot = await getDocs(
-      collection(db, "events").withConverter(Event.converter)
-    );
-    return querySnapshot.docs.map((doc) => doc.data());
+    const collectionPath = "events";
+    return await getDocuments(collectionPath, Event.converter);
   }
 
   // Update event
   async update(): Promise<void> {
-    await updateDoc(
-      doc(db, "events", this.id),
-      Event.converter.toFirestore(this)
-    );
+    const documentPath = `events/${this.id}`;
+    await updateDocument(documentPath, Event.converter.toFirestore(this));
   }
 
   // Delete event
@@ -178,7 +165,8 @@ export class Event implements EventType {
       await this.deleteAllImages();
     }
 
-    await deleteDoc(doc(db, "events", this.id));
+    const documentPath = `events/${this.id}`;
+    await deleteDocument(documentPath);
   }
 
   // Image management methods

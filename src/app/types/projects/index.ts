@@ -1,15 +1,14 @@
-import { db } from "@/lib/firebase";
 import { deleteFile, uploadFile } from "@/lib/storage";
 import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
+  addDocument,
+  deleteDocument,
+  getDocument,
+  getDocuments,
+  updateDocument,
+} from "@/lib/firestore";
+import {
   serverTimestamp,
   Timestamp,
-  updateDoc,
 } from "firebase/firestore";
 
 export interface Contributor {
@@ -82,38 +81,26 @@ export class Project implements ProjectType {
 
   // Create a new project
   async create(): Promise<string> {
-    const docRef = await addDoc(
-      collection(db, "projects").withConverter(Project.converter),
-      this
-    );
-    this.id = docRef.id;
+    const collectionPath = "projects";
+    this.id = await addDocument(collectionPath, this, Project.converter);
     return this.id;
   }
 
   // Read a single project by ID
   static async read(id: string): Promise<Project | null> {
-    const docSnap = await getDoc(
-      doc(db, "projects", id).withConverter(Project.converter)
-    );
-    if (docSnap.exists()) {
-      return docSnap.data();
-    }
-    return null;
+    const documentPath = `projects/${id}`;
+    return await getDocument(documentPath, Project.converter);
   }
 
   // Read all projects
   static async readAll(): Promise<Project[]> {
-    const querySnapshot = await getDocs(
-      collection(db, "projects").withConverter(Project.converter)
-    );
-    return querySnapshot.docs.map((doc) => doc.data());
+    const collectionPath = "projects";
+    return await getDocuments(collectionPath, Project.converter);
   }
 
   async update(): Promise<void> {
-    await updateDoc(
-      doc(db, "projects", this.id),
-      Project.converter.toFirestore(this)
-    );
+    const documentPath = `projects/${this.id}`;
+    await updateDocument(documentPath, Project.converter.toFirestore(this));
   }
 
   async delete(): Promise<void> {
@@ -121,7 +108,8 @@ export class Project implements ProjectType {
       await this.deleteAllImages();
     }
 
-    await deleteDoc(doc(db, "projects", this.id));
+    const documentPath = `projects/${this.id}`;
+    await deleteDocument(documentPath);
   }
 
   async uploadImage(file: File): Promise<string> {
