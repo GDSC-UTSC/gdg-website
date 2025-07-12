@@ -70,6 +70,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "firebase-tools": "^14.10.1",
     "postcss": "^8.5",
     "tailwindcss": "^4.1.10",
     "tsx": "^4.19.2",
