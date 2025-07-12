@@ -32,3 +32,4 @@ firebase-debug.log
 pglite-debug.log
 /firebase-data
 .firebase/
+functions/node_modules/

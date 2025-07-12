@@ -31,7 +31,7 @@ export const createUserInFirestore = functions.auth
       bio: "",
       linkedin: "",
       github: "",
-      role: "member" as const,
+      role: "admin" as const,
     };
 
     try {
