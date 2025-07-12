@@ -13,9 +13,7 @@ import {
 } from "firebase/firestore";
 
 export interface Contributor {
-  name: string;
-  initial: string;
-  color?: string;
+  userId: string;
 }
 
 export interface ProjectType {
@@ -148,7 +146,7 @@ export class Project implements ProjectType {
 
     try {
       await deleteFile(`projects/${this.id}/images`);
-      this.imageUrls = this.imageUrls.filter(url => url !== imageUrl);
+      this.imageUrls = this.imageUrls.filter((url) => url !== imageUrl);
       await this.update();
     } catch (error) {
       console.error("Error deleting image:", error);
