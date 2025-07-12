@@ -1,15 +1,14 @@
-import { db } from "@/lib/firebase";
 import { deleteFile, uploadFile } from "@/lib/storage";
 import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
+  deleteDocument,
+  getDocument,
+  getDocuments,
+  setDocument,
+  updateDocument,
+} from "@/lib/firestore";
+import {
   serverTimestamp,
-  setDoc,
   Timestamp,
-  updateDoc,
 } from "firebase/firestore";
 
 export const USER_ROLES = {
@@ -88,39 +87,29 @@ export class UserData implements UserDataType {
   }
 
   async create(): Promise<string> {
-    await setDoc(
-      doc(db, "users", this.id).withConverter(UserData.converter),
-      this
-    );
+    const documentPath = `users/${this.id}`;
+    await setDocument(documentPath, this, UserData.converter);
     return this.id;
   }
 
   static async read(id: string): Promise<UserData | null> {
-    const docSnap = await getDoc(
-      doc(db, "users", id).withConverter(UserData.converter)
-    );
-    if (docSnap.exists()) {
-      return docSnap.data();
-    }
-    return null;
+    const documentPath = `users/${id}`;
+    return await getDocument(documentPath, UserData.converter);
   }
 
   static async readAll(): Promise<UserData[]> {
-    const querySnapshot = await getDocs(
-      collection(db, "users").withConverter(UserData.converter)
-    );
-    return querySnapshot.docs.map((doc) => doc.data());
+    const collectionPath = "users";
+    return await getDocuments(collectionPath, UserData.converter);
   }
 
   async update(): Promise<void> {
-    await updateDoc(
-      doc(db, "users", this.id),
-      UserData.converter.toFirestore(this)
-    );
+    const documentPath = `users/${this.id}`;
+    await updateDocument(documentPath, UserData.converter.toFirestore(this));
   }
 
   async delete(): Promise<void> {
-    await deleteDoc(doc(db, "users", this.id));
+    const documentPath = `users/${this.id}`;
+    await deleteDocument(documentPath);
   }
 
   async uploadProfileImage(file: File): Promise<string> {

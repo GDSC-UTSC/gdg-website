@@ -1,14 +1,13 @@
-import { db } from "@/lib/firebase";
 import { uploadFile } from "@/lib/storage";
 import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
+  getDocument,
+  getDocuments,
+  setDocument,
+  updateDocument,
+} from "@/lib/firestore";
+import {
   serverTimestamp,
-  setDoc,
   Timestamp,
-  updateDoc,
 } from "firebase/firestore";
 
 export type ApplicationType = {
@@ -66,8 +65,8 @@ export class Application implements ApplicationType {
   };
 
   async create(positionId: string): Promise<string> {
-    const docRef = doc(db, "positions", positionId, "applications", this.id);
-    await setDoc(docRef.withConverter(Application.converter), this);
+    const documentPath = `positions/${positionId}/applications/${this.id}`;
+    await setDocument(documentPath, this, Application.converter);
     return this.id;
   }
 
@@ -75,39 +74,27 @@ export class Application implements ApplicationType {
     positionId: string,
     userId: string
   ): Promise<Application | null> {
-    const docSnap = await getDoc(
-      doc(db, "positions", positionId, "applications", userId).withConverter(
-        Application.converter
-      )
-    );
-    if (docSnap.exists()) {
-      return docSnap.data();
-    }
-    return null;
+    const documentPath = `positions/${positionId}/applications/${userId}`;
+    return await getDocument(documentPath, Application.converter);
   }
 
   static async readAll(positionId: string): Promise<Application[]> {
-    const querySnapshot = await getDocs(
-      collection(db, "positions", positionId, "applications").withConverter(
-        Application.converter
-      )
-    );
-    return querySnapshot.docs.map((doc) => doc.data());
+    const collectionPath = `positions/${positionId}/applications`;
+    return await getDocuments(collectionPath, Application.converter);
   }
 
-  async update(): Promise<void> {
+  async update(positionId: string): Promise<void> {
+    const documentPath = `positions/${positionId}/applications/${this.id}`;
     const converter = Application.converter;
-    await updateDoc(
-      doc(db, "positions", this.id, "applications", this.id),
-      converter.toFirestore(this)
-    );
+    await updateDocument(documentPath, converter.toFirestore(this));
   }
 
   async updateStatus(
+    positionId: string,
     status: "pending" | "accepted" | "rejected"
   ): Promise<void> {
     this.status = status;
-    await this.update();
+    await this.update(positionId);
   }
 
   async delete() {
