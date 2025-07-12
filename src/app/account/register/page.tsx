@@ -2,11 +2,9 @@
 
 import { AuthForm } from "@/components/auth-form"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 
-export default function LoginPage() {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const router = useRouter();
+export default function RegisterPage() {
+  const [mode, setMode] = useState<'login' | 'register'>('register');
 
   const handleModeSwitch = () => {
     const newMode = mode === 'login' ? 'register' : 'login';
