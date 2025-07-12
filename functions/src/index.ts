@@ -25,7 +25,6 @@ export const createUserInFirestore = functions.auth
 
     // This is the data that will be stored in the new Firestore document.
     const userDocument = {
-      id: uid,
       publicName: displayName || "",
       updatedAt: Timestamp.now(),
       profileImageUrl: "",
