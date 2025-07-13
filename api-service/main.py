@@ -52,12 +52,9 @@ async def review_applications(request: PositionReviewRequest):
 
         # Validate application_ids if provided
         if request.application_ids is not None:
-            if len(request.application_ids) > 10:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Cannot review more than 10 applications at once"
-                )
             logger.info(f"Filtering to specific applications: {request.application_ids}")
+        else:
+            logger.info("No specific applications requested - will review all applications")
 
         # Get position and applications from Firestore
         position, applications = firestore_service.get_position_with_applications(request.position_id)
@@ -97,9 +94,11 @@ async def review_applications(request: PositionReviewRequest):
 
         # Convert Firestore data to LLM format (without names)
         llm_data = firestore_service.convert_firestore_to_llm_format(position, applications)
-        results = []
 
-        for i, application in enumerate(llm_data['applications']):
+        # Prepare applications for batch review
+        applications_for_review = []
+
+        for application in llm_data['applications']:
             app_id = application['id']
 
             # Process all questions and extract text from answers
@@ -108,6 +107,7 @@ async def review_applications(request: PositionReviewRequest):
             for question in application['questions']:
                 # Skip file type questions for now
                 if question['type'] == 'file':
+                    # TODO: convert file to text
                     continue
 
                 # For text questions, use the answer directly
@@ -125,35 +125,49 @@ async def review_applications(request: PositionReviewRequest):
                     detail=f"Application {app_id} has no valid information for review"
                 )
 
-            # Send to LLM for review with job name, description, and tags (without applicant name)
-            review = await gemini_service.review_application(
-                job_name=llm_data['job_name'],
-                job_description=llm_data['job_description'],
-                tags=llm_data['tags'],
-                application_info=application_info
-            )
+            applications_for_review.append({
+                'id': app_id,
+                'info': application_info
+            })
+
+        # Review all applications in a single LLM call
+        logger.info(f"Starting batch review of {len(applications_for_review)} applications...")
+        review_results = await gemini_service.review_applications(
+            job_name=llm_data['job_name'],
+            job_description=llm_data['job_description'],
+            applications=applications_for_review,
+            tags=llm_data['tags']
+        )
+
+        # Convert results to ReviewResult format and save to Firestore
+        results = []
+        for review in review_results:
+            app_id = review['application_id']
+            rating = review['rating']
+            comment = review['comment']
 
             results.append(ReviewResult(
-                name=app_id,  # Use application ID instead of name
-                rating=review['rating'],
-                comment=review['comment']
+                name=app_id,
+                rating=rating,
+                comment=comment
             ))
 
-            logger.info(f"Review completed for application {app_id}: rating={review['rating']}")
+            logger.info(f"Review completed for application {app_id}: rating={rating}")
 
             # Save review to Firestore if rating is greater than 0
-            if review['rating'] > 0:
+            if rating > 0:
                 try:
                     review_id = firestore_service.save_application_review(
                         position_id=request.position_id,
                         application_id=app_id,
-                        rating=review['rating'],
-                        comment=review['comment']
+                        rating=rating,
+                        comment=comment
                     )
                     logger.info(f"Review saved: {review_id}")
                 except Exception as e:
                     logger.error(f"Failed to save review for application {app_id}: {e}")
 
+        logger.info(f"Batch review completed for {len(results)} applications")
         return results
 
     except HTTPException:
@@ -175,4 +189,4 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8081)
+    uvicorn.run(app, host="127.0.0.1", port=8081)

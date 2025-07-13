@@ -1,10 +1,13 @@
 import google.generativeai as genai
 import json
 import os
-from typing import Dict, Any
+import logging
+from typing import Dict, Any, List
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 def load_system_prompt() -> str:
     """Load the system prompt from the text file."""
@@ -18,6 +21,7 @@ class GeminiService:
     def __init__(self):
         """Initialize Gemini service with API key from environment."""
         api_key = os.getenv("GEMINI_API_KEY")
+
         if not api_key:
             raise ValueError("GEMINI_API_KEY environment variable not set")
 
@@ -25,67 +29,123 @@ class GeminiService:
         self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.system_prompt = load_system_prompt()
 
-    async def review_application(self, job_name: str, job_description: str, application_info: str, tags: list = None) -> Dict[str, Any]:
+    def _validate_response_structure(self, result: Dict[str, Any], expected_application_ids: List[str]) -> bool:
+        """Validate the response structure and content."""
         try:
-            # Format tags for display
-            tags_text = ""
-            if tags and len(tags) > 0:
-                tags_text = f"\nJob Tags: {', '.join(tags)}"
+            if 'applications' not in result:
+                return False
 
-            user_prompt = f"""
-            Please review this job application:
+            applications = result['applications']
+            if not isinstance(applications, list):
+                return False
 
-            Job Position: {job_name}
+            if len(applications) != len(expected_application_ids):
+                return False
 
-            Job Description:
-            {job_description}
+            received_ids = set()
+            for app in applications:
+                if not isinstance(app, dict):
+                    return False
 
-            Job Tags:
-            {tags_text}
+                if 'application_id' not in app or 'rating' not in app or 'comment' not in app:
+                    return False
 
-            Application Information:
-            {application_info}
-            """
+                app_id = app['application_id']
+                if not isinstance(app_id, str) or app_id not in expected_application_ids:
+                    return False
 
-            # Create the prompt then send to Gemini
-            prompt = f"{self.system_prompt}\n\nUser Input:\n{user_prompt}"
-            response = self.model.generate_content(prompt)
-            response_text = response.text.strip()
+                if app_id in received_ids:
+                    return False
+                received_ids.add(app_id)
 
-            # Try to extract JSON from the response
+                rating = app['rating']
+                if not isinstance(rating, int) or rating < 1 or rating > 10:
+                    return False
+
+                comment = app['comment']
+                if not isinstance(comment, str) or not comment.strip():
+                    return False
+
+            return True
+
+        except Exception:
+            return False
+
+    async def review_applications(self, job_name: str, job_description: str, applications: List[Dict[str, Any]], tags: list = None) -> List[Dict[str, Any]]:
+        """Review multiple applications in a single Gemini call with retry logic."""
+        max_retries = 3
+
+        for attempt in range(max_retries):
             try:
-                # Remove any markdown code block formatting if present
-                if response_text.startswith('```json'):
-                    response_text = response_text[7:]
-                if response_text.startswith('```'):
-                    response_text = response_text[3:]
-                if response_text.endswith('```'):
-                    response_text = response_text[:-3]
+                logger.info(f"Starting review attempt {attempt + 1}/{max_retries} for {len(applications)} applications")
 
-                result = json.loads(response_text.strip())
+                # Format tags for display
+                tags_text = ""
+                if tags and len(tags) > 0:
+                    tags_text = f"\nJob Tags: {', '.join(tags)}"
 
-                # Validate the response structure
-                if 'rating' not in result or 'comment' not in result:
-                    raise ValueError("Invalid response structure")
+                # Build applications section
+                applications_text = ""
+                expected_application_ids = []
 
-                # Ensure rating is within valid range
-                rating = int(result['rating'])
-                if rating < 1 or rating > 10:
-                    raise ValueError("Rating must be between 1 and 10")
+                for i, app in enumerate(applications, 1):
+                    app_id = app['id']
+                    app_info = app['info']
+                    expected_application_ids.append(app_id)
 
-                return {
-                    'rating': rating,
-                    'comment': str(result['comment'])
-                }
+                    applications_text += f"""
+                    === APPLICATION {i} (ID: {app_id}) ===
+                    {app_info}
+                    """
 
-            except (json.JSONDecodeError, ValueError) as e:
-                return {
-                    'rating': 0,
-                    'comment': "Unable to process application review due to formatting error."
-                }
+                user_prompt = f"""
+                Please review these job applications:
 
-        except Exception as e:
-            return {
-                'rating': 0,
-                'comment': "Error occurred during application review."
-            }
+                Job Position: {job_name}
+
+                Job Description:
+                {job_description}{tags_text}
+
+                Applications to Review:
+                {applications_text}
+
+                Please provide ratings for all applications, considering how they compare to each other.
+                """
+
+                prompt = f"{self.system_prompt}\n\nUser Input:\n{user_prompt}"
+                response = self.model.generate_content(prompt)
+                response_text = response.text.strip()
+
+                try:
+                    if response_text.startswith('```json'):
+                        response_text = response_text[7:]
+                    if response_text.startswith('```'):
+                        response_text = response_text[3:]
+                    if response_text.endswith('```'):
+                        response_text = response_text[:-3]
+
+                    result = json.loads(response_text.strip())
+
+                    # Validate the response structure
+                    if not self._validate_response_structure(result, expected_application_ids):
+                        raise ValueError("Invalid response structure")
+
+                    # Return the applications list
+                    logger.info(f"Successfully reviewed {len(result['applications'])} applications on attempt {attempt + 1}")
+                    return result['applications']
+
+                except (json.JSONDecodeError, ValueError) as e:
+                    if attempt < max_retries - 1:
+                        logger.warning(f"Attempt {attempt + 1} failed due to JSON/validation error: {e}")
+                        continue
+                    else:
+                        logger.error(f"All {max_retries} attempts failed due to JSON/validation errors")
+                        raise
+
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    logger.warning(f"Attempt {attempt + 1} failed due to exception: {e}")
+                    continue
+                else:
+                    logger.error(f"All {max_retries} attempts failed due to exceptions")
+                    raise

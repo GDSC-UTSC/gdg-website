@@ -4,15 +4,7 @@ from typing import List, Dict, Optional, Any
 # API Request/Response Models
 class PositionReviewRequest(BaseModel):
     position_id: str
-    application_ids: List[str] = Field(description="List of specific application IDs to review")
-
-    @validator('application_ids')
-    def validate_application_ids(cls, v):
-        if v is None:
-            raise ValueError("application_ids is required")
-        if len(v) > 10:
-            raise ValueError("Cannot review more than 10 applications at once")
-        return v
+    application_ids: Optional[List[str]] = Field(default=None, description="List of specific application IDs to review. If not provided, all applications will be reviewed.")
 
     class Config:
         alias_generator = lambda string: string.replace('_', '') if string == 'position_id' else string

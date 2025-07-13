@@ -24,19 +24,19 @@ class FirestoreService:
         """Get a position and all its applications."""
         try:
             # Get position
-            position = self._get_position(position_id)
+            position = self.get_position(position_id)
             if not position:
                 return None, []
 
             # Get applications
-            applications = self._get_applications(position_id)
+            applications = self.get_applications(position_id)
             return position, applications
 
         except Exception as e:
             logger.error(f"Error fetching position and applications for {position_id}: {e}")
             raise
 
-    def _get_position(self, position_id: str) -> Optional[Position]:
+    def get_position(self, position_id: str) -> Optional[Position]:
         """Get a position by ID from Firestore."""
         try:
             if not position_id or not self.db:
@@ -59,7 +59,7 @@ class FirestoreService:
             logger.error(f"Error fetching position {position_id}: {e}")
             raise
 
-    def _get_applications(self, position_id: str) -> List[Application]:
+    def get_applications(self, position_id: str) -> List[Application]:
         """Get all applications for a position from Firestore."""
         try:
             if not position_id or not self.db:
@@ -130,7 +130,7 @@ class FirestoreService:
                 raise ValueError("Invalid input parameters")
 
             # Check if position exists and is active
-            position = self._get_position(position_id)
+            position = self.get_position(position_id)
             if not position:
                 raise ValueError(f"Position with ID {position_id} not found")
 
