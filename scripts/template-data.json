@@ -170,20 +170,20 @@
     {
       "name": "Alice Johnson",
       "email": "alice@example.com",
-      "quesitons": {
-        "experience": "I have 2 years of experience with React and modern web development. Built several personal projects including an e-commerce site.",
-        "project": "My portfolio website built with Next.js and deployed on Vercel. Features smooth animations and responsive design.",
-        "framework": "React"
+      "questions": {
+        "What's your experience with web development?": "I have 2 years of experience with React and modern web development. Built several personal projects including an e-commerce site.",
+        "Describe a web project you're proud of": "My portfolio website built with Next.js and deployed on Vercel. Features smooth animations and responsive design.",
+        "Which framework do you prefer?": "React"
       },
       "status": "pending"
     },
     {
       "name": "Carol Davis",
       "email": "carol@example.com",
-      "quesitons": {
-        "experience": "Full-stack developer with 3 years experience. Comfortable with both frontend and backend technologies.",
-        "project": "Built a real-time chat application using React, Node.js, and Socket.io for my final year project.",
-        "framework": "React"
+      "questions": {
+        "What's your experience with web development?": "Full-stack developer with 3 years experience. Comfortable with both frontend and backend technologies.",
+        "Describe a web project you're proud of": "Built a real-time chat application using React, Node.js, and Socket.io for my final year project.",
+        "Which framework do you prefer?": "React"
       },
       "status": "accepted"
     }

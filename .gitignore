@@ -33,3 +33,8 @@ pglite-debug.log
 /firebase-data
 .firebase/
 functions/node_modules/
+
+# python
+serviceKey.json*
+.venv/
+__pycache__/
