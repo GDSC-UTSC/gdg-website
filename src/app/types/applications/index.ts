@@ -3,8 +3,8 @@ import {
   getDocuments,
   setDocument,
   updateDocument,
-} from "@/lib/firestore";
-import { uploadFile } from "@/lib/storage";
+} from "@/lib/firebase/firestore";
+import { uploadFile } from "@/lib/firebase/storage";
 import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 export type ApplicationType = {

@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "id": "YOUR_USERNAME_HERE",
+      "id": "user1",
       "publicName": "Alice Johnson",
       "bio": "Computer Science student passionate about web development and AI. Love building things that make a difference!",
       "linkedin": "https://linkedin.com/in/alice-johnson",

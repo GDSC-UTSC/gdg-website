@@ -1,5 +1,6 @@
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import ServiceWorker from "@/components/layout/ServiceWorker";
 import { AuthProvider } from "@/contexts/AuthContext";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -38,13 +39,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-black">
       <body className={`${inter.className} bg-black`}>
-        <AuthProvider>
-          <Header />
-          <main className="pt-20 md:pt-24">
-            <Providers>{children}</Providers>
-          </main>
-          <Footer />
-        </AuthProvider>
+        <ServiceWorker>
+          <AuthProvider>
+            <Header />
+            <main className="pt-20 md:pt-24">
+              <Providers>{children}</Providers>
+            </main>
+            <Footer />
+          </AuthProvider>
+        </ServiceWorker>
       </body>
     </html>
   );

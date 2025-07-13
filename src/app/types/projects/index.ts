@@ -1,15 +1,12 @@
-import { deleteFile, uploadFile } from "@/lib/storage";
 import {
   addDocument,
   deleteDocument,
   getDocument,
   getDocuments,
   updateDocument,
-} from "@/lib/firestore";
-import {
-  serverTimestamp,
-  Timestamp,
-} from "firebase/firestore";
+} from "@/lib/firebase/firestore";
+import { deleteFile, uploadFile } from "@/lib/firebase/storage";
+import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 export interface Contributor {
   userId: string;

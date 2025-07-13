@@ -1,35 +1,35 @@
-'use client';
+"use client";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
-import { 
-  signInWithEmailAndPassword, 
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { auth } from "@/lib/firebase/client";
+import { cn } from "@/lib/utils";
+import {
   createUserWithEmailAndPassword,
-  signInWithPopup, 
   GoogleAuthProvider,
-  sendPasswordResetEmail
-} from "firebase/auth"
-import { auth } from "@/lib/firebase"
-import { useRouter } from "next/navigation"
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface AuthFormProps extends React.ComponentProps<"div"> {
-  mode?: 'login' | 'register'
-  onModeSwitch?: () => void
+  mode?: "login" | "register";
+  onModeSwitch?: () => void;
 }
 
 export function AuthForm({
   className,
-  mode = 'login',
+  mode = "login",
   onModeSwitch,
   ...props
 }: AuthFormProps) {
@@ -42,7 +42,7 @@ export function AuthForm({
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const router = useRouter();
 
-  const isRegisterMode = mode === 'register';
+  const isRegisterMode = mode === "register";
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,22 +184,19 @@ export function AuthForm({
       <Card className="border-0">
         <CardHeader>
           <CardTitle>
-            {isRegisterMode ? 'Create an account' : 'Login to your account'}
+            {isRegisterMode ? "Create an account" : "Login to your account"}
           </CardTitle>
           <CardDescription>
-            {isRegisterMode 
-              ? 'Enter your details below to create your account'
-              : 'Enter your email below to login to your account'
-            }
+            {isRegisterMode
+              ? "Enter your details below to create your account"
+              : "Enter your email below to login to your account"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailAuth}>
             <div className="flex flex-col gap-6">
               {error && (
-                <div className="text-sm text-red-500 text-center">
-                  {error}
-                </div>
+                <div className="text-sm text-red-500 text-center">{error}</div>
               )}
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
@@ -249,10 +246,13 @@ export function AuthForm({
               )}
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading 
-                    ? (isRegisterMode ? "Creating account..." : "Signing in...") 
-                    : (isRegisterMode ? "Create account" : "Login")
-                  }
+                  {loading
+                    ? isRegisterMode
+                      ? "Creating account..."
+                      : "Signing in..."
+                    : isRegisterMode
+                    ? "Create account"
+                    : "Login"}
                 </Button>
                 <Button
                   type="button"
@@ -294,5 +294,5 @@ export function AuthForm({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

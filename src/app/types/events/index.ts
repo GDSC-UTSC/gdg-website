@@ -1,15 +1,12 @@
-import { deleteFile, uploadFile } from "@/lib/storage";
 import {
   addDocument,
   deleteDocument,
   getDocument,
   getDocuments,
   updateDocument,
-} from "@/lib/firestore";
-import {
-  serverTimestamp,
-  Timestamp,
-} from "firebase/firestore";
+} from "@/lib/firebase/firestore";
+import { deleteFile, uploadFile } from "@/lib/firebase/storage";
+import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 export interface Organizer {
   userId: string;
@@ -192,7 +189,7 @@ export class Event implements EventType {
 
     try {
       await deleteFile(`events/${this.id}/images`);
-      this.imageUrls = this.imageUrls.filter(url => url !== imageUrl);
+      this.imageUrls = this.imageUrls.filter((url) => url !== imageUrl);
       await this.update();
     } catch (error) {
       console.error("Error deleting image:", error);
@@ -214,7 +211,9 @@ export class Event implements EventType {
   }
 
   // Event-specific methods
-  async updateStatus(newStatus: "upcoming" | "ongoing" | "completed" | "cancelled"): Promise<void> {
+  async updateStatus(
+    newStatus: "upcoming" | "ongoing" | "completed" | "cancelled"
+  ): Promise<void> {
     this.status = newStatus;
     await this.update();
   }
