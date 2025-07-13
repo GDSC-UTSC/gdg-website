@@ -11,7 +11,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const { user, userData, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,17 +107,6 @@ const Header = () => {
                     Positions
                   </Button>
                 </Link>
-                {/* Admin Link */}
-                {user && userData?.isAdmin && (
-                  <Link href="/admin">
-                    <Button
-                      variant="ghost"
-                      className="transition-colors text-sm lg:text-base px-3 lg:px-4 text-foreground hover:text-primary"
-                    >
-                      Admin
-                    </Button>
-                  </Link>
-                )}
                 {/* Auth Button */}
                 {loading ? (
                   <Button
