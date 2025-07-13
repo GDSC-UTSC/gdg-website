@@ -113,12 +113,26 @@ export default function AdminPositionDetailPage({ params }: AdminPositionDetailP
               </span>
             ))}
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-6"
+          >
+            <Button
+              onClick={() => router.push(`/admin/positions/${positionId}/applications`)}
+              className="bg-primary hover:bg-primary/90"
+            >
+              View Applications
+            </Button>
+          </motion.div>
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.3 }}
           className="mb-12"
         >
           <Card className="p-8">
@@ -151,7 +165,7 @@ export default function AdminPositionDetailPage({ params }: AdminPositionDetailP
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.4 }}
         >
           <Card className="p-8">
             <h2 className="text-2xl font-semibold mb-6">Application Questions</h2>
