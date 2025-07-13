@@ -86,7 +86,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         id: user.uid,
         name: applicantName,
         email: user.email,
-        quesitons: formData,
+        questions: formData,
         status: "pending",
         createdAt: new Date() as any,
         updatedAt: new Date() as any,
@@ -101,7 +101,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
               user.uid,
               question.label
             );
-            application.quesitons[question.label] = downloadURL;
+            application.questions[question.label] = downloadURL;
           }
         }
       }
