@@ -1,4 +1,3 @@
-import { db } from "./firebase";
 import {
   addDoc,
   collection,
@@ -12,6 +11,7 @@ import {
   where,
   WhereFilterOp,
 } from "firebase/firestore";
+import { db } from "@/lib/firebase/client";
 
 // Type for Firestore converters
 export interface FirestoreConverter<T> {

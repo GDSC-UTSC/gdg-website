@@ -1,6 +1,5 @@
 #!/usr/bin/env tsx
 
-// NOTE IN ORDER TO MAKE AN ACCOIUNT FOR YOURSELF, PLEASE EDIT THE TEMPLATE-DATA.JSON FILE
 
 import { initializeApp } from "firebase/app";
 import {

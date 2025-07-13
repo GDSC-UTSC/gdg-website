@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, initializeServerApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { connectStorageEmulator, getStorage } from "firebase/storage";
@@ -15,6 +15,7 @@ const firebaseConfig = {
 
 console.log("Firebase initializing...");
 const app = initializeApp(firebaseConfig);
+
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);

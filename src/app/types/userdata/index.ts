@@ -1,15 +1,12 @@
-import { deleteFile, uploadFile } from "@/lib/storage";
 import {
   deleteDocument,
   getDocument,
   getDocuments,
   setDocument,
   updateDocument,
-} from "@/lib/firestore";
-import {
-  serverTimestamp,
-  Timestamp,
-} from "firebase/firestore";
+} from "@/lib/firebase/firestore";
+import { deleteFile, uploadFile } from "@/lib/firebase/storage";
+import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 export const USER_ROLES = {
   SUPERADMIN: "superadmin",
