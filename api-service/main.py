@@ -9,6 +9,9 @@ from google.api_core import exceptions as google_exceptions
 from models import PositionReviewRequest, ReviewResponse, ReviewResult
 from llm_service import GeminiService
 from firebase import initialize_firebase, FirestoreService
+from firebase_admin import auth
+from firebase.auth_utils import admin_required
+from fastapi import Body, Depends
 
 logging.basicConfig(
     level=logging.INFO,
@@ -167,6 +170,24 @@ async def review_applications(request: PositionReviewRequest):
     except Exception as e:
         logger.error(f"Error processing applications: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.post("/make-admin")
+async def make_admin(
+    data: dict = Body(..., example={"uid": "target_user_uid"}),
+    decoded_token: dict = Depends(admin_required)
+):
+    uid = data.get("uid")
+    if not uid:
+        raise HTTPException(status_code=400, detail="UID is required")
+    try:
+        user = auth.get_user(uid)
+        auth.set_custom_user_claims(uid, {"admin": True})
+        return {"message": f"User {uid} is now an admin."}
+    except auth.UserNotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")
+    except Exception as e:
+        logger.error(f"Failed to set admin claim for {uid}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to set admin claim: {e}")
 
 @app.get("/health")
 async def health_check():
