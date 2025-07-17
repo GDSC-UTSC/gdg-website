@@ -83,6 +83,18 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
     if (validateForm() && user?.email) {
       const files: File[] = [];
 
+      let text: string | undefined;
+      try {
+        text = await parseFile(formData["Resume"]).then((text) => {
+          return text.length > 0 ? text : "File content is empty";
+        });
+      } catch (error) {
+        console.error("Error parsing file:", error);
+        return;
+      }
+
+      //console.log("Parsed text:", text);
+
       let resumeURL = "";
       const resumeFile = formData["Resume"] as File | undefined;
       if (resumeFile) {
