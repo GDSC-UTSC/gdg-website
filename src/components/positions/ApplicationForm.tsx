@@ -82,10 +82,24 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
     if (validateForm() && user?.email) {
       const files: File[] = [];
 
+      let resumeURL = "";
+      const resumeFile = formData["Resume"] as File | undefined;
+      if (resumeFile) {
+        resumeURL = await Application.prototype.uploadFile(
+          resumeFile,
+          position.id,
+          user.uid,
+          "Resume"
+        );
+        // Replace the File in formData with the URL so Firestore doesn't get a File object
+        formData["Resume"] = resumeURL;
+      }
+
       const application = new Application({
         id: user.uid,
         name: applicantName,
         email: user.email,
+        resume: resumeURL ?? "",
         questions: formData,
         status: "pending",
         createdAt: new Date() as any,
@@ -191,6 +205,74 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                   <p className="text-xs text-muted-foreground">
                     Using email from your logged-in account
                   </p>
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="resumeUpload" className="font-medium">
+                    Resume <span className="text-red-500">*</span>
+                  </Label>
+                  <div
+                    id="resumeUpload"
+                    className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg px-4 py-8 transition-colors cursor-pointer bg-background hover:border-primary/70 focus-within:border-primary/70 ${
+                      errors["Resume"]
+                        ? "border-red-500"
+                        : "border-muted-foreground/40"
+                    }`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const file =
+                        e.dataTransfer.files && e.dataTransfer.files[0];
+                      if (file) handleInputChange("Resume", file);
+                    }}
+                    tabIndex={0}
+                  >
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      className="absolute inset-0 opacity-0 cursor-pointer h-full w-full z-10"
+                      onChange={(e) => {
+                        const file = e.target.files && e.target.files[0];
+                        handleInputChange("Resume", file);
+                      }}
+                      required
+                    />
+                    <div className="flex flex-col items-center pointer-events-none z-0">
+                      {!formData["Resume"] ? (
+                        <>
+                          <span className="text-lg font-medium mb-1">
+                            Drag & drop your resume here, or{" "}
+                            <span className="underline text-primary">
+                              browse
+                            </span>
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Accepted: PDF, Images
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground mt-2">
+                          Selected file: {formData["Resume"].name}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <AnimatePresence>
+                    {errors["Resume"] && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center gap-2 text-red-500 text-sm mt-1"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        {errors["Resume"]}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
               <AnimatePresence>
