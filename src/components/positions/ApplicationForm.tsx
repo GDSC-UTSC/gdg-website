@@ -108,6 +108,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         formData["Resume"] = resumeURL;
       }
 
+      // I parsed the resume as well not sure if we wanted to store it here. ! !! store text
       const application = new Application({
         id: user.uid,
         name: applicantName,
@@ -124,7 +125,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
           if (file) {
             let text: string | undefined;
             // Setup timer
-            const startTime = performance.now();
+            //const startTime = performance.now();
 
             try {
               text = await parseFile(file).then((text) => {
@@ -139,10 +140,10 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
               return;
             }
             // Uncomment the following lines to measure performance or timer and testing parsing output
-            const endTime = performance.now();
-            const duration = endTime - startTime;
-            console.log(`File processed in ${duration}ms`);
-            console.log("Parsed text:", text);
+            //const endTime = performance.now();
+            //const duration = endTime - startTime;
+            //console.log(`File processed in ${duration}ms`);
+            //console.log("Parsed text:", text);
             const downloadURL = await application.uploadFile(
               file,
               position.id,
