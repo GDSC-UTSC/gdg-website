@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Send } from "lucide-react";
 import { useState } from "react";
+import Tesseract from "tesseract.js";
 import QuestionInput from "./QuestionInput";
 
 interface ApplicationFormProps {
@@ -109,6 +110,27 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         if (question.type === "file") {
           const file = formData[question.label] as unknown as File;
           if (file) {
+            let text: string | undefined;
+            // Setup timer
+            const startTime = performance.now();
+
+            try {
+              text = await parseFile(file).then((text) => {
+                return text.length > 0 ? text : "File content is empty";
+              });
+            } catch (error) {
+              console.error("Error parsing file:", error);
+              setErrors((prev) => ({
+                ...prev,
+                [question.label]: "Error processing file",
+              }));
+              return;
+            }
+            // Uncomment the following lines to measure performance or timer and testing parsing output
+            const endTime = performance.now();
+            const duration = endTime - startTime;
+            console.log(`File processed in ${duration}ms`);
+            console.log("Parsed text:", text);
             const downloadURL = await application.uploadFile(
               file,
               position.id,
@@ -121,6 +143,32 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
       }
       await application.create(position.id);
     }
+  };
+
+  const parseFile = (file: File): Promise<string> => {
+    // Handle PDF files
+    if (file.type === "application/pdf") {
+      /*
+         Put PDF Parsing logic here
+
+
+
+
+
+
+          For example, using pdfjsLib to extract text from PDF files
+        */
+    }
+
+    // images
+    if (file.type.startsWith("image/")) {
+      return Tesseract.recognize(file, "eng", {
+        logger: (m) => console.log(m),
+      }).then(({ data: { text } }) => text);
+    }
+
+    // unsupported file types
+    return Promise.reject(new Error("Unsupported file type"));
   };
 
   if (!position.questions || position.questions.length === 0) {
