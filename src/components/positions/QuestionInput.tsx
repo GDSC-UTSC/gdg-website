@@ -1,10 +1,16 @@
 import { QuestionType } from "@/app/types/positions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FileUpload } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { FileUpload } from "@/components/ui/file-upload";
 import { useState } from "react";
 
 interface QuestionInputProps {
@@ -31,9 +37,10 @@ export default function QuestionInput({
 
   const handleCheckboxChange = (option: string, checked: boolean) => {
     // Parse the current value to get the array
-    const currentValues = typeof value === 'string' && value
-      ? value.split(', ').filter(Boolean)
-      : Array.isArray(value)
+    const currentValues =
+      typeof value === "string" && value
+        ? value.split(", ").filter(Boolean)
+        : Array.isArray(value)
         ? value
         : [];
 
@@ -72,7 +79,9 @@ export default function QuestionInput({
         return (
           <Select value={value || ""} onValueChange={onChange}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={`Select ${question.label.toLowerCase()}`} />
+              <SelectValue
+                placeholder={`Select ${question.label.toLowerCase()}`}
+              />
             </SelectTrigger>
             <SelectContent>
               {question.options?.map((option) => (
@@ -86,9 +95,10 @@ export default function QuestionInput({
 
       case "checkbox":
         // Parse the string value back to array for checkboxes
-        const selectedOptions = typeof value === 'string' && value
-          ? value.split(', ').filter(Boolean)
-          : Array.isArray(value)
+        const selectedOptions =
+          typeof value === "string" && value
+            ? value.split(", ").filter(Boolean)
+            : Array.isArray(value)
             ? value
             : [];
 
@@ -119,7 +129,7 @@ export default function QuestionInput({
           <FileUpload
             files={files}
             setFiles={handleFilesChange}
-            accept=".pdf,.doc,.docx"
+            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
             maxSize={10}
             multiple={false}
             showPreview={false}
