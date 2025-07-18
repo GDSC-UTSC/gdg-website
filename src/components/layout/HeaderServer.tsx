@@ -6,9 +6,7 @@ import HeaderClient from "./HeaderClient";
 
 const HeaderServer = async () => {
   const user = await getAuthenticatedUser();
-  if (!user) {
-    console.log("No user");
-  }
+  console.log(user);
   return (
     <HeaderClient>
       <div className="container mx-auto px-4 py-4">

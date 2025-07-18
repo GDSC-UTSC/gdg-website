@@ -13,6 +13,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+
 export async function getAuthenticatedUser() {
   try {
     const authIdToken = (await headers())
