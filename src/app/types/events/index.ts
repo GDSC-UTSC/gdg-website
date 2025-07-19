@@ -10,6 +10,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
+import { EventRegistration } from "../registrations";
 
 export interface Organizer {
   userId: string;
@@ -217,5 +218,44 @@ export class Event implements EventType {
   async updateStatus(newStatus: "upcoming" | "ongoing" | "completed" | "cancelled"): Promise<void> {
     this.status = newStatus;
     await this.update();
+  }
+
+  // Registration-related methods
+  async registerUser(userId: string): Promise<EventRegistration> {
+    if (!this.isRegistrationOpen) {
+      throw new Error("Registration is not open for this event");
+    }
+
+    return await EventRegistration.createRegistration(this.id, userId);
+  }
+
+  async unregisterUser(userId: string): Promise<void> {
+    await EventRegistration.cancelRegistration(this.id, userId);
+  }
+
+  async getUserRegistration(userId: string): Promise<EventRegistration | null> {
+    return await EventRegistration.getByEventAndUser(this.id, userId);
+  }
+
+  async isUserRegistered(userId: string): Promise<boolean> {
+    const registration = await this.getUserRegistration(userId);
+    return registration ? registration.isActive : false;
+  }
+
+  async getRegistrations(): Promise<EventRegistration[]> {
+    return await EventRegistration.getByEventId(this.id);
+  }
+
+  async getActiveRegistrations(): Promise<EventRegistration[]> {
+    return await EventRegistration.getActiveRegistrationsByEventId(this.id);
+  }
+
+  async getRegistrationCount(): Promise<number> {
+    return await EventRegistration.getRegistrationCount(this.id);
+  }
+
+  async getAttendanceCount(): Promise<number> {
+    const registrations = await this.getActiveRegistrations();
+    return registrations.filter(registration => registration.hasAttended).length;
   }
 }

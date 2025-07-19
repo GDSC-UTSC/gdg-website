@@ -28,12 +28,12 @@ export default function EditProjectPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get("id");
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [project, setProject] = useState<Project | null>(null);
-  
+
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",

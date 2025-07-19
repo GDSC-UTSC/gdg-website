@@ -2,6 +2,8 @@
 import { Event } from "@/app/types/events";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import EventRegistrationButton from "@/components/events/EventRegistrationButton";
+import RegistrationStatusCard from "@/components/events/RegistrationStatusCard";
 import {
   ArrowLeft,
   Calendar,
@@ -23,7 +25,7 @@ export default function EventDetailPage() {
 
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  const [registering, setRegistering] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const loadEvent = async () => {
@@ -85,20 +87,8 @@ export default function EventDetailPage() {
     }
   };
 
-  const handleRegister = async () => {
-    if (!event || !user) return;
-
-    setRegistering(true);
-    try {
-      // TODO: Implement registration logic here
-      console.log("Registering for event:", event.id);
-      // You might want to show a success message here
-    } catch (error) {
-      console.error("Error registering for event:", error);
-      // You might want to show an error message here
-    } finally {
-      setRegistering(false);
-    }
+  const handleRegistrationChange = () => {
+    setRefreshKey(prev => prev + 1);
   };
 
   if (loading) {
@@ -124,8 +114,6 @@ export default function EventDetailPage() {
     );
   }
 
-  const isRegistrationAvailable =
-    event.status === "upcoming" && event.isRegistrationOpen;
 
   return (
     <div className="min-h-screen gradient-bg py-20">
@@ -183,18 +171,12 @@ export default function EventDetailPage() {
                   </Button>
                 </Link>
               )}
-              {isRegistrationAvailable && user && (
-                <Button onClick={handleRegister} disabled={registering}>
-                  {registering ? "Registering..." : "Register"}
-                </Button>
-              )}
+              
+              <EventRegistrationButton 
+                event={event} 
+                onRegistrationChange={handleRegistrationChange}
+              />
 
-              {/* Show login prompt if not authenticated */}
-              {isRegistrationAvailable && !user && (
-                <Link href="/account/login">
-                  <Button variant="outline">Sign In to Register</Button>
-                </Link>
-              )}
               {event.link && (
                 <Button asChild>
                   <a
@@ -306,27 +288,8 @@ export default function EventDetailPage() {
 
             {/* Registration Info */}
             {event.status === "upcoming" && (
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-                <h3 className="text-xl font-bold text-white mb-4">
-                  Registration
-                </h3>
-                <div className="space-y-3">
-                  {isRegistrationAvailable ? (
-                    <div className="text-green-400">
-                      <p className="font-medium">Registration Open</p>
-                      <p className="text-sm text-gray-400">
-                        Registration is available for this event
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="text-red-400">
-                      <p className="font-medium">Registration Closed</p>
-                      <p className="text-sm text-gray-400">
-                        Registration deadline has passed
-                      </p>
-                    </div>
-                  )}
-                </div>
+              <div key={refreshKey}>
+                <RegistrationStatusCard event={event} />
               </div>
             )}
           </div>

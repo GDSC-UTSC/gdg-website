@@ -1,0 +1,211 @@
+{
+  "events": [
+    {
+      "id": "event1",
+      "title": "Introduction to Google Cloud Platform",
+      "description": "Learn the fundamentals of Google Cloud Platform including Compute Engine, Cloud Storage, and Cloud Functions. Perfect for beginners who want to get started with cloud computing!",
+      "eventDate": "2025-08-15T18:00:00",
+      "startTime": "18:00",
+      "endTime": "20:00",
+      "location": "IC-200, University of Toronto Scarborough",
+      "registrationDeadline": "2025-08-13T23:59:59",
+      "status": "upcoming",
+      "tags": ["Cloud", "GCP", "Beginner"],
+      "organizers": [{ "userId": "user2" }, { "userId": "user5" }],
+      "link": "https://forms.google.com/gcp-intro"
+    },
+    {
+      "id": "event2", 
+      "title": "Android Development Workshop",
+      "description": "Build your first Android app using Kotlin and Android Studio. We'll cover UI design, data handling, and publishing to Play Store. Bring your laptop!",
+      "eventDate": "2025-08-22T14:00:00",
+      "startTime": "14:00",
+      "endTime": "17:00",
+      "location": "IC-220, University of Toronto Scarborough",
+      "registrationDeadline": "2025-08-20T23:59:59",
+      "status": "upcoming",
+      "tags": ["Android", "Mobile", "Kotlin"],
+      "organizers": [{ "userId": "user2" }]
+    },
+    {
+      "id": "event3",
+      "title": "Machine Learning with TensorFlow",
+      "description": "Dive into machine learning using TensorFlow. We'll build and train neural networks for image classification and discuss practical applications.",
+      "eventDate": "2025-07-25T18:00:00",
+      "startTime": "18:00", 
+      "endTime": "21:00",
+      "location": "IC-400, University of Toronto Scarborough",
+      "registrationDeadline": "2025-07-23T23:59:59",
+      "status": "upcoming",
+      "tags": ["ML", "TensorFlow", "AI"],
+      "organizers": [{ "userId": "user4" }]
+    },
+    {
+      "id": "event4",
+      "title": "Web Development Bootcamp",
+      "description": "Intensive full-day workshop covering React, Next.js, and modern web development practices. Build a complete web application from scratch!",
+      "eventDate": "2025-09-15T10:00:00",
+      "startTime": "10:00",
+      "endTime": "16:00", 
+      "location": "IC-350, University of Toronto Scarborough",
+      "registrationDeadline": "2025-09-12T23:59:59",
+      "status": "upcoming",
+      "tags": ["React", "Web Development", "Next.js", "Full-Day"],
+      "organizers": [{ "userId": "user1" }, { "userId": "user3" }]
+    },
+    {
+      "id": "event5",
+      "title": "Firebase & Cloud Functions Workshop",
+      "description": "Learn to build serverless applications with Firebase. We'll cover Authentication, Firestore, Cloud Functions, and hosting.",
+      "eventDate": "2025-07-10T18:00:00",
+      "startTime": "18:00",
+      "endTime": "21:00",
+      "location": "IC-400, University of Toronto Scarborough", 
+      "status": "completed",
+      "tags": ["Firebase", "Serverless", "Cloud Functions"],
+      "organizers": [{ "userId": "user4" }]
+    }
+  ],
+  "event_registrations": [
+    {
+      "id": "reg1",
+      "eventId": "event1",
+      "userId": "user2",
+      "registrationDate": "2025-07-15T14:30:00",
+      "status": "registered",
+      "attendanceStatus": "pending",
+      "notes": "Looking forward to learning GCP!"
+    },
+    {
+      "id": "reg2", 
+      "eventId": "event1",
+      "userId": "user3",
+      "registrationDate": "2025-07-16T09:15:00",
+      "status": "registered",
+      "attendanceStatus": "pending"
+    },
+    {
+      "id": "reg3",
+      "eventId": "event1", 
+      "userId": "user4",
+      "registrationDate": "2025-07-18T16:45:00",
+      "status": "registered",
+      "attendanceStatus": "pending"
+    },
+    {
+      "id": "reg4",
+      "eventId": "event2",
+      "userId": "user1", 
+      "registrationDate": "2025-07-20T11:00:00",
+      "status": "registered",
+      "attendanceStatus": "pending",
+      "notes": "Excited to build my first Android app!"
+    },
+    {
+      "id": "reg5",
+      "eventId": "event2",
+      "userId": "user3",
+      "registrationDate": "2025-07-21T13:30:00", 
+      "status": "registered",
+      "attendanceStatus": "pending"
+    },
+    {
+      "id": "reg6",
+      "eventId": "event3",
+      "userId": "user1",
+      "registrationDate": "2025-07-12T10:00:00",
+      "status": "registered",
+      "attendanceStatus": "pending"
+    },
+    {
+      "id": "reg7",
+      "eventId": "event3",
+      "userId": "user2", 
+      "registrationDate": "2025-07-14T15:20:00",
+      "status": "registered",
+      "attendanceStatus": "pending"
+    },
+    {
+      "id": "reg8",
+      "eventId": "event4",
+      "userId": "user4",
+      "registrationDate": "2025-07-22T08:45:00",
+      "status": "registered", 
+      "attendanceStatus": "pending",
+      "notes": "Need to brush up on React"
+    },
+    {
+      "id": "reg9",
+      "eventId": "event5",
+      "userId": "user1",
+      "registrationDate": "2025-06-28T19:00:00",
+      "status": "registered",
+      "attendanceStatus": "attended"
+    },
+    {
+      "id": "reg10",
+      "eventId": "event5", 
+      "userId": "user3",
+      "registrationDate": "2025-06-30T12:30:00",
+      "status": "registered",
+      "attendanceStatus": "attended"
+    },
+    {
+      "id": "reg11",
+      "eventId": "event5",
+      "userId": "user2",
+      "registrationDate": "2025-07-01T10:15:00",
+      "status": "cancelled", 
+      "attendanceStatus": "pending",
+      "notes": "Had to cancel due to scheduling conflict"
+    },
+    {
+      "id": "reg12",
+      "eventId": "event1",
+      "userId": "user5",
+      "registrationDate": "2025-07-19T17:30:00",
+      "status": "waitlist",
+      "attendanceStatus": "pending"
+    }
+  ],
+  "users": [
+    {
+      "id": "user1",
+      "publicName": "Alice Johnson", 
+      "bio": "Computer Science student passionate about web development and AI. Love building things that make a difference!",
+      "linkedin": "https://linkedin.com/in/alice-johnson",
+      "github": "https://github.com/alice-dev",
+      "role": "member"
+    },
+    {
+      "id": "user2",
+      "publicName": "Bob Smith",
+      "bio": "Software engineering enthusiast with a focus on mobile app development and UI/UX design.",
+      "linkedin": "https://linkedin.com/in/bob-smith-dev",
+      "github": "https://github.com/bobsmith", 
+      "role": "admin"
+    },
+    {
+      "id": "user3",
+      "publicName": "Carol Davis",
+      "bio": "Full-stack developer and Google Cloud enthusiast. Always excited to learn new technologies!",
+      "linkedin": "https://linkedin.com/in/carol-davis",
+      "github": "https://github.com/carol-codes",
+      "role": "member"
+    },
+    {
+      "id": "user4",
+      "publicName": "David Wilson",
+      "bio": "Machine Learning researcher and data science advocate. Building the future with AI.",
+      "linkedin": "https://linkedin.com/in/david-wilson-ml", 
+      "github": "https://github.com/dwilson-ml",
+      "role": "member"
+    },
+    {
+      "id": "user5",
+      "publicName": "Emma Chen",
+      "bio": "DevOps engineer passionate about cloud infrastructure and automation.",
+      "role": "superadmin"
+    }
+  ]
+}
