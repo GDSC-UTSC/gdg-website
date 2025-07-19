@@ -139,14 +139,28 @@ export class Event implements EventType {
   }
 
   // Read a single event by ID
-  static async read(id: string): Promise<Event | null> {
+  static async read(id: string, options?: { server?: boolean }): Promise<Event | null> {
     const documentPath = `events/${id}`;
+    
+    if (options?.server) {
+      "use server";
+      const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
+      return await getDocumentServer(documentPath, Event.converter);
+    }
+    
     return await getDocument(documentPath, Event.converter);
   }
 
   // Read all events
-  static async readAll(): Promise<Event[]> {
+  static async readAll(options?: { server?: boolean }): Promise<Event[]> {
     const collectionPath = "events";
+    
+    if (options?.server) {
+      "use server";
+      const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
+      return await getDocumentsServer(collectionPath, Event.converter);
+    }
+    
     return await getDocuments(collectionPath, Event.converter);
   }
 

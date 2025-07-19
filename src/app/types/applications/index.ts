@@ -69,14 +69,29 @@ export class Application implements ApplicationType {
 
   static async read(
     positionId: string,
-    userId: string
+    userId: string,
+    options?: { server?: boolean }
   ): Promise<Application | null> {
     const documentPath = `positions/${positionId}/applications/${userId}`;
+    
+    if (options?.server) {
+      "use server";
+      const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
+      return await getDocumentServer(documentPath, Application.converter);
+    }
+    
     return await getDocument(documentPath, Application.converter);
   }
 
-  static async readAll(positionId: string): Promise<Application[]> {
+  static async readAll(positionId: string, options?: { server?: boolean }): Promise<Application[]> {
     const collectionPath = `positions/${positionId}/applications`;
+    
+    if (options?.server) {
+      "use server";
+      const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
+      return await getDocumentsServer(collectionPath, Application.converter);
+    }
+    
     return await getDocuments(collectionPath, Application.converter);
   }
 
