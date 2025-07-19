@@ -11,7 +11,7 @@ import {
   where,
   WhereFilterOp,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase/client";
+import { db } from "./index";
 
 // Type for Firestore converters
 export interface FirestoreConverter<T> {

@@ -5,7 +5,7 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage";
-import { storage } from "@/lib/firebase/client";
+import { storage } from "./index";
 
 // Upload a file to Firebase Storage
 export async function uploadFile(

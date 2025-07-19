@@ -5,7 +5,7 @@ import {
   getDocuments,
   getDocumentsWithQuery,
   updateDocument,
-} from "@/lib/firebase/firestore";
+} from "@/lib/firebase/client/firestore";
 import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 export type PositionType = {

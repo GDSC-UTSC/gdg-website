@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { getAuthenticatedUser } from "@/lib/firebase/server";
+import { getAuthenticatedUser } from "@/lib/firebase/server/index";
 import Image from "next/image";
 import Link from "next/link";
 import HeaderClient from "./HeaderClient";

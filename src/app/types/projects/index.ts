@@ -4,8 +4,8 @@ import {
   getDocument,
   getDocuments,
   updateDocument,
-} from "@/lib/firebase/firestore";
-import { deleteFile, uploadFile } from "@/lib/firebase/storage";
+} from "@/lib/firebase/client/firestore";
+import { deleteFile, uploadFile } from "@/lib/firebase/client/storage";
 import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 export interface Contributor {

@@ -1,4 +1,4 @@
-import { getAuthenticatedUser } from "@/lib/firebase/server";
+import { getAuthenticatedUser } from "@/lib/firebase/server/index";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
