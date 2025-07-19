@@ -1,6 +1,7 @@
 "use client";
-import { EventType } from "@/app/types/events";
+import { EventType, Event } from "@/app/types/events";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -18,8 +19,36 @@ interface EventCardProps {
   index: number;
 }
 
+interface CapacityInfo {
+  registered: number;
+  waitlisted: number;
+  available: number;
+}
+
 const EventCard = ({ event, index }: EventCardProps) => {
   const firstImage = event.imageUrls?.[0];
+  const [capacityInfo, setCapacityInfo] = useState<CapacityInfo | null>(null);
+  
+  // Load capacity info for events with limits
+  useEffect(() => {
+    if (event.maxCapacity) {
+      loadCapacityInfo();
+    }
+  }, [event.id, event.maxCapacity]);
+  
+  const loadCapacityInfo = async () => {
+    try {
+      // Create Event instance to access methods
+      const eventInstance = new Event(event);
+      const registered = await eventInstance.getRegisteredCount();
+      const waitlisted = await eventInstance.getWaitlistCount();
+      const available = await eventInstance.getAvailableSpots();
+      
+      setCapacityInfo({ registered, waitlisted, available });
+    } catch (error) {
+      console.error('Error loading capacity info:', error);
+    }
+  };
   
   const formatDate = (timestamp: any) => {
     return timestamp?.toDate?.()?.toLocaleDateString() || "TBD";
@@ -50,7 +79,8 @@ const EventCard = ({ event, index }: EventCardProps) => {
     }
   };
 
-  const isRegistrationAvailable = event.status === "upcoming" && event.isRegistrationOpen;
+  const isRegistrationAvailable = event.status === "upcoming" && 
+    (event.registrationDeadline ? new Date(event.registrationDeadline.toString()) > new Date() : new Date(event.eventDate.toString()) > new Date());
   
   return (
     <motion.div
@@ -111,6 +141,24 @@ const EventCard = ({ event, index }: EventCardProps) => {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="w-4 h-4" />
                 <span className="line-clamp-1">{event.location}</span>
+              </div>
+            )}
+            
+            {/* Capacity Info */}
+            {event.maxCapacity && capacityInfo && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Users className="w-4 h-4" />
+                <div className="flex gap-2 text-xs">
+                  <span className="text-green-500">{capacityInfo.registered} registered</span>
+                  {capacityInfo.waitlisted > 0 && (
+                    <span className="text-yellow-500">{capacityInfo.waitlisted} waitlisted</span>
+                  )}
+                  {capacityInfo.available > 0 ? (
+                    <span className="text-blue-500">{capacityInfo.available} available</span>
+                  ) : (
+                    <span className="text-red-500">Full</span>
+                  )}
+                </div>
               </div>
             )}
             

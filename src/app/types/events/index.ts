@@ -32,6 +32,8 @@ export interface EventType {
   updatedAt?: Timestamp;
   imageUrls?: string[];
   link?: string;
+  maxCapacity?: number;
+  waitlistEnabled?: boolean;
 }
 
 export class Event implements EventType {
@@ -50,6 +52,8 @@ export class Event implements EventType {
   updatedAt?: Timestamp;
   imageUrls?: string[];
   link?: string;
+  maxCapacity?: number;
+  waitlistEnabled?: boolean;
 
   constructor(data: EventType) {
     this.id = data.id;
@@ -67,6 +71,8 @@ export class Event implements EventType {
     this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
     this.imageUrls = data.imageUrls;
     this.link = data.link;
+    this.maxCapacity = data.maxCapacity;
+    this.waitlistEnabled = data.waitlistEnabled ?? true;
   }
 
   static converter = {
@@ -86,6 +92,8 @@ export class Event implements EventType {
         updatedAt: serverTimestamp(),
         imageUrls: event.imageUrls,
         link: event.link,
+        maxCapacity: event.maxCapacity,
+        waitlistEnabled: event.waitlistEnabled,
       };
     },
     fromFirestore: (snapshot: any, options: any) => {
@@ -106,6 +114,8 @@ export class Event implements EventType {
         updatedAt: data.updatedAt,
         imageUrls: data.imageUrls,
         link: data.link,
+        maxCapacity: data.maxCapacity,
+        waitlistEnabled: data.waitlistEnabled,
       });
     },
   };
@@ -135,29 +145,49 @@ export class Event implements EventType {
     return this.eventDate.toDate() > new Date();
   }
 
+  // Capacity management methods
+  get hasCapacityLimit(): boolean {
+    return this.maxCapacity !== undefined && this.maxCapacity > 0;
+  }
+
+  async getAvailableSpots(): Promise<number> {
+    if (!this.hasCapacityLimit) return Infinity;
+    const currentCount = await this.getTotalRegistrationCount();
+    return Math.max(0, this.maxCapacity! - currentCount);
+  }
+
+  async isFull(): Promise<boolean> {
+    if (!this.hasCapacityLimit) return false;
+    return (await this.getAvailableSpots()) === 0;
+  }
+
+  get hasWaitlist(): boolean {
+    return this.hasCapacityLimit && this.waitlistEnabled === true;
+  }
+
   // Create a new event
   async create(): Promise<string> {
     const collectionPath = "events";
-    this.id = await addDocument(collectionPath, this, Event.converter);
+    this.id = await addDocument<Event>(collectionPath, this, Event.converter);
     return this.id;
   }
 
   // Read a single event by ID
   static async read(id: string): Promise<Event | null> {
     const documentPath = `events/${id}`;
-    return await getDocument(documentPath, Event.converter);
+    return await getDocument<Event>(documentPath, Event.converter);
   }
 
   // Read all events
   static async readAll(): Promise<Event[]> {
     const collectionPath = "events";
-    return await getDocuments(collectionPath, Event.converter);
+    return await getDocuments<Event>(collectionPath, Event.converter);
   }
 
   // Update event
   async update(): Promise<void> {
     const documentPath = `events/${this.id}`;
-    await updateDocument(documentPath, Event.converter.toFirestore(this));
+    await updateDocument<Event>(documentPath, Event.converter.toFirestore(this));
   }
 
   // Delete event
@@ -221,12 +251,30 @@ export class Event implements EventType {
   }
 
   // Registration-related methods
-  async registerUser(userId: string): Promise<EventRegistration> {
+  async registerUser(userId: string): Promise<{registration: EventRegistration, waitlistPosition?: number}> {
     if (!this.isRegistrationOpen) {
       throw new Error("Registration is not open for this event");
     }
 
-    return await EventRegistration.createRegistration(this.id, userId);
+    // Check if user is already registered (should be none since we delete on cancel)
+    const existingRegistration = await EventRegistration.getByEventAndUser(this.id, userId);
+    if (existingRegistration) {
+      throw new Error("User is already registered for this event");
+    }
+
+    // Check capacity and determine registration status
+    const isFull = await this.isFull();
+    let status: "registered" | "waitlist" = "registered";
+
+    if (isFull) {
+      if (this.hasWaitlist) {
+        status = "waitlist";
+      } else {
+        throw new Error("Event is full and waitlist is not enabled");
+      }
+    }
+
+    return await EventRegistration.createRegistration(this.id, userId, status);
   }
 
   async unregisterUser(userId: string): Promise<void> {
@@ -250,6 +298,22 @@ export class Event implements EventType {
     return await EventRegistration.getActiveRegistrationsByEventId(this.id);
   }
 
+  // Get count of registered users only
+  async getRegisteredCount(): Promise<number> {
+    return await EventRegistration.getRegisteredCount(this.id);
+  }
+
+  // Get count of waitlisted users only  
+  async getWaitlistCount(): Promise<number> {
+    return await EventRegistration.getWaitlistCount(this.id);
+  }
+
+  // Get total count (registered + waitlisted) for capacity management
+  async getTotalRegistrationCount(): Promise<number> {
+    return await EventRegistration.getTotalRegistrationCount(this.id);
+  }
+
+  // Legacy method - returns only registered count
   async getRegistrationCount(): Promise<number> {
     return await EventRegistration.getRegistrationCount(this.id);
   }

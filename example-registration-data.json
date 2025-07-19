@@ -12,7 +12,9 @@
       "status": "upcoming",
       "tags": ["Cloud", "GCP", "Beginner"],
       "organizers": [{ "userId": "user2" }, { "userId": "user5" }],
-      "link": "https://forms.google.com/gcp-intro"
+      "link": "https://forms.google.com/gcp-intro",
+      "maxCapacity": 4,
+      "waitlistEnabled": true
     },
     {
       "id": "event2", 
@@ -25,7 +27,9 @@
       "registrationDeadline": "2025-08-20T23:59:59",
       "status": "upcoming",
       "tags": ["Android", "Mobile", "Kotlin"],
-      "organizers": [{ "userId": "user2" }]
+      "organizers": [{ "userId": "user2" }],
+      "maxCapacity": 3,
+      "waitlistEnabled": true
     },
     {
       "id": "event3",
@@ -38,7 +42,9 @@
       "registrationDeadline": "2025-07-23T23:59:59",
       "status": "upcoming",
       "tags": ["ML", "TensorFlow", "AI"],
-      "organizers": [{ "userId": "user4" }]
+      "organizers": [{ "userId": "user4" }],
+      "maxCapacity": 2,
+      "waitlistEnabled": true
     },
     {
       "id": "event4",
@@ -51,7 +57,8 @@
       "registrationDeadline": "2025-09-12T23:59:59",
       "status": "upcoming",
       "tags": ["React", "Web Development", "Next.js", "Full-Day"],
-      "organizers": [{ "userId": "user1" }, { "userId": "user3" }]
+      "organizers": [{ "userId": "user1" }, { "userId": "user3" }],
+      "waitlistEnabled": false
     },
     {
       "id": "event5",
@@ -63,7 +70,9 @@
       "location": "IC-400, University of Toronto Scarborough", 
       "status": "completed",
       "tags": ["Firebase", "Serverless", "Cloud Functions"],
-      "organizers": [{ "userId": "user4" }]
+      "organizers": [{ "userId": "user4" }],
+      "maxCapacity": 5,
+      "waitlistEnabled": true
     }
   ],
   "event_registrations": [
@@ -166,6 +175,58 @@
       "registrationDate": "2025-07-19T17:30:00",
       "status": "waitlist",
       "attendanceStatus": "pending"
+    },
+    {
+      "id": "reg13",
+      "eventId": "event3",
+      "userId": "user3",
+      "registrationDate": "2025-07-13T09:30:00",
+      "status": "registered",
+      "attendanceStatus": "pending"
+    },
+    {
+      "id": "reg14",
+      "eventId": "event3",
+      "userId": "user5",
+      "registrationDate": "2025-07-15T14:00:00",
+      "status": "waitlist",
+      "attendanceStatus": "pending",
+      "notes": "First in waitlist for ML workshop"
+    },
+    {
+      "id": "reg15",
+      "eventId": "event1",
+      "userId": "user1",
+      "registrationDate": "2025-07-20T10:00:00",
+      "status": "waitlist",
+      "attendanceStatus": "pending",
+      "notes": "Second in waitlist for GCP workshop"
+    },
+    {
+      "id": "reg16",
+      "eventId": "event2",
+      "userId": "user4",
+      "registrationDate": "2025-07-22T16:45:00",
+      "status": "registered",
+      "attendanceStatus": "pending"
+    },
+    {
+      "id": "reg17",
+      "eventId": "event2",
+      "userId": "user5",
+      "registrationDate": "2025-07-23T11:20:00",
+      "status": "waitlist",
+      "attendanceStatus": "pending",
+      "notes": "Waitlisted for Android workshop"
+    },
+    {
+      "id": "reg18",
+      "eventId": "event3",
+      "userId": "user4",
+      "registrationDate": "2025-07-16T13:15:00",
+      "status": "waitlist",
+      "attendanceStatus": "pending",
+      "notes": "Second in waitlist for ML workshop"
     }
   ],
   "users": [
