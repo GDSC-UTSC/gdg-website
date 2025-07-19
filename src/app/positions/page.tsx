@@ -3,9 +3,8 @@
 import { Position } from "@/app/types/positions";
 import PositionCard from "@/components/positions/PositionCard";
 import PageTitle from "@/components/ui/PageTitle";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function PositionsPage() {
   const router = useRouter();
@@ -53,10 +52,7 @@ export default function PositionsPage() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {positions.map((position) => (
-            <PositionCard
-              key={position.id}
-              position={position}
-            />
+            <PositionCard key={position.id} position={position} />
           ))}
         </div>
 
