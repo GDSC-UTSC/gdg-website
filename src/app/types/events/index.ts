@@ -12,6 +12,13 @@ export interface Organizer {
   userId: string;
 }
 
+export type QuestionType = {
+  type: "text" | "textarea" | "select" | "checkbox" | "file";
+  label: string;
+  options?: string[]; // For select and checkbox types
+  required?: boolean;
+};
+
 export interface EventType {
   id: string;
   title: string;
@@ -21,13 +28,14 @@ export interface EventType {
   endTime?: string;
   location?: string;
   registrationDeadline?: Timestamp;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled";
+  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
   tags?: string[];
   organizers?: Organizer[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   imageUrls?: string[];
   link?: string;
+  questions?: QuestionType[];
 }
 
 export class Event implements EventType {
@@ -39,13 +47,14 @@ export class Event implements EventType {
   endTime?: string;
   location?: string;
   registrationDeadline?: Timestamp;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled";
+  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
   tags?: string[];
   organizers?: Organizer[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   imageUrls?: string[];
   link?: string;
+  questions?: QuestionType[];
 
   constructor(data: EventType) {
     this.id = data.id;
@@ -63,6 +72,7 @@ export class Event implements EventType {
     this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
     this.imageUrls = data.imageUrls;
     this.link = data.link;
+    this.questions = data.questions || [];
   }
 
   static converter = {
@@ -82,6 +92,7 @@ export class Event implements EventType {
         updatedAt: serverTimestamp(),
         imageUrls: event.imageUrls,
         link: event.link,
+        questions: event.questions,
       };
     },
     fromFirestore: (snapshot: any, options: any) => {
@@ -102,6 +113,7 @@ export class Event implements EventType {
         updatedAt: data.updatedAt,
         imageUrls: data.imageUrls,
         link: data.link,
+        questions: data.questions || [],
       });
     },
   };
@@ -141,26 +153,26 @@ export class Event implements EventType {
   // Read a single event by ID
   static async read(id: string, options?: { server?: boolean }): Promise<Event | null> {
     const documentPath = `events/${id}`;
-    
+
     if (options?.server) {
       "use server";
       const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentServer(documentPath, Event.converter);
     }
-    
+
     return await getDocument(documentPath, Event.converter);
   }
 
   // Read all events
   static async readAll(options?: { server?: boolean }): Promise<Event[]> {
     const collectionPath = "events";
-    
+
     if (options?.server) {
       "use server";
       const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentsServer(collectionPath, Event.converter);
     }
-    
+
     return await getDocuments(collectionPath, Event.converter);
   }
 
