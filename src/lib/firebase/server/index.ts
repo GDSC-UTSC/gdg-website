@@ -2,6 +2,7 @@
 
 import { initializeServerApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
+import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { headers } from "next/headers";
 
 const firebaseConfig = {
@@ -13,6 +14,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+
 export async function getAuthenticatedUser() {
   try {
     const authIdToken = (await headers())
@@ -20,7 +22,9 @@ export async function getAuthenticatedUser() {
       ?.split("Bearer ")[1];
     const serverApp = initializeServerApp(firebaseConfig, { authIdToken });
     const serverAuth = getAuth(serverApp);
-    connectAuthEmulator(serverAuth, "http://localhost:9099");
+    if (process.env.NODE_ENV === "development") {
+      connectAuthEmulator(serverAuth, "http://localhost:9099");
+    }
     await serverAuth.authStateReady();
 
     return serverAuth.currentUser;
@@ -28,4 +32,16 @@ export async function getAuthenticatedUser() {
     console.error("Server auth error:", error);
     return null;
   }
+}
+
+export async function getAuthenticatedFirestore() {
+  const authIdToken = (await headers())
+    .get("Authorization")
+    ?.split("Bearer ")[1];
+  const serverApp = initializeServerApp(firebaseConfig, { authIdToken });
+  const serverFirestore = getFirestore(serverApp);
+  if (process.env.NODE_ENV === "development") {
+    connectFirestoreEmulator(serverFirestore, "localhost", 8080);
+  }
+  return serverFirestore;
 }

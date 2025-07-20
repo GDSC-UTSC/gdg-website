@@ -1,54 +1,41 @@
 "use client";
+
 import { Event } from "@/app/types/events";
+import RegistrationForm from "@/components/events/RegistrationForm";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  ArrowLeft,
-  Calendar,
-  Clock,
-  Edit,
-  ExternalLink,
-  MapPin,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Calendar, Clock, ExternalLink, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 
-export default function EventDetailPage() {
-  const { user } = useAuth();
-  const params = useParams();
+interface EventDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function EventDetailPage({ params }: EventDetailPageProps) {
   const router = useRouter();
-  const eventId = params.id as string;
-
+  const { id } = use(params);
+  const { user } = useAuth();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  const [registering, setRegistering] = useState(false);
 
   useEffect(() => {
-    const loadEvent = async () => {
-      if (!eventId) {
-        router.push("/events");
-        return;
-      }
-
+    const fetchEvent = async () => {
       try {
-        const eventData = await Event.read(eventId);
-        if (!eventData) {
-          router.push("/events");
-          return;
-        }
-        setEvent(eventData);
+        const fetchedEvent = await Event.read(id);
+        setEvent(fetchedEvent);
       } catch (error) {
-        console.error("Error loading event:", error);
-        router.push("/events");
+        console.error("Error fetching event:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadEvent();
-  }, [eventId, router]);
+    fetchEvent();
+  }, [id]);
 
   const formatDate = (timestamp: any) => {
     return (
@@ -80,52 +67,46 @@ export default function EventDetailPage() {
         return "bg-gray-600";
       case "cancelled":
         return "bg-red-600";
+      case "closed":
+        return "bg-orange-600";
       default:
         return "bg-gray-600";
     }
   };
 
-  const handleRegister = async () => {
-    if (!event || !user) return;
-
-    setRegistering(true);
-    try {
-      // TODO: Implement registration logic here
-      console.log("Registering for event:", event.id);
-      // You might want to show a success message here
-    } catch (error) {
-      console.error("Error registering for event:", error);
-      // You might want to show an error message here
-    } finally {
-      setRegistering(false);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen gradient-bg flex items-center justify-center">
-        <div className="text-white">Loading event...</div>
+      <div className="min-h-screen gradient-bg py-20">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center py-12">
+            <p className="text-gray-400">Loading event...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!event) {
     return (
-      <div className="min-h-screen gradient-bg flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">
-            Event Not Found
-          </h1>
-          <Link href="/events">
-            <Button>Back to Events</Button>
-          </Link>
+      <div className="min-h-screen gradient-bg py-20">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold text-white mb-4">
+              Event Not Found
+            </h1>
+            <p className="text-gray-400 mb-6">
+              The event you're looking for doesn't exist or has been removed.
+            </p>
+            <Button onClick={() => router.push("/events")}>
+              Back to Events
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 
-  const isRegistrationAvailable =
-    event.status === "upcoming" && event.isRegistrationOpen;
+  const isRegistrationAvailable = event.status === "upcoming";
 
   return (
     <div className="min-h-screen gradient-bg py-20">
@@ -139,7 +120,11 @@ export default function EventDetailPage() {
             </Button>
           </Link>
 
-          <div className="flex justify-between items-start mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-between items-start mb-6"
+          >
             <div>
               <h1 className="text-5xl font-bold text-white mb-4">
                 {event.title}
@@ -175,26 +160,6 @@ export default function EventDetailPage() {
             </div>
 
             <div className="flex gap-3">
-              {user && (
-                <Link href={`/events/edit?id=${event.id}`}>
-                  <Button variant="outline">
-                    <Edit size={16} className="mr-2" />
-                    Edit
-                  </Button>
-                </Link>
-              )}
-              {isRegistrationAvailable && user && (
-                <Button onClick={handleRegister} disabled={registering}>
-                  {registering ? "Registering..." : "Register"}
-                </Button>
-              )}
-
-              {/* Show login prompt if not authenticated */}
-              {isRegistrationAvailable && !user && (
-                <Link href="/account/login">
-                  <Button variant="outline">Sign In to Register</Button>
-                </Link>
-              )}
               {event.link && (
                 <Button asChild>
                   <a
@@ -209,12 +174,17 @@ export default function EventDetailPage() {
                 </Button>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="lg:col-span-2 space-y-8"
+          >
             {/* Event Images */}
             {event.imageUrls && event.imageUrls.length > 0 && (
               <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
@@ -244,11 +214,15 @@ export default function EventDetailPage() {
                 {event.description}
               </p>
             </div>
-
-          </div>
+          </motion.div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-6"
+          >
             {/* Event Details */}
             <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
               <h3 className="text-xl font-bold text-white mb-4">
@@ -303,34 +277,10 @@ export default function EventDetailPage() {
                 </div>
               </div>
             )}
-
-            {/* Registration Info */}
-            {event.status === "upcoming" && (
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-                <h3 className="text-xl font-bold text-white mb-4">
-                  Registration
-                </h3>
-                <div className="space-y-3">
-                  {isRegistrationAvailable ? (
-                    <div className="text-green-400">
-                      <p className="font-medium">Registration Open</p>
-                      <p className="text-sm text-gray-400">
-                        Registration is available for this event
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="text-red-400">
-                      <p className="font-medium">Registration Closed</p>
-                      <p className="text-sm text-gray-400">
-                        Registration deadline has passed
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+          </motion.div>
         </div>
+
+        <RegistrationForm event={event} />
       </div>
     </div>
   );

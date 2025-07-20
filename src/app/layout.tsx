@@ -1,5 +1,5 @@
 import Footer from "@/components/layout/Footer";
-import Header from "@/components/layout/Header";
+import HeaderServer from "@/components/layout/HeaderServer";
 import ServiceWorker from "@/components/layout/ServiceWorker";
 import { AuthProvider } from "@/contexts/AuthContext";
 import type { Metadata } from "next";
@@ -41,7 +41,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-black`}>
         <ServiceWorker>
           <AuthProvider>
-            <Header />
+            <HeaderServer />
             <main className="pt-20 md:pt-24">
               <Providers>{children}</Providers>
             </main>

@@ -14,6 +14,7 @@ import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { revalidateAuth } from "../../lib/actions/validations";
 
 export default function AccountPage() {
   const { user, loading } = useAuth();
@@ -89,7 +90,10 @@ export default function AccountPage() {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push("/");
+      setTimeout(async () => {
+        await revalidateAuth();
+      }, 1000);
+      router.push("/account");
     } catch (error) {
       console.error("Error signing out:", error);
     }
