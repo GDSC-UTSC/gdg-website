@@ -112,7 +112,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
 
     try {
       const registrationData = {
-        id: existingRegistration?.id || "",
+        id: user.uid,
         name: registrantName,
         email: user.email,
         questions: formData,
