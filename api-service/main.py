@@ -42,14 +42,23 @@ app.add_middleware(
 try:
     db = initialize_firebase()
     firestore_service = FirestoreService(db)
-    gemini_service = GeminiService()
-    logger.info("All services initialized successfully")
+    try:
+        gemini_service = GeminiService()
+    except Exception as e:
+        logger.warning(f"Gemini service not initialized: {e}")
+        gemini_service = None
+    logger.info("Firebase services initialized successfully")
 except Exception as e:
     logger.error(f"Failed to initialize services: {e}")
     raise
 
 @app.post("/review-applications", response_model=List[ReviewResult])
 async def review_applications(request: PositionReviewRequest):
+    if gemini_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Review service is currently unavailable"
+        )
     try:
         logger.info(f"Processing applications for position: {request.position_id}")
 
