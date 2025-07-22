@@ -24,10 +24,10 @@ export type TeamRole = (typeof TEAM_ROLES)[keyof typeof TEAM_ROLES];
 
 export interface TeamMember {
   id: string;
-  name: string;
-  role: TeamRole;
+  publicName?: string;
   bio?: string;
   image?: string;
+  profileImageUrl?: string;
   linkedin?: string;
   github?: string;
   order?: number; // Optional custom ordering within role

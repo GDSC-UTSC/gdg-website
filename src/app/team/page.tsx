@@ -1,9 +1,8 @@
 import { ROLES, Role, TEAMS, TeamAssignment } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
 import PageTitle from "@/components/ui/PageTitle";
-import { Card } from "@/components/ui/card";
-import { Github, Linkedin } from "lucide-react";
-import Image from "next/image";
+import TeamCard from "../../components/team/TeamCard";
+import { TeamMember } from "../types/team/team";
 
 export default async function TeamPage() {
   let assignments: TeamAssignment[] = [];
@@ -62,67 +61,18 @@ export default async function TeamPage() {
                   </p>
                 ) : (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {sortedAssignments.map((assignment) => {
+                    {sortedAssignments.map((assignment, index) => {
                       const user = users.find(
                         (u) => u.id === assignment.userId
                       );
-                      if (!user) return null;
 
                       return (
-                        <Card key={assignment.id} className="p-6">
-                          <div className="flex flex-col items-center text-center">
-                            <div className="relative w-32 h-32 mb-4">
-                              {user.profileImageUrl ? (
-                                <Image
-                                  src={user.profileImageUrl}
-                                  alt={user.publicName || "Team member"}
-                                  fill
-                                  className="rounded-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full rounded-full bg-muted flex items-center justify-center text-4xl font-bold text-muted-foreground">
-                                  {(user.publicName || "?")[0].toUpperCase()}
-                                </div>
-                              )}
-                            </div>
-
-                            <h4 className="text-xl font-semibold mb-1">
-                              {user.publicName}
-                            </h4>
-                            <p className="text-muted-foreground mb-4">
-                              {assignment.role}
-                            </p>
-
-                            {user.bio && (
-                              <p className="text-sm text-muted-foreground mb-4">
-                                {user.bio}
-                              </p>
-                            )}
-
-                            <div className="flex gap-4">
-                              {user.github && (
-                                <a
-                                  href={user.github}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                  <Github className="w-5 h-5" />
-                                </a>
-                              )}
-                              {user.linkedin && (
-                                <a
-                                  href={user.linkedin}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                  <Linkedin className="w-5 h-5" />
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        </Card>
+                        <TeamCard
+                          key={index}
+                          member={user as TeamMember}
+                          assignment={assignment}
+                          index={index}
+                        />
                       );
                     })}
                   </div>

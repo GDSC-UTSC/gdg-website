@@ -9,7 +9,7 @@ import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 // Define team categories
 export const TEAMS = {
-  EXECUTIVE: "Executive",
+  EXECUTIVE: "Co-Leads",
   TECH: "Tech Team",
   MARKETING: "Marketing Team",
   OPERATIONS: "Operations Team",
@@ -23,8 +23,7 @@ export type Team = (typeof TEAMS)[keyof typeof TEAMS];
 // Define roles within each team
 export const ROLES = {
   // Executive roles
-  PRESIDENT: "President",
-  VICE_PRESIDENT: "Vice President",
+  PRESIDENT: "Co-Lead",
 
   // Team roles (can be applied to any team)
   VICE_LEADER: "Vice Lead",
