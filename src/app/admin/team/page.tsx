@@ -1,6 +1,6 @@
 "use client";
 
-import { ROLES, TEAMS, TEAM_STATUS, TeamAssignment, Role } from "@/app/types/team";
+import { ROLES, TEAMS, TeamAssignment, Role } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,6 @@ export default function AdminTeamPage() {
     userId: "",
     team: Object.values(TEAMS)[0],
     role: Object.values(ROLES)[0],
-    status: TEAM_STATUS.ACTIVE,
   });
 
   useEffect(() => {
@@ -62,17 +61,16 @@ export default function AdminTeamPage() {
     e.preventDefault();
 
     try {
-      // Check if user already has an active assignment for this team and role
+      // Check if user already has an assignment for this team and role
       const existingAssignment = assignments.find(
         (a) => 
           a.userId === formData.userId && 
           a.team === formData.team &&
-          a.role === formData.role &&
-          a.status === TEAM_STATUS.ACTIVE
+          a.role === formData.role
       );
 
       if (existingAssignment) {
-        toast.error("User already has an active assignment for this team and role");
+        toast.error("User already has an assignment for this team and role");
         return;
       }
 
@@ -82,7 +80,6 @@ export default function AdminTeamPage() {
         userId: formData.userId,
         team: formData.team as any,
         role: formData.role as any,
-        status: formData.status as any,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
@@ -97,7 +94,6 @@ export default function AdminTeamPage() {
         userId: "",
         team: Object.values(TEAMS)[0],
         role: Object.values(ROLES)[0],
-        status: TEAM_STATUS.ACTIVE,
       });
       toast.success("Team member assigned successfully");
     } catch (error) {
@@ -106,28 +102,6 @@ export default function AdminTeamPage() {
     }
   };
 
-  const handleStatusChange = async (
-    assignmentId: string,
-    newStatus: string
-  ) => {
-    try {
-      const assignment = assignments.find((a) => a.id === assignmentId);
-      if (!assignment) return;
-
-      assignment.status = newStatus as any;
-
-      await assignment.update();
-
-      setAssignments((prev) =>
-        prev.map((a) => (a.id === assignmentId ? assignment : a))
-      );
-
-      toast.success("Status updated successfully");
-    } catch (error) {
-      console.error("Error updating status:", error);
-      toast.error("Failed to update status");
-    }
-  };
 
   const handleDeleteAssignment = async (assignmentId: string) => {
     try {
@@ -294,23 +268,6 @@ export default function AdminTeamPage() {
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Select
-                              value={assignment.status}
-                              onValueChange={(value) =>
-                                handleStatusChange(assignment.id, value)
-                              }
-                            >
-                              <SelectTrigger className="w-[120px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.values(TEAM_STATUS).map((status) => (
-                                  <SelectItem key={status} value={status}>
-                                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
                             <Button
                               variant="destructive"
                               size="sm"

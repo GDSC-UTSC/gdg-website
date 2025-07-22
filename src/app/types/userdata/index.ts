@@ -18,7 +18,6 @@ export type Role = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
 export interface UserDataType {
   id: string;
-  email?: string;
   publicName?: string;
   updatedAt: Timestamp;
   profileImageUrl?: string;
@@ -30,7 +29,6 @@ export interface UserDataType {
 
 export class UserData implements UserDataType {
   id: string;
-  email?: string;
   publicName?: string;
   updatedAt: Timestamp;
   profileImageUrl?: string;
@@ -41,7 +39,6 @@ export class UserData implements UserDataType {
 
   constructor(data: UserDataType) {
     this.id = data.id;
-    this.email = data.email;
     this.publicName = data.publicName;
     this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
     this.profileImageUrl = data.profileImageUrl;
@@ -54,7 +51,6 @@ export class UserData implements UserDataType {
   static converter = {
     toFirestore: (user: UserData) => {
       return {
-        email: user.email,
         publicName: user.publicName,
         updatedAt: serverTimestamp(),
         profileImageUrl: user.profileImageUrl,
@@ -68,7 +64,6 @@ export class UserData implements UserDataType {
       const data = snapshot.data(options);
       return new UserData({
         id: snapshot.id,
-        email: data.email,
         publicName: data.publicName,
         updatedAt: data.updatedAt,
         profileImageUrl: data.profileImageUrl,
@@ -94,27 +89,34 @@ export class UserData implements UserDataType {
     return this.id;
   }
 
-  static async read(id: string, options?: { server?: boolean }): Promise<UserData | null> {
+  static async read(
+    id: string,
+    options?: { server?: boolean }
+  ): Promise<UserData | null> {
     const documentPath = `users/${id}`;
-    
+
     if (options?.server) {
-      "use server";
-      const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
+      ("use server");
+      const { getDocument: getDocumentServer } = await import(
+        "@/lib/firebase/server/firestore"
+      );
       return await getDocumentServer(documentPath, UserData.converter);
     }
-    
+
     return await getDocument(documentPath, UserData.converter);
   }
 
   static async readAll(options?: { server?: boolean }): Promise<UserData[]> {
     const collectionPath = "users";
-    
+
     if (options?.server) {
-      "use server";
-      const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
+      ("use server");
+      const { getDocuments: getDocumentsServer } = await import(
+        "@/lib/firebase/server/firestore"
+      );
       return await getDocumentsServer(collectionPath, UserData.converter);
     }
-    
+
     return await getDocuments(collectionPath, UserData.converter);
   }
 

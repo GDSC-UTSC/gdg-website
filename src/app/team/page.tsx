@@ -11,7 +11,7 @@ export default async function TeamPage() {
 
   try {
     const [fetchedAssignments, fetchedUsers] = await Promise.all([
-      TeamAssignment.readAllActive({ server: true }),
+      TeamAssignment.readAll({ server: true }),
       UserData.readAll({ server: true }),
     ]);
 
@@ -52,7 +52,9 @@ export default async function TeamPage() {
 
             return (
               <section key={team}>
-                <h2 className="text-3xl font-bold mb-8 text-center">{team}</h2>
+                <h2 className="text-3xl font-bold mb-8 text-center pb-2 border-b border-border border-dashed">
+                  {team}
+                </h2>
 
                 {sortedAssignments.length === 0 ? (
                   <p className="text-muted-foreground text-center py-8">

@@ -27,28 +27,18 @@ export const ROLES = {
   VICE_PRESIDENT: "Vice President",
 
   // Team roles (can be applied to any team)
-  VICE_LEADER: "Vice Leader",
+  VICE_LEADER: "Vice Lead",
   DIRECTOR: "Director",
   ASSOCIATE: "Associate",
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
-// Team assignment status
-export const TEAM_STATUS = {
-  ACTIVE: "active",
-  INACTIVE: "inactive",
-  ALUMNI: "alumni",
-} as const;
-
-export type TeamStatus = (typeof TEAM_STATUS)[keyof typeof TEAM_STATUS];
-
 export interface TeamAssignmentType {
   id: string;
   userId: string;
   team: Team;
   role: Role;
-  status: TeamStatus;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -58,7 +48,6 @@ export class TeamAssignment implements TeamAssignmentType {
   userId: string;
   team: Team;
   role: Role;
-  status: TeamStatus;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 
@@ -67,7 +56,6 @@ export class TeamAssignment implements TeamAssignmentType {
     this.userId = data.userId;
     this.team = data.team;
     this.role = data.role;
-    this.status = data.status;
     this.createdAt = data.createdAt || (serverTimestamp() as Timestamp);
     this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
   }
@@ -78,7 +66,6 @@ export class TeamAssignment implements TeamAssignmentType {
         userId: assignment.userId,
         team: assignment.team,
         role: assignment.role,
-        status: assignment.status,
         createdAt: assignment.createdAt,
         updatedAt: serverTimestamp(),
       };
@@ -90,7 +77,6 @@ export class TeamAssignment implements TeamAssignmentType {
         userId: data.userId,
         team: data.team,
         role: data.role,
-        status: data.status,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       });
@@ -136,43 +122,13 @@ export class TeamAssignment implements TeamAssignmentType {
     return await getDocuments(collectionPath, TeamAssignment.converter);
   }
 
-  static async readAllActive(options?: {
-    server?: boolean;
-  }): Promise<TeamAssignment[]> {
-    const collectionPath = "team_assignments";
-
-    if (options?.server) {
-      ("use server");
-      const { getDocumentsWithQuery: getDocumentsWithQueryServer } =
-        await import("@/lib/firebase/server/firestore");
-      return await getDocumentsWithQueryServer(
-        collectionPath,
-        "status",
-        "==",
-        "active",
-        TeamAssignment.converter
-      );
-    }
-
-    const assignments = await getDocuments(
-      collectionPath,
-      TeamAssignment.converter
-    );
-    return assignments.filter(
-      (assignment) => assignment.status === TEAM_STATUS.ACTIVE
-    );
-  }
-
-  static async readActiveByUser(userId: string): Promise<TeamAssignment[]> {
+  static async readByUser(userId: string): Promise<TeamAssignment[]> {
     const collectionPath = "team_assignments";
     const assignments = await getDocuments(
       collectionPath,
       TeamAssignment.converter
     );
-    return assignments.filter(
-      (assignment) =>
-        assignment.userId === userId && assignment.status === TEAM_STATUS.ACTIVE
-    );
+    return assignments.filter((assignment) => assignment.userId === userId);
   }
 
   static async readByRole(role: Role): Promise<TeamAssignment[]> {
