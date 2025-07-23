@@ -7,19 +7,20 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Send } from "lucide-react";
+import * as pdfjsLib from "pdfjs-dist";
+import { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
 import { useState } from "react";
 import Tesseract from "tesseract.js";
 import QuestionInput from "./QuestionInput";
-import * as pdfjsLib from "pdfjs-dist";
-import { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
-//pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+// Initialize PDF.js worker
+if (typeof window !== "undefined") {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+}
 
 interface ApplicationFormProps {
   position: Position;
 }
-
 
 //GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -72,11 +73,11 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         const value: any = formData[question.label];
 
         if (!value || (Array.isArray(value) && value.length === 0)) {
-          newErrors[question.label] = `${question.label} is required`;
+          newErrors[question.label] = "Input is required";
         } else if (typeof value === "string" && value.trim() === "") {
-          newErrors[question.label] = `${question.label} is required`;
+          newErrors[question.label] = "Input is required";
         } else if (question.type === "file" && !(value instanceof File)) {
-          newErrors[question.label] = `${question.label} is required`;
+          newErrors[question.label] = "Input is required";
         }
       }
     });
@@ -105,6 +106,21 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
 
       let resumeURL = "";
       const resumeFile = formData["Resume"] as File | undefined;
+
+      const blob = new Blob([text || ""], { type: "text/plain" });
+      const file = new File([blob], "resume.txt", { type: "text/plain" });
+
+      if (text) {
+        const resume_text_URL = await Application.prototype.uploadFile(
+          file,
+          position.id,
+          user.uid,
+          "Resume_text"
+        );
+        formData["Resume_text"] = resume_text_URL;
+        text = "";
+      }
+
       if (resumeFile) {
         resumeURL = await Application.prototype.uploadFile(
           resumeFile,
@@ -121,7 +137,6 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         id: user.uid,
         name: applicantName,
         email: user.email,
-        resume: resumeURL ?? "",
         questions: formData,
         status: "pending",
         createdAt: new Date() as any,
@@ -147,18 +162,33 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
               }));
               return;
             }
-            // Uncomment the following lines to measure performance or timer and testing parsing output
+            //Uncomment the following lines to measure performance or timer and testing parsing output
             //const endTime = performance.now();
             //const duration = endTime - startTime;
             //console.log(`File processed in ${duration}ms`);
             //console.log("Parsed text:", text);
+
             const downloadURL = await application.uploadFile(
               file,
               position.id,
               user.uid,
               question.label
             );
+
+            const blob = new Blob([text || ""], { type: "text/plain" });
+            const file_txt = new File([blob], `${question.label}.txt`, {
+              type: "text/plain",
+            });
+
+            const file_txt_URL = await Application.prototype.uploadFile(
+              file,
+              position.id,
+              user.uid,
+              `${question.label}_text`
+            );
+
             application.questions[question.label] = downloadURL;
+            application.questions[`${question.label}_text`] = file_txt_URL;
           }
         }
       }
@@ -177,23 +207,29 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         reader.readAsArrayBuffer(file);
       });
       //parse the pdf
-      const pdf = await pdfjsLib.getDocument(arrayBuffer).promise.catch(error => {
-        return Promise.reject(new Error(`Error parsing PDF: ${error}`));
-      });
+      const pdf = await pdfjsLib
+        .getDocument(arrayBuffer)
+        .promise.catch((error) => {
+          return Promise.reject(new Error(`Error parsing PDF: ${error}`));
+        });
       //create a promise that will resolve when the pdf is parsed
       const textPromises = [];
       //get text from each page
       for (let i = 1; i <= pdf.numPages; i++) {
         textPromises.push(
-          pdf.getPage(i).then(page =>
-            page.getTextContent().then(content =>
-              content.items
-                .map((item: TextItem | TextMarkedContent) =>
-                  "str" in item ? item.str : ""
+          pdf
+            .getPage(i)
+            .then((page) =>
+              page
+                .getTextContent()
+                .then((content) =>
+                  content.items
+                    .map((item: TextItem | TextMarkedContent) =>
+                      "str" in item ? item.str : ""
+                    )
+                    .join("\n")
                 )
-                .join("\n")
             )
-          )
         );
       }
       //join the text from each page
@@ -275,7 +311,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="flex items-center gap-2 text-red-500 text-sm"
+                        className="flex items-center gap-2 text-red-500 text-sm break-words"
                       >
                         <AlertCircle className="w-4 h-4" />
                         {errors.applicantName}
@@ -357,7 +393,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="flex items-center gap-2 text-red-500 text-sm mt-1"
+                        className="flex items-center gap-2 text-red-500 text-sm mt-1 break-words"
                       >
                         <AlertCircle className="w-4 h-4" />
                         {errors["Resume"]}
@@ -397,7 +433,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-semibold">
                       {index + 1}
                     </span>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <QuestionInput
                         question={question}
                         value={formData[question.label]}

@@ -11,7 +11,6 @@ export type ApplicationType = {
   id: string;
   name: string;
   email: string;
-  resume: string;
   questions: Record<string, string>;
   status: "pending" | "accepted" | "rejected";
   createdAt: Timestamp;
@@ -22,7 +21,6 @@ export class Application implements ApplicationType {
   id: string;
   name: string;
   email: string;
-  resume: string;
   questions: Record<string, string>;
   status: "pending" | "accepted" | "rejected";
   createdAt: Timestamp;
@@ -32,7 +30,6 @@ export class Application implements ApplicationType {
     this.id = data.id;
     this.name = data.name;
     this.email = data.email;
-    this.resume = data.resume;
     this.questions = data.questions;
     this.status = data.status;
     this.createdAt = data.createdAt || (serverTimestamp() as Timestamp);
@@ -44,7 +41,6 @@ export class Application implements ApplicationType {
       return {
         name: application.name,
         email: application.email,
-        resume: application.resume,
         questions: application.questions,
         status: application.status,
         createdAt: application.createdAt,
@@ -57,7 +53,6 @@ export class Application implements ApplicationType {
         id: snapshot.id,
         name: data.name,
         email: data.email,
-        resume: data.resume,
         questions: data.questions,
         status: data.status,
         createdAt: data.createdAt,

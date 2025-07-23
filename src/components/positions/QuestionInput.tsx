@@ -143,7 +143,7 @@ export default function QuestionInput({
 
   return (
     <div className="space-y-3">
-      <Label className="text-base font-medium">
+      <Label className="text-base font-medium break-words leading-relaxed">
         {question.label}
         {question.required && <span className="text-red-500 ml-1">*</span>}
       </Label>
