@@ -7,22 +7,13 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Send } from "lucide-react";
-import * as pdfjsLib from "pdfjs-dist";
-import { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
 import { useState } from "react";
-import Tesseract from "tesseract.js";
+import Parser from "../../app/types/parser";
 import QuestionInput from "./QuestionInput";
-
-// Initialize PDF.js worker
-if (typeof window !== "undefined") {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-}
 
 interface ApplicationFormProps {
   position: Position;
 }
-
-//GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export default function ApplicationForm({ position }: ApplicationFormProps) {
   const { user } = useAuth();
@@ -92,45 +83,29 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
     if (validateForm() && user?.email) {
       const files: File[] = [];
 
-      let text: string | undefined;
-      try {
-        text = await parseFile(formData["Resume"]).then((text) => {
-          return text.length > 0 ? text : "File content is empty";
-        });
-      } catch (error) {
-        console.error("Error parsing file:", error);
-        return;
-      }
+      let text: string | "";
+      const resumeFile = formData["Resume"] as File;
+      text = await Parser.parseFileText(resumeFile);
 
       //console.log("Parsed text:", text);
+      const resumeTxt = await Parser.textToTxt(text, "Resume");
 
-      let resumeURL = "";
-      const resumeFile = formData["Resume"] as File | undefined;
+      const resumeTextURL = await Parser.FileToPositionStorage(
+        resumeTxt,
+        position.id,
+        user.uid,
+        "Text_Resume"
+      );
 
-      const blob = new Blob([text || ""], { type: "text/plain" });
-      const file = new File([blob], "resume.txt", { type: "text/plain" });
+      const resumeURL = await Parser.FileToPositionStorage(
+        resumeFile,
+        position.id,
+        user.uid,
+        "Resume"
+      );
 
-      if (text) {
-        const resume_text_URL = await Application.prototype.uploadFile(
-          file,
-          position.id,
-          user.uid,
-          "Resume_text"
-        );
-        formData["Resume_text"] = resume_text_URL;
-        text = "";
-      }
-
-      if (resumeFile) {
-        resumeURL = await Application.prototype.uploadFile(
-          resumeFile,
-          position.id,
-          user.uid,
-          "Resume"
-        );
-        // Replace the File in formData with the URL so Firestore doesn't get a File object
-        formData["Resume"] = resumeURL;
-      }
+      formData["Resume_text"] = resumeTextURL;
+      formData["Resume"] = resumeURL;
 
       // I parsed the resume as well not sure if we wanted to store it here. ! !! store text
       const application = new Application({
@@ -142,112 +117,45 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         createdAt: new Date() as any,
         updatedAt: new Date() as any,
       });
+
       for (const question of position.questions) {
         if (question.type === "file") {
           const file = formData[question.label] as unknown as File;
           if (file) {
-            let text: string | undefined;
-            // Setup timer
-            //const startTime = performance.now();
+            let text: string | "";
 
             try {
-              text = await parseFile(file).then((text) => {
-                return text.length > 0 ? text : "File content is empty";
-              });
+              text = await Parser.parseFileText(file);
+
+              const fileTxt = await Parser.textToTxt(text, question.label);
+              const fileTxtURL = await Parser.FileToPositionStorage(
+                fileTxt,
+                position.id,
+                user.uid,
+                `Text_${question.label}`
+              );
+              const fileURL = await Parser.FileToPositionStorage(
+                file,
+                position.id,
+                user.uid,
+                question.label
+              );
+
+              application.questions[question.label] = fileURL;
+              application.questions[`${question.label}_text`] = fileTxtURL;
             } catch (error) {
-              console.error("Error parsing file:", error);
+              console.error("Error processing file:", error);
               setErrors((prev) => ({
                 ...prev,
                 [question.label]: "Error processing file",
               }));
               return;
             }
-            //Uncomment the following lines to measure performance or timer and testing parsing output
-            //const endTime = performance.now();
-            //const duration = endTime - startTime;
-            //console.log(`File processed in ${duration}ms`);
-            //console.log("Parsed text:", text);
-
-            const downloadURL = await application.uploadFile(
-              file,
-              position.id,
-              user.uid,
-              question.label
-            );
-
-            const blob = new Blob([text || ""], { type: "text/plain" });
-            const file_txt = new File([blob], `${question.label}.txt`, {
-              type: "text/plain",
-            });
-
-            const file_txt_URL = await Application.prototype.uploadFile(
-              file,
-              position.id,
-              user.uid,
-              `${question.label}_text`
-            );
-
-            application.questions[question.label] = downloadURL;
-            application.questions[`${question.label}_text`] = file_txt_URL;
           }
         }
       }
       await application.create(position.id);
     }
-  };
-
-  const parseFile = async (file: File): Promise<string> => {
-    // Handle PDF files
-    if (file.type === "application/pdf") {
-      const reader = new FileReader();
-      //read the file as an array buffer since pdfjsLib expects an array buffer
-      const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as ArrayBuffer);
-        reader.onerror = () => reject(new Error("Error reading file"));
-        reader.readAsArrayBuffer(file);
-      });
-      //parse the pdf
-      const pdf = await pdfjsLib
-        .getDocument(arrayBuffer)
-        .promise.catch((error) => {
-          return Promise.reject(new Error(`Error parsing PDF: ${error}`));
-        });
-      //create a promise that will resolve when the pdf is parsed
-      const textPromises = [];
-      //get text from each page
-      for (let i = 1; i <= pdf.numPages; i++) {
-        textPromises.push(
-          pdf
-            .getPage(i)
-            .then((page) =>
-              page
-                .getTextContent()
-                .then((content) =>
-                  content.items
-                    .map((item: TextItem | TextMarkedContent) =>
-                      "str" in item ? item.str : ""
-                    )
-                    .join("\n")
-                )
-            )
-        );
-      }
-      //join the text from each page
-      const textArray = await Promise.all(textPromises);
-      const fullText = textArray.join("\n").trim();
-      //console.log("Full text:", fullText);
-      return fullText || "File content is empty";
-    }
-
-    // images
-    if (file.type.startsWith("image/")) {
-      return Tesseract.recognize(file, "eng", {
-        logger: (m) => console.log(m),
-      }).then(({ data: { text } }) => text);
-    }
-
-    // unsupported file types
-    return Promise.reject(new Error("Unsupported file type"));
   };
 
   if (!position.questions || position.questions.length === 0) {
