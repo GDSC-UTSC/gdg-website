@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, Send } from "lucide-react";
+import { AlertCircle, Send, Upload } from "lucide-react";
 import { useState } from "react";
 import Parser from "../../app/types/parser";
 import QuestionInput from "./QuestionInput";
@@ -21,6 +21,14 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
   const [applicantName, setApplicantName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
 
   const handleInputChange = (questionLabel: string, value: any) => {
     let processedValue: any;
@@ -289,9 +297,37 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                           </span>
                         </>
                       ) : (
-                        <span className="text-xs text-muted-foreground mt-2">
-                          Selected file: {formData["Resume"].name}
-                        </span>
+                        <div className="flex flex-col items-center gap-3 mt-2">
+                          <span className="text-xs text-muted-foreground">
+                            Selected file:
+                          </span>
+                          {formData["Resume"].name ? (
+                            <motion.div
+                              className="flex items-center gap-3 bg-muted/50 rounded-lg px-4 py-3 border border-muted-foreground/20"
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{
+                                delay: 0.1,
+                              }}
+                            >
+                              <div className="flex-shrink-0 w-10 h-10 bg-muted rounded flex items-center justify-center">
+                                <Upload className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-foreground truncate">
+                                  {formData["Resume"].name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatFileSize(formData["Resume"].size)} • {formData["Resume"].type}
+                                </p>
+                              </div>
+                            </motion.div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              No file selected
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

@@ -1,16 +1,19 @@
-import * as pdfjsLib from "pdfjs-dist";
 import { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
 import Tesseract from "tesseract.js";
 import { uploadFile } from "../../../lib/firebase/storage";
-
-if (typeof window !== "undefined") {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-}
 
 export default class Parser {
   private async parse(file: File): Promise<string> {
     // Handle PDF files
     if (file.type === "application/pdf") {
+      // Dynamic import to avoid SSR issues
+      const pdfjsLib = await import("pdfjs-dist");
+
+      // Configure worker only on client-side
+      if (typeof window !== "undefined") {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+      }
+
       const reader = new FileReader();
       //read the file as an array buffer since pdfjsLib expects an array buffer
       const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
