@@ -13,4 +13,4 @@ fi
 
 pip install -r requirements.txt
 
-python main.py
+uvicorn main:app --reload
