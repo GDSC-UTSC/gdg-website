@@ -1,6 +1,6 @@
 import { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
 import Tesseract from "tesseract.js";
-import { uploadFile } from "../../../lib/firebase/storage";
+import { uploadFile } from "@/lib/firebase/client/storage";
 
 export default class Parser {
   private async parse(file: File): Promise<string> {

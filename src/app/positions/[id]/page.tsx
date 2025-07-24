@@ -1,13 +1,12 @@
 "use client";
 
 import { Position } from "@/app/types/positions";
-import PageTitle from "@/components/ui/PageTitle";
+import ApplicationForm from "@/components/positions/ApplicationForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useEffect, useState, use } from "react";
-import { useRouter } from "next/navigation";
-import ApplicationForm from "@/components/positions/ApplicationForm";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 
 interface PositionDetailPageProps {
   params: Promise<{ id: string }>;
