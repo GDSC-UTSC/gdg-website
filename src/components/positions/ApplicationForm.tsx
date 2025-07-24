@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, Send } from "lucide-react";
+import { AlertCircle, Send, Upload } from "lucide-react";
 import { useState } from "react";
+import Parser from "../../app/types/parser";
 import QuestionInput from "./QuestionInput";
 
 interface ApplicationFormProps {
@@ -20,6 +21,14 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
   const [applicantName, setApplicantName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
 
   const handleInputChange = (questionLabel: string, value: any) => {
     let processedValue: any;
@@ -63,11 +72,11 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         const value: any = formData[question.label];
 
         if (!value || (Array.isArray(value) && value.length === 0)) {
-          newErrors[question.label] = `${question.label} is required`;
+          newErrors[question.label] = "Input is required";
         } else if (typeof value === "string" && value.trim() === "") {
-          newErrors[question.label] = `${question.label} is required`;
+          newErrors[question.label] = "Input is required";
         } else if (question.type === "file" && !(value instanceof File)) {
-          newErrors[question.label] = `${question.label} is required`;
+          newErrors[question.label] = "Input is required";
         }
       }
     });
@@ -82,6 +91,31 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
     if (validateForm() && user?.email) {
       const files: File[] = [];
 
+      let text: string | "";
+      const resumeFile = formData["Resume"] as File;
+      text = await Parser.parseFileText(resumeFile);
+
+      //console.log("Parsed text:", text);
+      const resumeTxt = await Parser.textToTxt(text, "Resume");
+
+      const resumeTextURL = await Parser.FileToPositionStorage(
+        resumeTxt,
+        position.id,
+        user.uid,
+        "Text_Resume"
+      );
+
+      const resumeURL = await Parser.FileToPositionStorage(
+        resumeFile,
+        position.id,
+        user.uid,
+        "Resume"
+      );
+
+      formData["Resume_text"] = resumeTextURL;
+      formData["Resume"] = resumeURL;
+
+      // I parsed the resume as well not sure if we wanted to store it here. ! !! store text
       const application = new Application({
         id: user.uid,
         name: applicantName,
@@ -91,17 +125,40 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         createdAt: new Date() as any,
         updatedAt: new Date() as any,
       });
+
       for (const question of position.questions) {
         if (question.type === "file") {
           const file = formData[question.label] as unknown as File;
           if (file) {
-            const downloadURL = await application.uploadFile(
-              file,
-              position.id,
-              user.uid,
-              question.label
-            );
-            application.questions[question.label] = downloadURL;
+            let text: string | "";
+
+            try {
+              text = await Parser.parseFileText(file);
+
+              const fileTxt = await Parser.textToTxt(text, question.label);
+              const fileTxtURL = await Parser.FileToPositionStorage(
+                fileTxt,
+                position.id,
+                user.uid,
+                `Text_${question.label}`
+              );
+              const fileURL = await Parser.FileToPositionStorage(
+                file,
+                position.id,
+                user.uid,
+                question.label
+              );
+
+              application.questions[question.label] = fileURL;
+              application.questions[`${question.label}_text`] = fileTxtURL;
+            } catch (error) {
+              console.error("Error processing file:", error);
+              setErrors((prev) => ({
+                ...prev,
+                [question.label]: "Error processing file",
+              }));
+              return;
+            }
           }
         }
       }
@@ -170,7 +227,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="flex items-center gap-2 text-red-500 text-sm"
+                        className="flex items-center gap-2 text-red-500 text-sm break-words"
                       >
                         <AlertCircle className="w-4 h-4" />
                         {errors.applicantName}
@@ -191,6 +248,102 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                   <p className="text-xs text-muted-foreground">
                     Using email from your logged-in account
                   </p>
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="resumeUpload" className="font-medium">
+                    Resume <span className="text-red-500">*</span>
+                  </Label>
+                  <div
+                    id="resumeUpload"
+                    className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg px-4 py-8 transition-colors cursor-pointer bg-background hover:border-primary/70 focus-within:border-primary/70 ${
+                      errors["Resume"]
+                        ? "border-red-500"
+                        : "border-muted-foreground/40"
+                    }`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const file =
+                        e.dataTransfer.files && e.dataTransfer.files[0];
+                      if (file) handleInputChange("Resume", file);
+                    }}
+                    tabIndex={0}
+                  >
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      className="absolute inset-0 opacity-0 cursor-pointer h-full w-full z-10"
+                      onChange={(e) => {
+                        const file = e.target.files && e.target.files[0];
+                        handleInputChange("Resume", file);
+                      }}
+                      required
+                    />
+                    <div className="flex flex-col items-center pointer-events-none z-0">
+                      {!formData["Resume"] ? (
+                        <>
+                          <span className="text-lg font-medium mb-1">
+                            Drag & drop your resume here, or{" "}
+                            <span className="underline text-primary">
+                              browse
+                            </span>
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Accepted: PDF, Images
+                          </span>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center gap-3 mt-2">
+                          <span className="text-xs text-muted-foreground">
+                            Selected file:
+                          </span>
+                          {formData["Resume"].name ? (
+                            <motion.div
+                              className="flex items-center gap-3 bg-muted/50 rounded-lg px-4 py-3 border border-muted-foreground/20"
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{
+                                delay: 0.1,
+                              }}
+                            >
+                              <div className="flex-shrink-0 w-10 h-10 bg-muted rounded flex items-center justify-center">
+                                <Upload className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-foreground truncate">
+                                  {formData["Resume"].name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatFileSize(formData["Resume"].size)} • {formData["Resume"].type}
+                                </p>
+                              </div>
+                            </motion.div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              No file selected
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <AnimatePresence>
+                    {errors["Resume"] && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center gap-2 text-red-500 text-sm mt-1 break-words"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        {errors["Resume"]}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
               <AnimatePresence>
@@ -224,7 +377,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-semibold">
                       {index + 1}
                     </span>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <QuestionInput
                         question={question}
                         value={formData[question.label]}
