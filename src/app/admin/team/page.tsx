@@ -1,10 +1,16 @@
 "use client";
 
-import { ROLES, TEAMS, TeamAssignment, Role } from "@/app/types/team";
+import { ROLES, Role, TEAMS, TeamAssignment } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -20,14 +26,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2 } from "lucide-react";
+import useDebounce from "@/hooks/useDebounce";
 import { Timestamp } from "firebase/firestore";
+import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function AdminTeamPage() {
-  const [assignments, setAssignments] = useState<TeamAssignment[]>([]);
+  const [input, setInput] = useState("");
+  const debouncedQuery = useDebounce(input, 300);
   const [users, setUsers] = useState<UserData[]>([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch("/api/getUsers", {
+          method: "POST",
+          body: JSON.stringify({ query: debouncedQuery }),
+        });
+        const userData = await res.json();
+        setUsers(userData);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, [debouncedQuery]);
+
+  const [assignments, setAssignments] = useState<TeamAssignment[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -63,8 +91,8 @@ export default function AdminTeamPage() {
     try {
       // Check if user already has an assignment for this team and role
       const existingAssignment = assignments.find(
-        (a) => 
-          a.userId === formData.userId && 
+        (a) =>
+          a.userId === formData.userId &&
           a.team === formData.team &&
           a.role === formData.role
       );
@@ -102,7 +130,6 @@ export default function AdminTeamPage() {
     }
   };
 
-
   const handleDeleteAssignment = async (assignmentId: string) => {
     try {
       const assignment = assignments.find((a) => a.id === assignmentId);
@@ -110,7 +137,7 @@ export default function AdminTeamPage() {
 
       if (confirm("Are you sure you want to remove this team member?")) {
         await assignment.delete();
-        
+
         setAssignments((prev) => prev.filter((a) => a.id !== assignmentId));
         toast.success("Team member removed successfully");
       }
@@ -153,23 +180,32 @@ export default function AdminTeamPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="userId">Team Member</Label>
-                  <Select
-                    value={formData.userId}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, userId: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a member" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {users.map((user) => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.publicName || user.id}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Command>
+                    <CommandInput
+                      placeholder="Search for a member"
+                      value={input}
+                      onValueChange={setInput}
+                    />
+                    <CommandList className="max-h-[100px] overflow-y-auto">
+                      {users
+                        .filter((user) => user.publicName)
+                        .map((user) => (
+                          <CommandItem
+                            key={user.id}
+                            value={user.publicName}
+                            onSelect={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                userId: user.id,
+                              }));
+                              setInput(user.publicName);
+                            }}
+                          >
+                            {user.publicName}
+                          </CommandItem>
+                        ))}
+                    </CommandList>
+                  </Command>
                 </div>
 
                 <div className="space-y-2">
@@ -214,7 +250,6 @@ export default function AdminTeamPage() {
                   </Select>
                 </div>
 
-
                 <Button type="submit" className="w-full">
                   Assign Role
                 </Button>
@@ -226,11 +261,11 @@ export default function AdminTeamPage() {
         <div className="grid gap-6">
           {Object.values(TEAMS).map((team) => {
             const teamAssignments = assignments.filter((a) => a.team === team);
-            
+
             // Define role order for each team type
             const getRoleOrder = (team: string): Role[] => {
               if (team === TEAMS.EXECUTIVE) {
-                return [ROLES.PRESIDENT, ROLES.VICE_PRESIDENT];
+                return [ROLES.PRESIDENT];
               } else {
                 return [ROLES.VICE_LEADER, ROLES.DIRECTOR, ROLES.ASSOCIATE];
               }
@@ -247,13 +282,17 @@ export default function AdminTeamPage() {
             return (
               <Card key={team} className="p-6">
                 <h2 className="text-2xl font-bold mb-6">{team}</h2>
-                
+
                 {sortedAssignments.length === 0 ? (
-                  <p className="text-muted-foreground">No team members assigned</p>
+                  <p className="text-muted-foreground">
+                    No team members assigned
+                  </p>
                 ) : (
                   <div className="space-y-3">
                     {sortedAssignments.map((assignment) => {
-                      const user = users.find((u) => u.id === assignment.userId);
+                      const user = users.find(
+                        (u) => u.id === assignment.userId
+                      );
                       return (
                         <div
                           key={assignment.id}
@@ -271,7 +310,9 @@ export default function AdminTeamPage() {
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => handleDeleteAssignment(assignment.id)}
+                              onClick={() =>
+                                handleDeleteAssignment(assignment.id)
+                              }
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>

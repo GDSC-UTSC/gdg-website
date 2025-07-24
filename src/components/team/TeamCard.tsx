@@ -17,9 +17,12 @@ const TeamCard = ({ member, assignment, index }: TeamCardProps) => {
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={member.profileImageUrl || member.image} alt={member.publicName} />
+            <AvatarImage
+              src={member.profileImageUrl || member.image}
+              alt={member.publicName}
+            />
             <AvatarFallback className="text-lg font-semibold">
-              {member.publicName?.charAt(0).toUpperCase() || '?'}
+              {member.publicName?.charAt(0).toUpperCase() || "?"}
             </AvatarFallback>
           </Avatar>
         </div>

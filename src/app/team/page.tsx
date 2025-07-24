@@ -35,7 +35,7 @@ export default async function TeamPage() {
             // Define role order for each team type
             const getRoleOrder = (team: string): Role[] => {
               if (team === TEAMS.EXECUTIVE) {
-                return [ROLES.PRESIDENT, ROLES.VICE_PRESIDENT];
+                return [ROLES.PRESIDENT];
               } else {
                 return [ROLES.VICE_LEADER, ROLES.DIRECTOR, ROLES.ASSOCIATE];
               }

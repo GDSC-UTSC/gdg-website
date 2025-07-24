@@ -87,7 +87,7 @@ export async function getDocuments<T>(
     const querySnapshot = await getDocs(
       collection(db, collectionPath).withConverter(converter)
     );
-    return querySnapshot.docs.map((doc) => doc.data());
+    return querySnapshot.docs.map((doc) => converter.fromFirestore(doc, {}));
   } catch (error) {
     console.error(`Error getting documents from ${collectionPath}:`, error);
     throw error;
