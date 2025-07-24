@@ -1,4 +1,3 @@
-
 // Define fixed role options with ordering
 export const TEAM_ROLES = {
   CO_LEADS: "Co Lead",
@@ -8,7 +7,6 @@ export const TEAM_ROLES = {
   ACADEMICS: "Academics",
   MARKETING: "Marketing",
   OPERATIONS: "Operations",
-  AMBASSADORS: "Ambassadors",
 } as const;
 
 // Role ordering for display (lower number = higher priority)
@@ -20,20 +18,17 @@ export const ROLE_ORDER = {
   [TEAM_ROLES.ACADEMICS]: 5,
   [TEAM_ROLES.MARKETING]: 6,
   [TEAM_ROLES.OPERATIONS]: 7,
-  [TEAM_ROLES.AMBASSADORS]: 8,
 } as const;
 
 export type TeamRole = (typeof TEAM_ROLES)[keyof typeof TEAM_ROLES];
 
 export interface TeamMember {
   id: string;
-  name: string;
-  role: TeamRole;
+  publicName?: string;
   bio?: string;
   image?: string;
+  profileImageUrl?: string;
   linkedin?: string;
   github?: string;
   order?: number; // Optional custom ordering within role
 }
-
-

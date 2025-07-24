@@ -1,76 +1,87 @@
-"use client";
-import { ROLE_ORDER, TeamMember } from "@/app/types/team/team";
-import TeamCard from "@/components/team/TeamCard";
+import { ROLES, Role, TEAMS, TeamAssignment } from "@/app/types/team";
+import { UserData } from "@/app/types/userdata";
 import PageTitle from "@/components/ui/PageTitle";
-import { motion } from "framer-motion";
-import { teamMembers } from "./team";
+import TeamCard from "../../components/team/TeamCard";
+import { TeamMember } from "../types/team/team";
 
-const TeamPage = () => {
-  // Group team members by role
-  const groupByRole = (members: TeamMember[]) => {
-    const grouped = members.reduce((acc, member) => {
-      if (!acc[member.role]) {
-        acc[member.role] = [];
-      }
-      acc[member.role].push(member);
-      return acc;
-    }, {} as Record<string, TeamMember[]>);
+export default async function TeamPage() {
+  let assignments: TeamAssignment[] = [];
+  let users: UserData[] = [];
 
-    // Sort members within each role by their order
-    Object.keys(grouped).forEach((role) => {
-      grouped[role].sort((a, b) => (a.order || 0) - (b.order || 0));
-    });
+  try {
+    const [fetchedAssignments, fetchedUsers] = await Promise.all([
+      TeamAssignment.readAll({ server: true }),
+      UserData.readAll({ server: true }),
+    ]);
 
-    return grouped;
-  };
-
-  // Sort roles by their defined order
-  const sortRoles = (roles: string[]) => {
-    return roles.sort(
-      (a, b) =>
-        ROLE_ORDER[a as keyof typeof ROLE_ORDER] -
-        ROLE_ORDER[b as keyof typeof ROLE_ORDER]
-    );
-  };
-
-  const groupedMembers = groupByRole(teamMembers);
-  const sortedRoles = sortRoles(Object.keys(groupedMembers));
+    assignments = fetchedAssignments;
+    users = fetchedUsers;
+  } catch (error) {
+    console.error("Error fetching team data:", error);
+  }
 
   return (
-    <div className="min-h-screen gradient-bg pt-20">
-      <div className="container mx-auto px-4 py-20">
-        {/* Page Header */}
-        <PageTitle 
+    <div className="min-h-screen py-12">
+      <div className="container mx-auto px-4">
+        <PageTitle
           title="Our Team"
-          description="Meet the passionate individuals driving innovation and community growth at GDG @ UTSC."
-          className="mb-16"
+          description="Meet the amazing people behind GDG @ UTSC"
         />
 
-        {/* Team Sections */}
-        {sortedRoles.map((role, roleIndex) => (
-          <motion.section
-            key={role}
-            className="mb-20"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: roleIndex * 0.2 }}
-          >
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">{role}</h2>
-              <div className="w-24 h-1 bg-primary mx-auto rounded-full"></div>
-            </div>
+        <div className="grid gap-12">
+          {Object.values(TEAMS).map((team) => {
+            const teamAssignments = assignments.filter((a) => a.team === team);
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {groupedMembers[role].map((member, memberIndex) => (
-                <TeamCard key={member.id} member={member} index={memberIndex} />
-              ))}
-            </div>
-          </motion.section>
-        ))}
+            // Define role order for each team type
+            const getRoleOrder = (team: string): Role[] => {
+              if (team === TEAMS.EXECUTIVE) {
+                return [ROLES.PRESIDENT, ROLES.VICE_PRESIDENT];
+              } else {
+                return [ROLES.VICE_LEADER, ROLES.DIRECTOR, ROLES.ASSOCIATE];
+              }
+            };
+
+            // Sort assignments by role hierarchy
+            const sortedAssignments = teamAssignments.sort((a, b) => {
+              const roleOrder = getRoleOrder(team);
+              const aIndex = roleOrder.indexOf(a.role as any);
+              const bIndex = roleOrder.indexOf(b.role as any);
+              return aIndex - bIndex;
+            });
+
+            return (
+              <section key={team}>
+                <h2 className="text-3xl font-bold mb-8 text-center pb-2 border-b border-border border-dashed">
+                  {team}
+                </h2>
+
+                {sortedAssignments.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">
+                    No team members assigned yet.
+                  </p>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {sortedAssignments.map((assignment, index) => {
+                      const user = users.find(
+                        (u) => u.id === assignment.userId
+                      );
+
+                      return (
+                        <TeamCard
+                          key={index}
+                          member={user as TeamMember}
+                          assignment={assignment}
+                          index={index}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
-};
-
-export default TeamPage;
+}
