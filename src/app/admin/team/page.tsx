@@ -38,6 +38,11 @@ export default function AdminTeamPage() {
   const [users, setUsers] = useState<UserData[]>([]);
 
   useEffect(() => {
+    if (debouncedQuery === "") {
+      setUsers([]);
+      return;
+    }
+
     const fetchUsers = async () => {
       try {
         const res = await fetch("/api/getUsers", {
@@ -56,34 +61,12 @@ export default function AdminTeamPage() {
 
   const [assignments, setAssignments] = useState<TeamAssignment[]>([]);
 
-  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     userId: "",
     team: Object.values(TEAMS)[0],
     role: Object.values(ROLES)[0],
   });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [fetchedAssignments, fetchedUsers] = await Promise.all([
-          TeamAssignment.readAll(),
-          UserData.readAll(),
-        ]);
-        setAssignments(fetchedAssignments);
-        setUsers(fetchedUsers);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("Failed to load team data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,18 +130,6 @@ export default function AdminTeamPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen py-12">
-        <div className="container mx-auto px-4">
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Loading team data...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
@@ -198,7 +169,7 @@ export default function AdminTeamPage() {
                                 ...prev,
                                 userId: user.id,
                               }));
-                              setInput(user.publicName);
+                              setInput(user.publicName || "");
                             }}
                           >
                             {user.publicName}
@@ -213,7 +184,7 @@ export default function AdminTeamPage() {
                   <Select
                     value={formData.team}
                     onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, team: value }))
+                      setFormData((prev) => ({ ...prev, team: value as any }))
                     }
                   >
                     <SelectTrigger>
@@ -234,7 +205,7 @@ export default function AdminTeamPage() {
                   <Select
                     value={formData.role}
                     onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, role: value }))
+                      setFormData((prev) => ({ ...prev, role: value as any }))
                     }
                   >
                     <SelectTrigger>
