@@ -24,8 +24,7 @@ export async function POST(request: NextRequest) {
     });
     const serverAuth = getAuth(serverApp);
     if (process.env.NODE_ENV === "development") {
-      const authEmulatorUrl = process.env.NEXT_PUBLIC_AUTH_EMULATOR_URL || "http://localhost:9099";
-      connectAuthEmulator(serverAuth, authEmulatorUrl);
+      connectAuthEmulator(serverAuth, `http://localhost:${process.env.NEXT_PUBLIC_FIREBASE_AUTH_PORT}`);
     }
     await serverAuth.authStateReady();
 
