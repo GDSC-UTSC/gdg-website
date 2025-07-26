@@ -23,7 +23,7 @@ export async function getAuthenticatedUser() {
     const serverApp = initializeServerApp(firebaseConfig, { authIdToken });
     const serverAuth = getAuth(serverApp);
     if (process.env.NODE_ENV === "development") {
-      connectAuthEmulator(serverAuth, "http://localhost:9099");
+      connectAuthEmulator(serverAuth, `http://localhost:${process.env.NEXT_PUBLIC_FIREBASE_AUTH_PORT}`);
     }
     await serverAuth.authStateReady();
 
@@ -41,7 +41,7 @@ export async function getAuthenticatedFirestore() {
   const serverApp = initializeServerApp(firebaseConfig, { authIdToken });
   const serverFirestore = getFirestore(serverApp);
   if (process.env.NODE_ENV === "development") {
-    connectFirestoreEmulator(serverFirestore, "localhost", 8080);
+    connectFirestoreEmulator(serverFirestore, "localhost", parseInt(process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT || "8080"));
   }
   return serverFirestore;
 }

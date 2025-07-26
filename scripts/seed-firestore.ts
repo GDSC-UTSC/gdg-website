@@ -32,7 +32,7 @@ const db = getFirestore(app);
 
 // Connect to emulator
 try {
-  connectFirestoreEmulator(db, "localhost", 8080);
+  connectFirestoreEmulator(db, "localhost", parseInt(process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT || "8080"));
   console.log("🔥 Connected to Firestore emulator");
 } catch (error) {
   console.log("🔥 Firestore emulator connection already established");
