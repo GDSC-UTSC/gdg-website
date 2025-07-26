@@ -1,6 +1,26 @@
 import { ROLES, Role, TEAMS, TeamAssignment } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
+import { ROLES, Role, TEAMS, TeamAssignment } from "@/app/types/team";
+import { UserData } from "@/app/types/userdata";
 import PageTitle from "@/components/ui/PageTitle";
+import TeamCard from "../../components/team/TeamCard";
+import { TeamMember } from "../types/team/team";
+
+export default async function TeamPage() {
+  let assignments: TeamAssignment[] = [];
+  let users: UserData[] = [];
+
+  try {
+    const [fetchedAssignments, fetchedUsers] = await Promise.all([
+      TeamAssignment.readAll({ server: true }),
+      UserData.readAll({ server: true }),
+    ]);
+
+    assignments = fetchedAssignments;
+    users = fetchedUsers;
+  } catch (error) {
+    console.error("Error fetching team data:", error);
+  }
 import TeamCard from "../../components/team/TeamCard";
 import { TeamMember } from "../types/team/team";
 
@@ -21,6 +41,9 @@ export default async function TeamPage() {
   }
 
   return (
+    <div className="min-h-screen py-12">
+      <div className="container mx-auto px-4">
+        <PageTitle
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
         <PageTitle
@@ -84,4 +107,5 @@ export default async function TeamPage() {
       </div>
     </div>
   );
+}
 }
