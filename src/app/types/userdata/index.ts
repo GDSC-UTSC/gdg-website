@@ -25,6 +25,11 @@ export interface UserDataType {
   linkedin?: string;
   github?: string;
   role?: Role;
+  associations?: {
+    applications?: string[]; // position ids
+    registrations?: string[]; // event ids
+    collaborations?: string[]; // project ids
+  };
 }
 
 export class UserData implements UserDataType {
@@ -36,7 +41,11 @@ export class UserData implements UserDataType {
   linkedin?: string;
   github?: string;
   role: Role;
-
+  associations?: {
+    applications?: string[];
+    registrations?: string[];
+    collaborations?: string[];
+  };
   constructor(data: UserDataType) {
     this.id = data.id;
     this.publicName = data.publicName;
@@ -46,6 +55,11 @@ export class UserData implements UserDataType {
     this.linkedin = data.linkedin;
     this.github = data.github;
     this.role = data.role || "member";
+    this.associations = data.associations || {
+      applications: [],
+      registrations: [],
+      collaborations: [],
+    };
   }
 
   static converter = {
@@ -58,6 +72,11 @@ export class UserData implements UserDataType {
         linkedin: user.linkedin,
         github: user.github,
         role: user.role,
+        associations: user.associations || {
+          applications: [],
+          registrations: [],
+          collaborations: [],
+        },
       };
     },
     fromFirestore: (snapshot: any, options: any) => {
@@ -71,6 +90,11 @@ export class UserData implements UserDataType {
         linkedin: data.linkedin,
         github: data.github,
         role: data.role || "member",
+        associations: data.associations || {
+          applications: [],
+          registrations: [],
+          collaborations: [],
+        },
       });
     },
   };
@@ -89,17 +113,12 @@ export class UserData implements UserDataType {
     return this.id;
   }
 
-  static async read(
-    id: string,
-    options?: { server?: boolean }
-  ): Promise<UserData | null> {
+  static async read(id: string, options?: { server?: boolean }): Promise<UserData | null> {
     const documentPath = `users/${id}`;
 
     if (options?.server) {
       ("use server");
-      const { getDocument: getDocumentServer } = await import(
-        "@/lib/firebase/server/firestore"
-      );
+      const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentServer(documentPath, UserData.converter);
     }
 
@@ -111,9 +130,7 @@ export class UserData implements UserDataType {
 
     if (options?.server) {
       ("use server");
-      const { getDocuments: getDocumentsServer } = await import(
-        "@/lib/firebase/server/firestore"
-      );
+      const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentsServer(collectionPath, UserData.converter);
     }
 
@@ -133,16 +150,12 @@ export class UserData implements UserDataType {
   async uploadProfileImage(file: File): Promise<string> {
     try {
       if (this.profileImageUrl) {
-        // If there's an existing profile image, delete it first
         await this.deleteProfileImage();
       }
     } catch (error) {
       console.error("Error deleting existing profile image:", error);
     } finally {
-      const { downloadURL } = await uploadFile(
-        file,
-        `users/${this.id}/profile/image`
-      );
+      const { downloadURL } = await uploadFile(file, `users/${this.id}/profile/image`);
       this.profileImageUrl = downloadURL;
       await this.update();
 
