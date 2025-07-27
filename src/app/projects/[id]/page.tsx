@@ -14,7 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ProfileCard } from '@/components/account/ProfileCard';
+import { CompactProfileCard } from '@/components/account/CompactProfileCard';
 
 
 
@@ -243,9 +243,9 @@ export default function ProjectDetailPage() {
                   <Users size={20} />
                   Contributors
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {project.contributors.map((contributor, idx) => (
-                    <ProfileCard key={idx} userId={contributor.userId} />
+                    <CompactProfileCard key={idx} userId={contributor.userId} />
                   ))}
                 </div>
               </div>

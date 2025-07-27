@@ -1,17 +1,23 @@
 "use client";
 
 import { Event } from "@/app/types/events";
+import { CompactProfileCard } from "@/components/account/CompactProfileCard";
 import RegistrationForm from "@/components/events/RegistrationForm";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, ExternalLink, MapPin } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  ExternalLink,
+  MapPin,
+  Users,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
-import {Users,} from "lucide-react";
-import { ProfileCard } from "@/components/account/ProfileCard";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -263,16 +269,16 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
               </div>
             </div>
 
-             {/* Organizers */}
+            {/* Organizers */}
             {event.organizers && event.organizers.length > 0 && (
               <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <Users size={20} />
                   Organizers
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {event.organizers.map((organizer, idx) => (
-                    <ProfileCard key={idx} userId={organizer.userId} />
+                    <CompactProfileCard key={idx} userId={organizer.userId} />
                   ))}
                 </div>
               </div>
