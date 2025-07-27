@@ -159,7 +159,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
       toast.success(
         "Application submitted successfully! You may reapply to this position if you want to update your application."
       );
-      router.push("/positions");
+      router.push("/account/positions");
     } catch (error) {
       console.error("Error submitting application:", error);
       toast.error("Failed to submit application. Please try again.");
@@ -295,8 +295,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                                   {formData["Resume"].name}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  {formatFileSize(formData["Resume"].size)} •{" "}
-                                  {formData["Resume"].type}
+                                  {formatFileSize(formData["Resume"].size)} • {formData["Resume"].type}
                                 </p>
                               </div>
                             </motion.div>

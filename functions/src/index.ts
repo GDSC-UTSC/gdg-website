@@ -58,10 +58,49 @@ export const createApplication = onDocumentWritten(
         .collection("users")
         .doc(userId)
         .update({
-          "associations.positions": FieldValue.arrayUnion(positionId),
+          "associations.applications": FieldValue.arrayUnion(positionId),
         });
     } catch (error) {
       logger.error(`Error creating application for user ${userId}:`, error);
+    }
+  }
+);
+export const createRegistration = onDocumentWritten(
+  "events/{eventId}/registrations/{registrationId}",
+  async (event: any) => {
+    const eventId = event.params.eventId;
+    const userId = event.params.registrationId;
+
+    try {
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(userId)
+        .update({
+          "associations.registrations": FieldValue.arrayUnion(eventId),
+        });
+    } catch (error) {
+      logger.error(`Error creating registration for user ${userId}:`, error);
+    }
+  }
+);
+
+export const createCollaboration = onDocumentWritten(
+  "projects/{projectId}/collaborations/{collaborationId}",
+  async (event: any) => {
+    const projectId = event.params.projectId;
+    const userId = event.params.collaborationId;
+
+    try {
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(userId)
+        .update({
+          "associations.collaborations": FieldValue.arrayUnion(projectId),
+        });
+    } catch (error) {
+      logger.error(`Error creating collaboration for user ${userId}:`, error);
     }
   }
 );
