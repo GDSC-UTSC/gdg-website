@@ -5,6 +5,7 @@ import * as admin from "firebase-admin";
 import { Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import * as functions from "firebase-functions/v1";
+import { onDocumentWritten } from "firebase-functions/v2/firestore";
 
 // Initialize the Firebase Admin SDK to interact with Firebase services.
 admin.initializeApp();
@@ -16,33 +17,58 @@ admin.initializeApp();
  * @param {admin.auth.UserRecord} user The user record from Firebase Authentication.
  * @param {functions.EventContext} context The event metadata.
  */
-export const createUserInFirestore = functions.auth
-  .user()
-  .onCreate(async (user) => {
-    const { uid, displayName } = user;
+export const createUserInFirestore = functions.auth.user().onCreate(async (user) => {
+  const { uid, displayName } = user;
 
-    logger.info(`New user created, starting document creation for UID: ${uid}`);
+  logger.info(`New user created, starting document creation for UID: ${uid}`);
 
-    // This is the data that will be stored in the new Firestore document.
-    const userDocument = {
-      publicName: displayName || "",
-      updatedAt: Timestamp.now(),
-      profileImageUrl: "",
-      bio: "",
-      linkedin: "",
-      github: "",
-      role: "admin" as const,
-    };
+  // This is the data that will be stored in the new Firestore document.
+  const userDocument = {
+    publicName: displayName || "",
+    updatedAt: Timestamp.now(),
+    profileImageUrl: "",
+    bio: "",
+    linkedin: "",
+    github: "",
+    role: "admin" as const,
+  };
+
+  try {
+    // Write the new document to the 'users' collection using the user's UID as the document ID.
+    await admin.firestore().collection("users").doc(uid).set(userDocument);
+
+    logger.info(`Successfully created user document for UID: ${uid}`);
+  } catch (error) {
+    logger.error(`Error creating user document for UID: ${uid}`, {
+      uid: uid,
+      error: error, // Log the full error object for better debugging
+    });
+  }
+});
+
+export const createApplication = onDocumentWritten(
+  "positions/{positionId}/applications/{applicationId}",
+  async (event: any) => {
+    const positionId = event.params.positionId;
+    const userId = event.params.applicationId;
 
     try {
-      // Write the new document to the 'users' collection using the user's UID as the document ID.
-      await admin.firestore().collection("users").doc(uid).set(userDocument);
+      const user = await admin.firestore().collection("users").doc(userId).get();
+      const userData: any = user.data();
 
-      logger.info(`Successfully created user document for UID: ${uid}`);
+      const updatedUserData: any = {
+        ...userData,
+        associations: [
+          ...userData.associations,
+          {
+            positions: [...userData.associations.positions, positionId],
+          },
+        ],
+      };
+
+      await admin.firestore().collection("users").doc(userId).update(updatedUserData);
     } catch (error) {
-      logger.error(`Error creating user document for UID: ${uid}`, {
-        uid: uid,
-        error: error, // Log the full error object for better debugging
-      });
+      logger.error(`Error creating application for user ${userId}:`, error);
     }
-  });
+  }
+);

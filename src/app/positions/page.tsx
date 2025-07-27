@@ -1,4 +1,5 @@
 import { Position } from "@/app/types/positions";
+import PositionCard from "@/components/positions/PositionCard";
 import PageTitle from "@/components/ui/PageTitle";
 
 export default async function PositionsPage() {
@@ -18,7 +19,7 @@ export default async function PositionsPage() {
           description="Join our team and help us build amazing projects. We're always looking for talented individuals to contribute to our community."
         />
 
-        {/* <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {positions.map((position) => (
             <PositionCard key={position.id} position={position} />
           ))}
@@ -30,7 +31,7 @@ export default async function PositionsPage() {
               No positions available at the moment.
             </p>
           </div>
-        )} */}
+        )}
       </div>
     </div>
   );

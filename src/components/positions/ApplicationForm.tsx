@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Send, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import Parser from "../../app/types/parser";
 import QuestionInput from "./QuestionInput";
 
@@ -17,6 +19,7 @@ interface ApplicationFormProps {
 
 export default function ApplicationForm({ position }: ApplicationFormProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [applicantName, setApplicantName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -88,14 +91,17 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validateForm() && user?.email) {
-      const files: File[] = [];
+    if (!validateForm() || !user?.email) {
+      return;
+    }
 
+    setIsSubmitting(true);
+
+    try {
       let text: string | "";
       const resumeFile = formData["Resume"] as File;
       text = await Parser.parseFileText(resumeFile);
 
-      //console.log("Parsed text:", text);
       const resumeTxt = await Parser.textToTxt(text, "Resume");
 
       const resumeTextURL = await Parser.FileToPositionStorage(
@@ -115,7 +121,6 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
       formData["Resume_text"] = resumeTextURL;
       formData["Resume"] = resumeURL;
 
-      // I parsed the resume as well not sure if we wanted to store it here. ! !! store text
       const application = new Application({
         id: user.uid,
         name: applicantName,
@@ -157,12 +162,22 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                 ...prev,
                 [question.label]: "Error processing file",
               }));
+              setIsSubmitting(false);
               return;
             }
           }
         }
       }
+
       await application.create(position.id);
+      
+      toast.success("Application submitted successfully!");
+      router.push("/positions");
+      
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      toast.error("Failed to submit application. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
