@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Send, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import Parser from "../../app/types/parser";
 import QuestionInput from "./QuestionInput";
 
@@ -17,6 +19,7 @@ interface ApplicationFormProps {
 
 export default function ApplicationForm({ position }: ApplicationFormProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [applicantName, setApplicantName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -88,34 +91,26 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validateForm() && user?.email) {
-      const files: File[] = [];
+    if (!validateForm() || !user?.email) {
+      return;
+    }
 
+    setIsSubmitting(true);
+
+    try {
       let text: string | "";
       const resumeFile = formData["Resume"] as File;
       text = await Parser.parseFileText(resumeFile);
 
-      //console.log("Parsed text:", text);
       const resumeTxt = await Parser.textToTxt(text, "Resume");
 
-      const resumeTextURL = await Parser.FileToPositionStorage(
-        resumeTxt,
-        position.id,
-        user.uid,
-        "Text_Resume"
-      );
+      const resumeTextURL = await Parser.FileToPositionStorage(resumeTxt, position.id, user.uid, "Text_Resume");
 
-      const resumeURL = await Parser.FileToPositionStorage(
-        resumeFile,
-        position.id,
-        user.uid,
-        "Resume"
-      );
+      const resumeURL = await Parser.FileToPositionStorage(resumeFile, position.id, user.uid, "Resume");
 
       formData["Resume_text"] = resumeTextURL;
       formData["Resume"] = resumeURL;
 
-      // I parsed the resume as well not sure if we wanted to store it here. ! !! store text
       const application = new Application({
         id: user.uid,
         name: applicantName,
@@ -142,12 +137,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                 user.uid,
                 `Text_${question.label}`
               );
-              const fileURL = await Parser.FileToPositionStorage(
-                file,
-                position.id,
-                user.uid,
-                question.label
-              );
+              const fileURL = await Parser.FileToPositionStorage(file, position.id, user.uid, question.label);
 
               application.questions[question.label] = fileURL;
               application.questions[`${question.label}_text`] = fileTxtURL;
@@ -157,12 +147,23 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                 ...prev,
                 [question.label]: "Error processing file",
               }));
+              setIsSubmitting(false);
               return;
             }
           }
         }
       }
+
       await application.create(position.id);
+
+      toast.success(
+        "Application submitted successfully! You may reapply to this position if you want to update your application."
+      );
+      router.push("/positions");
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      toast.error("Failed to submit application. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
@@ -171,11 +172,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-4xl mx-auto"
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-4xl mx-auto">
       <Card className="p-8">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -186,23 +183,15 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
           <h2 className="text-3xl font-bold mb-2">Application Questions</h2>
           <p className="text-muted-foreground text-lg">
             Please answer all questions to complete your application for{" "}
-            <span className="font-semibold text-foreground">
-              {position.name}
-            </span>
+            <span className="font-semibold text-foreground">{position.name}</span>
           </p>
         </motion.div>
 
         <form onSubmit={handleFormSubmit} className="space-y-8">
           {/* Applicant Information */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
-          >
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
             <div className="bg-muted/30 p-6 rounded-lg border border-border/50">
-              <h3 className="text-lg font-semibold mb-4">
-                Applicant Information
-              </h3>
+              <h3 className="text-lg font-semibold mb-4">Applicant Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="applicantName">
@@ -245,9 +234,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                     placeholder="Email from your account"
                     className="bg-muted/50"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Using email from your logged-in account
-                  </p>
+                  <p className="text-xs text-muted-foreground">Using email from your logged-in account</p>
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="resumeUpload" className="font-medium">
@@ -256,9 +243,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                   <div
                     id="resumeUpload"
                     className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg px-4 py-8 transition-colors cursor-pointer bg-background hover:border-primary/70 focus-within:border-primary/70 ${
-                      errors["Resume"]
-                        ? "border-red-500"
-                        : "border-muted-foreground/40"
+                      errors["Resume"] ? "border-red-500" : "border-muted-foreground/40"
                     }`}
                     onDragOver={(e) => {
                       e.preventDefault();
@@ -267,8 +252,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                     onDrop={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      const file =
-                        e.dataTransfer.files && e.dataTransfer.files[0];
+                      const file = e.dataTransfer.files && e.dataTransfer.files[0];
                       if (file) handleInputChange("Resume", file);
                     }}
                     tabIndex={0}
@@ -287,20 +271,13 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                       {!formData["Resume"] ? (
                         <>
                           <span className="text-lg font-medium mb-1">
-                            Drag & drop your resume here, or{" "}
-                            <span className="underline text-primary">
-                              browse
-                            </span>
+                            Drag & drop your resume here, or <span className="underline text-primary">browse</span>
                           </span>
-                          <span className="text-xs text-muted-foreground">
-                            Accepted: PDF, Images
-                          </span>
+                          <span className="text-xs text-muted-foreground">Accepted: PDF, Images</span>
                         </>
                       ) : (
                         <div className="flex flex-col items-center gap-3 mt-2">
-                          <span className="text-xs text-muted-foreground">
-                            Selected file:
-                          </span>
+                          <span className="text-xs text-muted-foreground">Selected file:</span>
                           {formData["Resume"].name ? (
                             <motion.div
                               className="flex items-center gap-3 bg-muted/50 rounded-lg px-4 py-3 border border-muted-foreground/20"
@@ -324,9 +301,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                               </div>
                             </motion.div>
                           ) : (
-                            <span className="text-xs text-muted-foreground">
-                              No file selected
-                            </span>
+                            <span className="text-xs text-muted-foreground">No file selected</span>
                           )}
                         </div>
                       )}
@@ -382,9 +357,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                       <QuestionInput
                         question={question}
                         value={formData[question.label]}
-                        onChange={(value) =>
-                          handleInputChange(question.label, value)
-                        }
+                        onChange={(value) => handleInputChange(question.label, value)}
                         index={index}
                       />
                     </div>
@@ -413,11 +386,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
             transition={{ delay: position.questions.length * 0.1 + 0.2 }}
             className="flex gap-4 pt-6 border-t border-border/50"
           >
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex-1"
-            >
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
               <Button
                 type="submit"
                 disabled={isSubmitting || !position.isActive}
@@ -425,9 +394,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                 size="lg"
               >
                 <Send className="w-5 h-5 mr-2" />
-                {isSubmitting
-                  ? "Submitting Application..."
-                  : "Submit Application"}
+                {isSubmitting ? "Submitting Application..." : "Submit Application"}
               </Button>
             </motion.div>
           </motion.div>

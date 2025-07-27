@@ -1,9 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Circle, Github } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const RecruitmentSection = () => {
   const positions = [
@@ -69,96 +68,12 @@ const RecruitmentSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          {positions.map((position, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-            >
-              <Card className="bg-card/50 backdrop-blur-xs  hover:bg-card/80 transition-all duration-300 h-full">
-                <CardHeader>
-                  <CardTitle className="text-xl">{position.title}</CardTitle>
-                  <p className="text-sm text-primary font-medium">
-                    {position.commitment}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    {position.description}
-                  </p>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Requirements:</h4>
-                    <ul className="space-y-1">
-                      {position.requirements.map((req, reqIndex) => (
-                        <li
-                          key={reqIndex}
-                          className="text-sm text-muted-foreground flex items-center"
-                        >
-                          <Circle className="h-1.5 w-1.5 text-primary fill-current mr-2" />
-                          {req}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h3 className="text-2xl font-bold mb-6">What You&apos;ll Get</h3>
-            <div className="space-y-3">
-              {benefits.map((benefit, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="flex items-center space-x-3"
-                >
-                  <Circle className="h-2 w-2 text-google-green fill-current" />
-                  <span className="text-muted-foreground">{benefit}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="bg-linear-to-br from-card to-accent rounded-2xl p-8"
-          >
-            <h3 className="text-2xl font-bold mb-4">Ready to Apply?</h3>
-            <p className="text-muted-foreground mb-6">
-              Applications are open year-round! Submit your application and join
-              a community of innovators, creators, and problem-solvers.
-            </p>
-            <div className="space-y-4">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-lg py-3">
-                Apply Now
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full border-primary text-primary hover:bg-primary/10"
-              >
-                <Github className="mr-2 h-5 w-5" />
-                View on GitHub
-              </Button>
-            </div>
-          </motion.div>
+        <div className="text-center">
+          <Link href="/positions">
+            <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 px-8 py-6 text-lg font-semibold">
+              View Available Positions
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

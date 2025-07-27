@@ -34,12 +34,15 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   // —————————————————————————————————————————————————————
-  // Prettier tweaks (if you’re using Prettier)
+  // Prettier tweaks (updated for better chain formatting)
   // —————————————————————————————————————————————————————
   "prettier.singleQuote": false,
   "prettier.trailingComma": "es5",
   "prettier.semi": true,
   "prettier.arrowParens": "always",
+  "prettier.printWidth": 120,
+  "prettier.tabWidth": 2,
+  "prettier.useTabs": false,
   // —————————————————————————————————————————————————————
   // ESLint integration
   // —————————————————————————————————————————————————————
