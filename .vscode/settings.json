@@ -1,0 +1,66 @@
+{
+    // —————————————————————————————————————————————————————
+    // Formatting & linting on save
+    // —————————————————————————————————————————————————————
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    // —————————————————————————————————————————————————————
+    // Indentation
+    // —————————————————————————————————————————————————————
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    // —————————————————————————————————————————————————————
+    // Line endings & trimming
+    // —————————————————————————————————————————————————————
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    // —————————————————————————————————————————————————————
+    // Default formatters per language
+    // —————————————————————————————————————————————————————
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    // —————————————————————————————————————————————————————
+    // Prettier tweaks (updated for better chain formatting)
+    // —————————————————————————————————————————————————————
+    "prettier.singleQuote": false,
+    "prettier.trailingComma": "es5",
+    "prettier.semi": true,
+    "prettier.arrowParens": "always",
+    "prettier.printWidth": 120,
+    "prettier.tabWidth": 2,
+    "prettier.useTabs": false,
+    // —————————————————————————————————————————————————————
+    // ESLint integration
+    // —————————————————————————————————————————————————————
+    "eslint.validate": [
+      "javascript",
+      "typescript",
+      "javascriptreact",
+      "typescriptreact"
+    ],
+    // —————————————————————————————————————————————————————
+    // TypeScript import style
+    // —————————————————————————————————————————————————————
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.preferences.quoteStyle": "single",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    // —————————————————————————————————————————————————————
+    // Optional: GraphQL extension settings
+    // —————————————————————————————————————————————————————
+    "graphql.schemaFile": "schema.graphql",
+    "graphql.languageServer.downloadSchemaFromEndpoint": true
+  }
