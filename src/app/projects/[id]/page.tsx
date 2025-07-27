@@ -1,12 +1,22 @@
 "use client";
+import { Project } from "@/app/types/projects";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Project } from "@/app/types/projects";
-import { ArrowLeft, ExternalLink, Edit, Code2, Users, Calendar } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import {
+  ArrowLeft,
+  Calendar,
+  Code2,
+  Edit,
+  ExternalLink,
+  Users,
+} from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { ProfileCard } from '@/components/account/ProfileCard';
+
+
 
 const languageColors = {
   JavaScript: "bg-yellow-500",
@@ -46,7 +56,7 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id as string;
-  
+
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -87,7 +97,9 @@ export default function ProjectDetailPage() {
     return (
       <div className="min-h-screen gradient-bg flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Project Not Found</h1>
+          <h1 className="text-2xl font-bold text-white mb-4">
+            Project Not Found
+          </h1>
           <Link href="/projects">
             <Button>Back to Projects</Button>
           </Link>
@@ -107,10 +119,12 @@ export default function ProjectDetailPage() {
               Back to Projects
             </Button>
           </Link>
-          
+
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h1 className="text-5xl font-bold text-white mb-4">{project.title}</h1>
+              <h1 className="text-5xl font-bold text-white mb-4">
+                {project.title}
+              </h1>
               <div className="flex items-center gap-6 text-gray-400">
                 <div className="flex items-center gap-2">
                   <Code2 size={16} />
@@ -119,12 +133,16 @@ export default function ProjectDetailPage() {
                 {project.createdAt && (
                   <div className="flex items-center gap-2">
                     <Calendar size={16} />
-                    <span>{new Date(project.createdAt.toDate()).toLocaleDateString()}</span>
+                    <span>
+                      {new Date(
+                        project.createdAt.toDate()
+                      ).toLocaleDateString()}
+                    </span>
                   </div>
                 )}
               </div>
             </div>
-            
+
             <div className="flex gap-3">
               {user && (
                 <Link href={`/projects/edit?id=${project.id}`}>
@@ -176,7 +194,9 @@ export default function ProjectDetailPage() {
 
             {/* Description */}
             <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">About This Project</h2>
+              <h2 className="text-2xl font-bold text-white mb-6">
+                About This Project
+              </h2>
               <p className="text-gray-300 leading-relaxed text-lg">
                 {project.description}
               </p>
@@ -188,15 +208,19 @@ export default function ProjectDetailPage() {
             {/* Technologies */}
             {project.languages && project.languages.length > 0 && (
               <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Technologies</h3>
+                <h3 className="text-xl font-bold text-white mb-4">
+                  Technologies
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {project.languages.map((lang, idx) => {
                     const cleanLanguage = lang.trim();
                     const languageKey = Object.keys(languageColors).find(
-                      key => key.toLowerCase() === cleanLanguage.toLowerCase()
+                      (key) => key.toLowerCase() === cleanLanguage.toLowerCase()
                     );
                     const colorClass = languageKey
-                      ? languageColors[languageKey as keyof typeof languageColors]
+                      ? languageColors[
+                          languageKey as keyof typeof languageColors
+                        ]
                       : "bg-gray-600";
 
                     return (
@@ -221,17 +245,7 @@ export default function ProjectDetailPage() {
                 </h3>
                 <div className="space-y-3">
                   {project.contributors.map((contributor, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg"
-                    >
-                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                        {contributor.initial}
-                      </div>
-                      <span className="text-gray-300 font-medium">
-                        {contributor.name}
-                      </span>
-                    </div>
+                    <ProfileCard key={idx} userId={contributor.userId} />
                   ))}
                 </div>
               </div>
@@ -239,13 +253,17 @@ export default function ProjectDetailPage() {
 
             {/* Project Info */}
             <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Project Info</h3>
+              <h3 className="text-xl font-bold text-white mb-4">
+                Project Info
+              </h3>
               <div className="space-y-3 text-sm">
                 {project.createdAt && (
                   <div className="flex justify-between">
                     <span className="text-gray-400">Created:</span>
                     <span className="text-gray-300">
-                      {new Date(project.createdAt.toDate()).toLocaleDateString()}
+                      {new Date(
+                        project.createdAt.toDate()
+                      ).toLocaleDateString()}
                     </span>
                   </div>
                 )}
@@ -253,20 +271,26 @@ export default function ProjectDetailPage() {
                   <div className="flex justify-between">
                     <span className="text-gray-400">Last Updated:</span>
                     <span className="text-gray-300">
-                      {new Date(project.updatedAt.toDate()).toLocaleDateString()}
+                      {new Date(
+                        project.updatedAt.toDate()
+                      ).toLocaleDateString()}
                     </span>
                   </div>
                 )}
                 {project.languages && (
                   <div className="flex justify-between">
                     <span className="text-gray-400">Technologies:</span>
-                    <span className="text-gray-300">{project.languages.length}</span>
+                    <span className="text-gray-300">
+                      {project.languages.length}
+                    </span>
                   </div>
                 )}
                 {project.contributors && (
                   <div className="flex justify-between">
                     <span className="text-gray-400">Contributors:</span>
-                    <span className="text-gray-300">{project.contributors.length}</span>
+                    <span className="text-gray-300">
+                      {project.contributors.length}
+                    </span>
                   </div>
                 )}
               </div>
