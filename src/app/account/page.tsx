@@ -6,12 +6,13 @@ import { ProfileCard } from "@/components/account/ProfileCard";
 import { ProfileImage } from "@/components/account/ProfileImage";
 import { ProfileImageUpload } from "@/components/account/ProfileImageUpload";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/client";
 import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
+import { Calendar, FolderOpen, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { revalidateAuth } from "../../lib/actions/validations";
@@ -133,6 +134,46 @@ export default function AccountPage() {
             />
           </motion.div>
         </motion.div>
+
+        {/* Navigation Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/account/events')}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-blue-500" />
+                My Events
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">View your registered events</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/account/projects')}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <FolderOpen className="h-4 w-4 text-green-500" />
+                My Projects
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">View your collaborative projects</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/account/positions')}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Users className="h-4 w-4 text-orange-500" />
+                My Applications
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">View your position applications</p>
+            </CardContent>
+          </Card>
+        </div>
+
         <Card className="border-0 shadow-lg">
           <CardHeader>
             <CardTitle>Account</CardTitle>

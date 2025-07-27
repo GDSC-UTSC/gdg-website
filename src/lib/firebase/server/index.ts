@@ -38,7 +38,7 @@ export async function getAuthenticatedFirestore() {
   const authIdToken = (await headers())
     .get("Authorization")
     ?.split("Bearer ")[1];
-  const serverApp = initializeServerApp(firebaseConfig, { authIdToken });
+   const serverApp = initializeServerApp(firebaseConfig, { authIdToken });
   const serverFirestore = getFirestore(serverApp);
   if (process.env.NODE_ENV === "development") {
     connectFirestoreEmulator(serverFirestore, "localhost", parseInt(process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT || "8080"));
