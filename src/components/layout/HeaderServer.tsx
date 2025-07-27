@@ -1,14 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { getAuthenticatedUser } from "@/lib/firebase/server";
 import Image from "next/image";
 import Link from "next/link";
 import HeaderClient from "./HeaderClient";
 
 const HeaderServer = async () => {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    console.log("No user");
-  }
   return (
     <HeaderClient>
       <div className="container mx-auto px-4 py-4">
@@ -17,18 +12,10 @@ const HeaderServer = async () => {
           <div className="flex justify-center md:justify-start">
             <Link href="/" className="block">
               <div className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:scale-105 transition-transform">
-                <Image
-                  src="/gdg-logo.png"
-                  alt="GDG @ UTSC"
-                  width={60}
-                  height={60}
-                  className="h-12 w-auto sm:h-14"
-                />
+                <Image src="/gdg-logo.png" alt="GDG @ UTSC" width={60} height={60} className="h-12 w-auto sm:h-14" />
                 <div>
                   <h1 className="text-lg sm:text-xl font-bold">GDG @ UTSC</h1>
-                  <p className="text-xs text-muted-foreground hidden sm:block">
-                    Google Developer Group
-                  </p>
+                  <p className="text-xs text-muted-foreground hidden sm:block">Google Developer Group</p>
                 </div>
               </div>
             </Link>
@@ -69,7 +56,7 @@ const HeaderServer = async () => {
                   Positions
                 </Button>
               </Link>
-              <Link href="/account" className={!user ? "hidden" : ""}>
+              <Link href="/account">
                 <Button
                   variant="ghost"
                   className="transition-colors text-sm lg:text-base px-3 lg:px-4 text-foreground hover:text-primary"
@@ -77,24 +64,6 @@ const HeaderServer = async () => {
                   Account
                 </Button>
               </Link>
-              <Link href="/account/login" className={user ? "hidden" : ""}>
-                <Button
-                  variant="ghost"
-                  className="transition-colors text-sm lg:text-base px-3 lg:px-4 text-foreground hover:text-primary"
-                >
-                  Login
-                </Button>
-              </Link>
-              {user ? (
-                <Link href="/admin">
-                  <Button
-                    variant="ghost"
-                    className="transition-colors text-sm lg:text-base px-3 lg:px-4 text-foreground hover:text-primary"
-                  >
-                    Admin
-                  </Button>
-                </Link>
-              ) : null}
             </nav>
           </div>
         </div>

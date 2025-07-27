@@ -9,8 +9,8 @@ export default async function TeamPage() {
 
   try {
     const [fetchedTeams, fetchedUsers] = await Promise.all([
-      Team.readAll({ server: true }),
-      UserData.readAll({ server: true }),
+      Team.readAll({ server: true, public: true }),
+      UserData.readAll({ server: true, public: true }),
     ]);
 
     teams = fetchedTeams;

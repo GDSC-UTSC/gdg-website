@@ -30,6 +30,7 @@ export const createUserInFirestore = functions.auth.user().onCreate(async (user)
     bio: "",
     linkedin: "",
     github: "",
+    role: "member",
   };
 
   try {

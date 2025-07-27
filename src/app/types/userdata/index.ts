@@ -125,12 +125,19 @@ export class UserData implements UserDataType {
     return await getDocument(documentPath, UserData.converter);
   }
 
-  static async readAll(options?: { server?: boolean }): Promise<UserData[]> {
+  static async readAll(options?: { server?: boolean; public?: boolean }): Promise<UserData[]> {
     const collectionPath = "users";
 
     if (options?.server) {
       ("use server");
-      const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
+      const { getDocuments: getDocumentsServer, getDocumentsWithQuery: getDocumentsWithQueryServer } = await import(
+        "@/lib/firebase/server/firestore"
+      );
+      if (options?.public) {
+        return await getDocumentsWithQueryServer(collectionPath, "role", "!=", "member", UserData.converter, {
+          public: true,
+        });
+      }
       return await getDocumentsServer(collectionPath, UserData.converter);
     }
 

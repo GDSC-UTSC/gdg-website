@@ -6,7 +6,7 @@ export default async function PositionsPage() {
   let positions: Position[] = [];
 
   try {
-    positions = await Position.readAllActive({ server: true });
+    positions = [];
   } catch (error) {
     console.error("Error fetching positions:", error);
   }

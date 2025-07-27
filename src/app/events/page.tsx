@@ -6,7 +6,7 @@ export default async function EventsPage() {
   let events: Event[] = [];
 
   try {
-    const allEvents = await Event.readAll({ server: true });
+    const allEvents = await Event.readAll({ server: true, public: true });
     // Sort events by date (newest first)
     events = allEvents.sort((a, b) => {
       const dateA = a.eventDate?.toDate?.() || new Date(0);

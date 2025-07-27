@@ -84,28 +84,28 @@ export class Project implements ProjectType {
   }
 
   // Read a single project by ID
-  static async read(id: string, options?: { server?: boolean }): Promise<Project | null> {
+  static async read(id: string, options?: { server?: boolean, public?: boolean }): Promise<Project | null> {
     const documentPath = `projects/${id}`;
-    
+
     if (options?.server) {
       "use server";
       const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
-      return await getDocumentServer(documentPath, Project.converter);
+      return await getDocumentServer(documentPath, Project.converter, { public: options?.public || false });
     }
-    
+
     return await getDocument(documentPath, Project.converter);
   }
 
   // Read all projects
-  static async readAll(options?: { server?: boolean }): Promise<Project[]> {
+  static async readAll(options?: { server?: boolean, public?: boolean }): Promise<Project[]> {
     const collectionPath = "projects";
-    
+
     if (options?.server) {
       "use server";
       const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
-      return await getDocumentsServer(collectionPath, Project.converter);
+      return await getDocumentsServer(collectionPath, Project.converter, { public: options?.public || false });
     }
-    
+
     return await getDocuments(collectionPath, Project.converter);
   }
 

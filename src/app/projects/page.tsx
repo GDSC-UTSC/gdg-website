@@ -4,9 +4,9 @@ import { Project } from "../types/projects";
 
 export default async function ProjectsPage() {
   let projects: Project[] = [];
-  
+
   try {
-    projects = await Project.readAll({ server: true });
+    projects = await Project.readAll({ server: true, public: true });
   } catch (error) {
     console.error("Error loading projects:", error);
   }

@@ -69,25 +69,25 @@ export class Team implements TeamType {
 
   static async read(id: string, options?: { server?: boolean }): Promise<Team | null> {
     const documentPath = `teams/${id}`;
-    
+
     if (options?.server) {
       "use server";
       const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentServer(documentPath, Team.converter);
     }
-    
+
     return await getDocument(documentPath, Team.converter);
   }
 
-  static async readAll(options?: { server?: boolean }): Promise<Team[]> {
+  static async readAll(options?: { server?: boolean, public?: boolean }): Promise<Team[]> {
     const collectionPath = "teams";
-    
+
     if (options?.server) {
       "use server";
       const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
-      return await getDocumentsServer(collectionPath, Team.converter);
+      return await getDocumentsServer(collectionPath, Team.converter, { public: options?.public || false });
     }
-    
+
     return await getDocuments(collectionPath, Team.converter);
   }
 
