@@ -1,19 +1,14 @@
 "use client";
 
-import { USER_ROLES, UserData } from "@/app/types/userdata";
+import { Admin } from "@/app/types/user/admin";
+import { UserData } from "@/app/types/userdata";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Calendar, Crown, FolderOpen, Shield, ShieldCheck, Users, UserCheck } from "lucide-react";
+import { Calendar, Crown, FolderOpen, Shield, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -22,17 +17,16 @@ export default function AdminPage() {
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
-  const [allUsers, setAllUsers] = useState<UserData[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState<UserData[]>([]);
-  const [promotingUserId, setPromotingUserId] = useState<string | null>(null);
-  const [demotingUserId, setDemotingUserId] = useState<string | null>(null);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [isGrantingAdmin, setIsGrantingAdmin] = useState(false);
+  const [grantAdminMessage, setGrantAdminMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [removeAdminEmail, setRemoveAdminEmail] = useState("");
+  const [isRemovingAdmin, setIsRemovingAdmin] = useState(false);
+  const [removeAdminMessage, setRemoveAdminMessage] = useState<{ type: "success" | "error"; text: string } | null>(
+    null
+  );
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/account/login");
-    }
-  }, [loading, user, router]);
+
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -43,14 +37,6 @@ export default function AdminPage() {
         const userData = await UserData.read(user.uid);
         if (userData) {
           setUserData(userData);
-          if (!userData.isAdmin) {
-            router.push("/");
-          } else {
-            // Load all users automatically
-            loadAllUsers();
-          }
-        } else {
-          router.push("/");
         }
       } catch (error) {
         console.error("Error loading user data:", error);
@@ -65,73 +51,50 @@ export default function AdminPage() {
     }
   }, [user, router]);
 
-  // Filter users based on search query
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredUsers(allUsers);
-    } else {
-      const filtered = allUsers.filter((user) =>
-        user.publicName?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredUsers(filtered);
-    }
-  }, [searchQuery, allUsers]);
+  const grantAdminByEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminEmail.trim() || !userData?.isSuperAdmin) return;
 
-  const loadAllUsers = async () => {
+    setIsGrantingAdmin(true);
+    setGrantAdminMessage(null);
+
     try {
-      const users = await UserData.readAll();
-      setAllUsers(users);
+      const result = await Admin.grantAdmin(adminEmail);
+      setGrantAdminMessage({ type: "success", text: result.message });
+      setAdminEmail("");
     } catch (error) {
-      console.error("Error loading users:", error);
-    }
-  };
-
-  const promoteUserToAdmin = async (targetUser: UserData) => {
-    if (!userData?.isSuperAdmin) return;
-
-    setPromotingUserId(targetUser.id);
-    try {
-      if (
-        targetUser.role === USER_ROLES.ADMIN ||
-        targetUser.role === USER_ROLES.SUPERADMIN
-      ) {
-        return;
-      }
-
-      targetUser.role = USER_ROLES.ADMIN;
-      await targetUser.update();
-
-      await loadAllUsers(); // Refresh the users list
-    } catch (error) {
-      console.error("Error promoting user:", error);
+      setGrantAdminMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Failed to grant admin privileges",
+      });
+      console.error("Error granting admin privileges:", error);
     } finally {
-      setPromotingUserId(null);
+      setIsGrantingAdmin(false);
     }
   };
 
-  const removeAdminPrivileges = async (targetUser: UserData) => {
-    if (!userData?.isSuperAdmin) return;
+  const removeAdminByEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!removeAdminEmail.trim() || !userData?.isSuperAdmin) return;
 
-    setDemotingUserId(targetUser.id);
+    setIsRemovingAdmin(true);
+    setRemoveAdminMessage(null);
+
     try {
-      if (targetUser.role === USER_ROLES.SUPERADMIN) {
-        return;
-      }
-
-      if (targetUser.role !== USER_ROLES.ADMIN) {
-        return;
-      }
-
-      targetUser.role = USER_ROLES.MEMBER;
-      await targetUser.update();
-
-      await loadAllUsers(); // Refresh the users list
+      const result = await Admin.removeAdmin(removeAdminEmail);
+      setRemoveAdminMessage({ type: "success", text: result.message });
+      setRemoveAdminEmail("");
     } catch (error) {
+      setRemoveAdminMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Failed to remove admin privileges",
+      });
       console.error("Error removing admin privileges:", error);
     } finally {
-      setDemotingUserId(null);
+      setIsRemovingAdmin(false);
     }
   };
+
 
   if (loading || isLoadingUserData) {
     return (
@@ -172,7 +135,7 @@ export default function AdminPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <div className="flex items-center gap-2">
-                  {userData.isSuperAdmin ? (
+                  {userData.isAdmin ? (
                     <Crown className="h-5 w-5 text-yellow-500" />
                   ) : (
                     <ShieldCheck className="h-5 w-5 text-blue-500" />
@@ -181,17 +144,17 @@ export default function AdminPage() {
                 </div>
               </CardTitle>
               <CardDescription>
-                Your role:{" "}
-                <span className="font-semibold capitalize text-primary">
-                  {userData.role}
-                </span>
+                Your role: <span className="font-semibold capitalize text-primary">{userData.role}</span>
               </CardDescription>
             </CardHeader>
           </Card>
 
           {/* Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/admin/events')}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+              onClick={() => router.push("/admin/events")}
+            >
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-blue-500" />
@@ -203,7 +166,10 @@ export default function AdminPage() {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/admin/projects')}>
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+              onClick={() => router.push("/admin/projects")}
+            >
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <FolderOpen className="h-4 w-4 text-green-500" />
@@ -215,7 +181,10 @@ export default function AdminPage() {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/admin/team')}>
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+              onClick={() => router.push("/admin/team")}
+            >
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <UserCheck className="h-4 w-4 text-purple-500" />
@@ -227,7 +196,10 @@ export default function AdminPage() {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/admin/positions')}>
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+              onClick={() => router.push("/admin/positions")}
+            >
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Users className="h-4 w-4 text-orange-500" />
@@ -238,160 +210,122 @@ export default function AdminPage() {
                 <p className="text-xs text-muted-foreground">Manage positions</p>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Admin Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">
-                  Total Users
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-2xl font-bold">{allUsers.length}</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Admins</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-blue-500" />
-                  <span className="text-2xl font-bold">
-                    {allUsers.filter((u) => u.role === USER_ROLES.ADMIN).length}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">
-                  Super Admins
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <Crown className="h-4 w-4 text-yellow-500" />
-                  <span className="text-2xl font-bold">
-                    {
-                      allUsers.filter((u) => u.role === USER_ROLES.SUPERADMIN)
-                        .length
-                    }
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* User Management */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                User Management
-              </CardTitle>
-              <CardDescription>
-                Search and manage users in the system
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Search Input */}
-              <div className="space-y-2 mt-4">
-                <Label htmlFor="search">Search Users</Label>
-                <Input
-                  id="search"
-                  type="text"
-                  placeholder="Search by name"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="mt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
-
-              {/* Users List */}
-              <div
-                className="space-y-3 max-h-96 overflow-y-auto mt-8 pr-3"
-                style={{
-                  scrollbarColor: "rgba(156, 163, 175, 0.3) transparent",
-                }}
+            {/* User Management Card - Only for Super Admins */}
+            {userData.isSuperAdmin && (
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+                onClick={() => router.push("/superadmin/users")}
               >
-                {filteredUsers.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">
-                    {searchQuery
-                      ? "No users found matching your search."
-                      : "No users found."}
-                  </div>
-                ) : (
-                  filteredUsers.map((user, index) => (
-                    <motion.div
-                      key={user.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          {user.role === USER_ROLES.SUPERADMIN ? (
-                            <Crown className="h-5 w-5 text-yellow-500" />
-                          ) : user.role === USER_ROLES.ADMIN ? (
-                            <ShieldCheck className="h-5 w-5 text-blue-500" />
-                          ) : (
-                            <Users className="h-5 w-5 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium">{user.publicName}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-sm font-medium capitalize px-3 py-1 rounded-full bg-primary/10 text-primary">
-                          {user.role}
-                        </div>
-                        {/* Promote Button - Only for Super Admins and Member Users */}
-                        {userData.isSuperAdmin &&
-                          user.role === USER_ROLES.MEMBER && (
-                            <Button
-                              onClick={() => promoteUserToAdmin(user)}
-                              disabled={promotingUserId === user.id}
-                              size="sm"
-                              className="ml-2"
-                            >
-                              {promotingUserId === user.id
-                                ? "Promoting..."
-                                : "Make Admin"}
-                            </Button>
-                          )}
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Users className="h-4 w-4 text-red-500" />
+                    User Management
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xs text-muted-foreground">Go to user management</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
-                        {/* Remove Admin Button - Only for Super Admins and Admin Users */}
-                        {userData.isSuperAdmin &&
-                          user.role === USER_ROLES.ADMIN && (
-                            <Button
-                              onClick={() => removeAdminPrivileges(user)}
-                              disabled={demotingUserId === user.id}
-                              size="sm"
-                              variant="destructive"
-                              className="ml-2"
-                            >
-                              {demotingUserId === user.id
-                                ? "Removing..."
-                                : "Remove Admin"}
-                            </Button>
-                          )}
-                      </div>
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Add Admin Section - Only for Super Admins */}
+          {userData.isSuperAdmin && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5" />
+                  Add Admin
+                </CardTitle>
+                <CardDescription>Grant admin privileges to a user by email address</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={grantAdminByEmail} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="adminEmail">Email Address</Label>
+                    <Input
+                      id="adminEmail"
+                      type="email"
+                      placeholder="Enter user's email address"
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                      required
+                      disabled={isGrantingAdmin}
+                      className="focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
+                  </div>
+
+                  {grantAdminMessage && (
+                    <div
+                      className={`p-3 rounded-lg text-sm ${
+                        grantAdminMessage.type === "success"
+                          ? "bg-green-500/10 text-green-500 border border-green-500/20"
+                          : "bg-red-500/10 text-red-500 border border-red-500/20"
+                      }`}
+                    >
+                      {grantAdminMessage.text}
+                    </div>
+                  )}
+
+                  <Button type="submit" disabled={isGrantingAdmin || !adminEmail.trim()} className="w-full sm:w-auto">
+                    {isGrantingAdmin ? "Granting Admin..." : "Grant Admin Privileges"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Remove Admin Section - Only for Super Admins */}
+          {userData.isSuperAdmin && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Remove Admin
+                </CardTitle>
+                <CardDescription>Remove admin privileges from a user by email address</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={removeAdminByEmail} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="removeAdminEmail">Email Address</Label>
+                    <Input
+                      id="removeAdminEmail"
+                      type="email"
+                      placeholder="Enter admin's email address"
+                      value={removeAdminEmail}
+                      onChange={(e) => setRemoveAdminEmail(e.target.value)}
+                      required
+                      disabled={isRemovingAdmin}
+                      className="focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
+                  </div>
+
+                  {removeAdminMessage && (
+                    <div
+                      className={`p-3 rounded-lg text-sm ${
+                        removeAdminMessage.type === "success"
+                          ? "bg-green-500/10 text-green-500 border border-green-500/20"
+                          : "bg-red-500/10 text-red-500 border border-red-500/20"
+                      }`}
+                    >
+                      {removeAdminMessage.text}
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    disabled={isRemovingAdmin || !removeAdminEmail.trim()}
+                    variant="destructive"
+                    className="w-full sm:w-auto"
+                  >
+                    {isRemovingAdmin ? "Removing Admin..." : "Remove Admin Privileges"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </motion.div>
