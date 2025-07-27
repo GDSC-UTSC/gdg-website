@@ -66,7 +66,7 @@ export default function AdminTeamPage() {
 
     const fetchUsers = async () => {
       try {
-        const res = await fetch("/api/getUsers", {
+        const res = await fetch("/api/admin/getUsers", {
           method: "POST",
           body: JSON.stringify({ query: debouncedQuery }),
         });
@@ -112,7 +112,7 @@ export default function AdminTeamPage() {
       });
 
       await team.create();
-      
+
       // Refresh teams list
       const updatedTeams = await Team.readAll();
       setTeams(updatedTeams);

@@ -2,7 +2,7 @@ import { getAuthenticatedUser } from "@/lib/firebase/server/index";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/admin")) {
+  if (request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/api/admin")) {
     try {
       const user = await getAuthenticatedUser();
 
@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
 
       const token = await user.getIdToken();
 
-      const response = await fetch(new URL("/api/admin/verify", request.url), {
+      const response = await fetch(new URL("/api/verify", request.url), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,5 +35,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };
