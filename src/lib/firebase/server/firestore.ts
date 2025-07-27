@@ -13,7 +13,7 @@ import {
   where,
   WhereFilterOp,
 } from "firebase/firestore";
-import { getAuthenticatedFirestore } from "./index";
+import { getAuthenticatedFirestore, getPublicFirestore } from "./index";
 
 // Type for Firestore converters
 export interface FirestoreConverter<T> {
@@ -25,14 +25,11 @@ export interface FirestoreConverter<T> {
 export async function addDocument<T>(
   collectionPath: string,
   data: T,
-  converter: FirestoreConverter<T>
+  converter: FirestoreConverter<T>,
 ): Promise<string> {
   try {
     const db = await getAuthenticatedFirestore();
-    const docRef = await addDoc(
-      collection(db, collectionPath).withConverter(converter),
-      data
-    );
+    const docRef = await addDoc(collection(db, collectionPath).withConverter(converter), data);
     return docRef.id;
   } catch (error) {
     console.error(`Error adding document to ${collectionPath}:`, error);
@@ -60,13 +57,14 @@ export async function setDocument<T>(
 // Get a single document by path
 export async function getDocument<T>(
   documentPath: string,
-  converter: FirestoreConverter<T>
+  converter: FirestoreConverter<T>,
+  options?: {
+    public?: boolean;
+  }
 ): Promise<T | null> {
   try {
-    const db = await getAuthenticatedFirestore();
-    const docSnap = await getDoc(
-      doc(db, documentPath).withConverter(converter)
-    );
+    const db = options?.public ? await getPublicFirestore() : await getAuthenticatedFirestore();
+    const docSnap = await getDoc(doc(db, documentPath).withConverter(converter));
     if (docSnap.exists()) {
       return docSnap.data();
     }
@@ -80,10 +78,13 @@ export async function getDocument<T>(
 // Get all documents from a collection
 export async function getDocuments<T>(
   collectionPath: string,
-  converter: FirestoreConverter<T>
+  converter: FirestoreConverter<T>,
+  options?: {
+    public?: boolean;
+  }
 ): Promise<T[]> {
   try {
-    const db = await getAuthenticatedFirestore();
+    const db = options?.public ? await getPublicFirestore() : await getAuthenticatedFirestore();
     const querySnapshot = await getDocs(
       collection(db, collectionPath).withConverter(converter)
     );
@@ -100,10 +101,13 @@ export async function getDocumentsWithQuery<T>(
   field: string,
   operator: WhereFilterOp,
   value: any,
-  converter: FirestoreConverter<T>
+  converter: FirestoreConverter<T>,
+  options?: {
+    public?: boolean;
+  }
 ): Promise<T[]> {
   try {
-    const db = await getAuthenticatedFirestore();
+    const db = options?.public ? await getPublicFirestore() : await getAuthenticatedFirestore();
     const querySnapshot = await getDocs(
       query(
         collection(db, collectionPath).withConverter(converter),

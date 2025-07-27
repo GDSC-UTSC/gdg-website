@@ -5,39 +5,17 @@ import { UserData } from "@/app/types/userdata";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Command,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import useDebounce from "@/hooks/useDebounce";
 import { Timestamp } from "firebase/firestore";
 import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function AdminTeamPage() {
-  const [input, setInput] = useState("");
-  const debouncedQuery = useDebounce(input, 300);
-  const [users, setUsers] = useState<UserData[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [allUsers, setAllUsers] = useState<UserData[]>([]);
 
@@ -53,41 +31,15 @@ export default function AdminTeamPage() {
   });
 
   const [memberFormData, setMemberFormData] = useState({
-    userId: "",
+    email: "",
     position: "",
   });
-
-  // Fetch users for search
-  useEffect(() => {
-    if (debouncedQuery === "") {
-      setUsers([]);
-      return;
-    }
-
-    const fetchUsers = async () => {
-      try {
-        const res = await fetch("/api/admin/getUsers", {
-          method: "POST",
-          body: JSON.stringify({ query: debouncedQuery }),
-        });
-        const userData = await res.json();
-        setUsers(userData);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-
-    fetchUsers();
-  }, [debouncedQuery]);
 
   // Load teams and all users on mount
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [teamsData, usersData] = await Promise.all([
-          Team.readAll(),
-          UserData.readAll()
-        ]);
+        const [teamsData, usersData] = await Promise.all([Team.readAll(), UserData.readAll()]);
         setTeams(teamsData);
         setAllUsers(usersData);
       } catch (error) {
@@ -128,34 +80,42 @@ export default function AdminTeamPage() {
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedTeamId || !memberFormData.userId || !memberFormData.position) {
+    if (!selectedTeamId || !memberFormData.email || !memberFormData.position) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     try {
-      const team = teams.find(t => t.id === selectedTeamId);
-      if (!team) return;
-
-      // Check if user is already a member
-      if (team.getMember(memberFormData.userId)) {
-        toast.error("User is already a member of this team");
+      const selectedTeam = teams.find((t) => t.id === selectedTeamId);
+      if (!selectedTeam) {
+        toast.error("Team not found");
         return;
       }
 
-      team.addMember(
-        memberFormData.userId,
-        memberFormData.position
-      );
+      const response = await fetch("/api/admin/addUserToTeam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: memberFormData.email,
+          teamName: selectedTeam.name,
+          position: memberFormData.position,
+        }),
+      });
 
-      await team.update();
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || "Failed to add team member");
+        return;
+      }
 
       // Refresh teams list
       const updatedTeams = await Team.readAll();
       setTeams(updatedTeams);
       setMemberDialogOpen(false);
-      setMemberFormData({ userId: "", position: "" });
-      setInput("");
+      setMemberFormData({ email: "", position: "" });
       toast.success("Team member added successfully");
     } catch (error) {
       console.error("Error adding team member:", error);
@@ -165,7 +125,7 @@ export default function AdminTeamPage() {
 
   const handleRemoveMember = async (teamId: string, userId: string) => {
     try {
-      const team = teams.find(t => t.id === teamId);
+      const team = teams.find((t) => t.id === teamId);
       if (!team) return;
 
       if (confirm("Are you sure you want to remove this team member?")) {
@@ -185,7 +145,7 @@ export default function AdminTeamPage() {
 
   const handleDeleteTeam = async (teamId: string) => {
     try {
-      const team = teams.find(t => t.id === teamId);
+      const team = teams.find((t) => t.id === teamId);
       if (!team) return;
 
       if (confirm("Are you sure you want to delete this entire team? This action cannot be undone.")) {
@@ -206,10 +166,7 @@ export default function AdminTeamPage() {
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <PageTitle
-            title="Team Management"
-            description="Manage teams and their members"
-          />
+          <PageTitle title="Team Management" description="Manage teams and their members" />
 
           <div className="flex gap-2">
             {/* Create Team Dialog */}
@@ -278,10 +235,7 @@ export default function AdminTeamPage() {
                 <form onSubmit={handleAddMember} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="team">Team</Label>
-                    <Select
-                      value={selectedTeamId}
-                      onValueChange={setSelectedTeamId}
-                    >
+                    <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a team" />
                       </SelectTrigger>
@@ -296,33 +250,20 @@ export default function AdminTeamPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="userId">Team Member</Label>
-                    <Command>
-                      <CommandInput
-                        placeholder="Search for a member"
-                        value={input}
-                        onValueChange={setInput}
-                      />
-                      <CommandList className="max-h-[100px] overflow-y-auto">
-                        {users
-                          .filter((user) => user.publicName)
-                          .map((user) => (
-                            <CommandItem
-                              key={user.id}
-                              value={user.publicName}
-                              onSelect={() => {
-                                setMemberFormData((prev) => ({
-                                  ...prev,
-                                  userId: user.id,
-                                }));
-                                setInput(user.publicName || "");
-                              }}
-                            >
-                              {user.publicName}
-                            </CommandItem>
-                          ))}
-                      </CommandList>
-                    </Command>
+                    <Label htmlFor="email">User Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={memberFormData.email}
+                      onChange={(e) =>
+                        setMemberFormData((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
+                      placeholder="user@example.com"
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -340,7 +281,6 @@ export default function AdminTeamPage() {
                       required
                     />
                   </div>
-
 
                   <Button type="submit" className="w-full">
                     Add Member
@@ -360,25 +300,15 @@ export default function AdminTeamPage() {
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h2 className="text-2xl font-bold">{team.name}</h2>
-                    {team.description && (
-                      <p className="text-muted-foreground mt-1">
-                        {team.description}
-                      </p>
-                    )}
+                    {team.description && <p className="text-muted-foreground mt-1">{team.description}</p>}
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteTeam(team.id)}
-                  >
+                  <Button variant="destructive" size="sm" onClick={() => handleDeleteTeam(team.id)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
 
                 {sortedMembers.length === 0 ? (
-                  <p className="text-muted-foreground">
-                    No team members assigned
-                  </p>
+                  <p className="text-muted-foreground">No team members assigned</p>
                 ) : (
                   <div className="space-y-3">
                     {sortedMembers.map((member) => {
@@ -389,20 +319,14 @@ export default function AdminTeamPage() {
                           className="flex items-center justify-between p-4 bg-muted/30 rounded-lg"
                         >
                           <div>
-                            <p className="font-medium">
-                              {user?.publicName || "Unknown User"}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {member.position}
-                            </p>
+                            <p className="font-medium">{user?.publicName || "Unknown User"}</p>
+                            <p className="text-sm text-muted-foreground">{member.position}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() =>
-                                handleRemoveMember(team.id, member.userId)
-                              }
+                              onClick={() => handleRemoveMember(team.id, member.userId)}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>

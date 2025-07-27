@@ -85,45 +85,39 @@ export class Position implements PositionType {
     return this.id;
   }
 
-  static async read(id: string, options?: { server?: boolean }): Promise<Position | null> {
+  static async read(id: string, options?: { server?: boolean, public?: boolean }): Promise<Position | null> {
     const documentPath = `positions/${id}`;
-    
+
     if (options?.server) {
-      "use server";
+      ("use server");
       const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
-      return await getDocumentServer(documentPath, Position.converter);
+      return await getDocumentServer(documentPath, Position.converter, { public: options?.public || false });
     }
-    
+
     return await getDocument(documentPath, Position.converter);
   }
 
-  static async readAll(options?: { server?: boolean }): Promise<Position[]> {
+  static async readAll(options?: { server?: boolean, public?: boolean }): Promise<Position[]> {
     const collectionPath = "positions";
-    
+
     if (options?.server) {
-      "use server";
+      ("use server");
       const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
-      return await getDocumentsServer(collectionPath, Position.converter);
+      return await getDocumentsServer(collectionPath, Position.converter, { public: options?.public || false });
     }
-    
+
     return await getDocuments(collectionPath, Position.converter);
   }
 
-  static async readAllActive(options?: { server?: boolean }): Promise<Position[]> {
+  static async readAllActive(options?: { server?: boolean, public?: boolean }): Promise<Position[]> {
     const collectionPath = "positions";
-    
+
     if (options?.server) {
-      "use server";
+      ("use server");
       const { getDocumentsWithQuery: getDocumentsWithQueryServer } = await import("@/lib/firebase/server/firestore");
-      return await getDocumentsWithQueryServer(
-        collectionPath,
-        "status",
-        "==",
-        "active",
-        Position.converter
-      );
+      return await getDocumentsWithQueryServer(collectionPath, "status", "==", "active", Position.converter, { public: options?.public || false });
     }
-    
+
     return await getDocumentsWithQuery(
       collectionPath,
       "status",

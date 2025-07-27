@@ -164,13 +164,13 @@ export class Event implements EventType {
   }
 
   // Read all events
-  static async readAll(options?: { server?: boolean }): Promise<Event[]> {
+  static async readAll(options?: { server?: boolean, public?: boolean }): Promise<Event[]> {
     const collectionPath = "events";
 
     if (options?.server) {
       "use server";
       const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
-      return await getDocumentsServer(collectionPath, Event.converter);
+      return await getDocumentsServer(collectionPath, Event.converter, { public: options?.public || false });
     }
 
     return await getDocuments(collectionPath, Event.converter);

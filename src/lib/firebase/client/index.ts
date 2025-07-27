@@ -19,17 +19,14 @@ let db: Firestore;
 let auth: Auth;
 let storage: FirebaseStorage;
 
+db = getFirestore(app);
+auth = getAuth(app);
+storage = getStorage(app);
+
 if (process.env.NODE_ENV === "development") {
-  db = getFirestore(app);
   connectFirestoreEmulator(db, "localhost", parseInt(process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT || "8080"));
-  auth = getAuth(app);
   connectAuthEmulator(auth, `http://localhost:${process.env.NEXT_PUBLIC_FIREBASE_AUTH_PORT}`);
-  storage = getStorage(app);
   connectStorageEmulator(storage, "localhost", parseInt(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_PORT || "9199"));
-} else {
-  db = getFirestore(app);
-  auth = getAuth(app);
-  storage = getStorage(app);
 }
 
 export { auth, db, storage };
