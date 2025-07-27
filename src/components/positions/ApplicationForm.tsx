@@ -1,5 +1,5 @@
-import { Application } from "@/app/types/applications";
 import { Position } from "@/app/types/positions";
+import { Application } from "@/app/types/positions/applications";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -295,7 +295,8 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
                                   {formData["Resume"].name}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  {formatFileSize(formData["Resume"].size)} • {formData["Resume"].type}
+                                  {formatFileSize(formData["Resume"].size)} •{" "}
+                                  {formData["Resume"].type}
                                 </p>
                               </div>
                             </motion.div>

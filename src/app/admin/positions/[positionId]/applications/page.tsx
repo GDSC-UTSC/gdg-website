@@ -1,8 +1,9 @@
 "use client";
 
-import { Application } from "@/app/types/applications";
-import { UserData } from "@/app/types/userdata";
 import { Position } from "@/app/types/positions";
+import { Application } from "@/app/types/positions/applications";
+import { UserData } from "@/app/types/userdata";
+import ApplicationCard from "@/components/admin/positions/applications/ApplicationCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,13 +12,12 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState, use, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, Users, Clock } from "lucide-react";
-import ApplicationCard from "@/components/admin/positions/applications/ApplicationCard";
+import { Clock, Search, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useMemo, useState } from "react";
 
 interface AdminApplicationsPageProps {
   params: Promise<{ positionId: string }>;
@@ -31,7 +31,9 @@ type ApplicationWithUser = {
 type SortOption = "name" | "email" | "date" | "status";
 type StatusFilter = "all" | "pending" | "accepted" | "rejected";
 
-export default function AdminApplicationsPage({ params }: AdminApplicationsPageProps) {
+export default function AdminApplicationsPage({
+  params,
+}: AdminApplicationsPageProps) {
   const router = useRouter();
   const { positionId } = use(params);
   const [position, setPosition] = useState<Position | null>(null);
@@ -99,9 +101,15 @@ export default function AdminApplicationsPage({ params }: AdminApplicationsPageP
       // Search filter
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
-        const matchesEmail = item.application.email.toLowerCase().includes(searchLower);
-        const matchesName = item.application.name.toLowerCase().includes(searchLower);
-        const matchesUserName = item.user?.publicName?.toLowerCase().includes(searchLower);
+        const matchesEmail = item.application.email
+          .toLowerCase()
+          .includes(searchLower);
+        const matchesName = item.application.name
+          .toLowerCase()
+          .includes(searchLower);
+        const matchesUserName = item.user?.publicName
+          ?.toLowerCase()
+          .includes(searchLower);
 
         if (!matchesEmail && !matchesName && !matchesUserName) {
           return false;
@@ -123,7 +131,9 @@ export default function AdminApplicationsPage({ params }: AdminApplicationsPageP
           comparison = a.application.email.localeCompare(b.application.email);
           break;
         case "date":
-          comparison = a.application.createdAt.toDate().getTime() - b.application.createdAt.toDate().getTime();
+          comparison =
+            a.application.createdAt.toDate().getTime() -
+            b.application.createdAt.toDate().getTime();
           break;
         case "status":
           comparison = a.application.status.localeCompare(b.application.status);
@@ -135,7 +145,6 @@ export default function AdminApplicationsPage({ params }: AdminApplicationsPageP
 
     return filtered;
   }, [applications, searchTerm, statusFilter, sortBy, sortOrder]);
-
 
   if (loading) {
     return (
@@ -231,7 +240,12 @@ export default function AdminApplicationsPage({ params }: AdminApplicationsPageP
 
               {/* Status Filter */}
               <div className="md:w-48">
-                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
+                <Select
+                  value={statusFilter}
+                  onValueChange={(value) =>
+                    setStatusFilter(value as StatusFilter)
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
@@ -249,7 +263,7 @@ export default function AdminApplicationsPage({ params }: AdminApplicationsPageP
                 <Select
                   value={`${sortBy}-${sortOrder}`}
                   onValueChange={(value) => {
-                    const [field, order] = value.split('-');
+                    const [field, order] = value.split("-");
                     setSortBy(field as SortOption);
                     setSortOrder(order as "asc" | "desc");
                   }}
@@ -280,24 +294,27 @@ export default function AdminApplicationsPage({ params }: AdminApplicationsPageP
         >
           {filteredAndSortedApplications.length === 0 ? (
             <Card className="p-12 text-center">
-              <h3 className="text-lg font-semibold mb-2">No Applications Found</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                No Applications Found
+              </h3>
               <p className="text-muted-foreground">
                 {applications.length === 0
                   ? "No applications have been submitted for this position yet."
-                  : "No applications match your current filters."
-                }
+                  : "No applications match your current filters."}
               </p>
             </Card>
           ) : (
-            filteredAndSortedApplications.map(({ application, user }, index) => (
-              <ApplicationCard
-                key={application.id}
-                application={application}
-                user={user}
-                position={position!}
-                index={index}
-              />
-            ))
+            filteredAndSortedApplications.map(
+              ({ application, user }, index) => (
+                <ApplicationCard
+                  key={application.id}
+                  application={application}
+                  user={user}
+                  position={position!}
+                  index={index}
+                />
+              )
+            )
           )}
         </motion.div>
       </div>
