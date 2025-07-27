@@ -1,22 +1,12 @@
 "use client";
 import { Project } from "@/app/types/projects";
+import { ImageCarousel } from "@/components/projects/ImageCarousel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  ArrowLeft,
-  Calendar,
-  Code2,
-  Edit,
-  ExternalLink,
-  Users,
-} from "lucide-react";
-import Image from "next/image";
+import { ArrowLeft, Calendar, Code2, Edit, ExternalLink, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CompactProfileCard } from '@/components/account/CompactProfileCard';
-
-
 
 const languageColors = {
   JavaScript: "bg-yellow-500",
@@ -174,22 +164,11 @@ export default function ProjectDetailPage() {
           <div className="lg:col-span-2 space-y-8">
             {/* Project Images */}
             {project.imageUrls && project.imageUrls.length > 0 && (
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-                <h2 className="text-2xl font-bold text-white mb-6">Gallery</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {project.imageUrls.map((imageUrl, idx) => (
-                    <div key={idx} className="relative">
-                      <Image
-                        src={imageUrl}
-                        alt={`${project.title} - Image ${idx + 1}`}
-                        width={400}
-                        height={250}
-                        className="w-full h-64 object-cover rounded-lg border border-gray-700"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ImageCarousel
+                images={project.imageUrls}
+                title="Gallery"
+                altTextPrefix={project.title}
+              />
             )}
 
             {/* Description */}

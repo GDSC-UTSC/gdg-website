@@ -7,7 +7,9 @@ interface AdminPositionCardProps {
   position: Position;
 }
 
-export default function AdminPositionCard({ position }: AdminPositionCardProps) {
+export default function AdminPositionCard({
+  position,
+}: AdminPositionCardProps) {
   const router = useRouter();
 
   const handleView = () => {
@@ -65,19 +67,20 @@ export default function AdminPositionCard({ position }: AdminPositionCardProps) 
         </div>
 
         <div className="space-y-2 mt-auto">
-          <Button
-            className="w-full"
-            variant="outline"
-            onClick={handleView}
-          >
+          <Button className="w-full" variant="outline" onClick={handleView}>
             View Position
           </Button>
 
+          <Button className="w-full" onClick={handleEdit}>
+            Edit Position
+          </Button>
           <Button
             className="w-full"
-            onClick={handleEdit}
+            onClick={() => {
+              router.push(`/admin/positions/${position.id}/applications`);
+            }}
           >
-            Edit Position
+            View Applications
           </Button>
         </div>
       </Card>
