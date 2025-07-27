@@ -2,7 +2,7 @@
  * Import the necessary modules for Firebase Cloud Functions (V1) and the Admin SDK.
  */
 import * as admin from "firebase-admin";
-import { Timestamp } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import * as functions from "firebase-functions/v1";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
@@ -53,20 +53,13 @@ export const createApplication = onDocumentWritten(
     const userId = event.params.applicationId;
 
     try {
-      const user = await admin.firestore().collection("users").doc(userId).get();
-      const userData: any = user.data();
-
-      const updatedUserData: any = {
-        ...userData,
-        associations: [
-          ...userData.associations,
-          {
-            positions: [...userData.associations.positions, positionId],
-          },
-        ],
-      };
-
-      await admin.firestore().collection("users").doc(userId).update(updatedUserData);
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(userId)
+        .update({
+          "associations.positions": FieldValue.arrayUnion(positionId),
+        });
     } catch (error) {
       logger.error(`Error creating application for user ${userId}:`, error);
     }
