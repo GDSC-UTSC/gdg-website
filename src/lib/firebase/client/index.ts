@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === "development") {
   storage = getStorage(app);
   connectStorageEmulator(storage, "localhost", parseInt(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_PORT || "9199"));
 } else {
-  db = getFirestore(app);
+  db = getFirestore(app, "website");
   auth = getAuth(app);
   storage = getStorage(app);
 }
