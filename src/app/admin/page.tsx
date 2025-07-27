@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Crown, Shield, ShieldCheck, Users } from "lucide-react";
+import { Calendar, Crown, FolderOpen, Shield, ShieldCheck, Users, UserCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -188,6 +188,57 @@ export default function AdminPage() {
               </CardDescription>
             </CardHeader>
           </Card>
+
+          {/* Navigation Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/admin/events')}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-blue-500" />
+                  Events
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">Manage events</p>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/admin/projects')}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <FolderOpen className="h-4 w-4 text-green-500" />
+                  Projects
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">Manage projects</p>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/admin/team')}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <UserCheck className="h-4 w-4 text-purple-500" />
+                  Team
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">Manage team</p>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/admin/positions')}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Users className="h-4 w-4 text-orange-500" />
+                  Positions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">Manage positions</p>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Admin Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -4,8 +4,8 @@
 
 To run the project locally:
 
-run this the first time: curl -sL https://firebase.tools | bash
-npm install -g firebase-tools
+run this the first time: ```curl -sL https://firebase.tools | bash
+npm install -g firebase-tools```
 
 1. Start the Next.js development server:
 
