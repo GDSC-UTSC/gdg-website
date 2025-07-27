@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar, Code2, Edit, ExternalLink, Users } from "lucide-re
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CompactProfileCard } from "@/components/account/CompactProfileCard";
 
 const languageColors = {
   JavaScript: "bg-yellow-500",
