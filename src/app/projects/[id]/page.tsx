@@ -1,12 +1,12 @@
 "use client";
+import { Project } from "@/app/types/projects";
+import { ImageCarousel } from "@/components/projects/ImageCarousel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Project } from "@/app/types/projects";
-import { ArrowLeft, ExternalLink, Edit, Code2, Users, Calendar } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { ArrowLeft, Calendar, Code2, Edit, ExternalLink, Users } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const languageColors = {
   JavaScript: "bg-yellow-500",
@@ -46,7 +46,7 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id as string;
-  
+
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -107,7 +107,7 @@ export default function ProjectDetailPage() {
               Back to Projects
             </Button>
           </Link>
-          
+
           <div className="flex justify-between items-start mb-6">
             <div>
               <h1 className="text-5xl font-bold text-white mb-4">{project.title}</h1>
@@ -124,7 +124,7 @@ export default function ProjectDetailPage() {
                 )}
               </div>
             </div>
-            
+
             <div className="flex gap-3">
               {user && (
                 <Link href={`/projects/edit?id=${project.id}`}>
@@ -156,22 +156,11 @@ export default function ProjectDetailPage() {
           <div className="lg:col-span-2 space-y-8">
             {/* Project Images */}
             {project.imageUrls && project.imageUrls.length > 0 && (
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-                <h2 className="text-2xl font-bold text-white mb-6">Gallery</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {project.imageUrls.map((imageUrl, idx) => (
-                    <div key={idx} className="relative">
-                      <Image
-                        src={imageUrl}
-                        alt={`${project.title} - Image ${idx + 1}`}
-                        width={400}
-                        height={250}
-                        className="w-full h-64 object-cover rounded-lg border border-gray-700"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ImageCarousel
+                images={project.imageUrls}
+                title="Gallery"
+                altTextPrefix={project.title}
+              />
             )}
 
             {/* Description */}
