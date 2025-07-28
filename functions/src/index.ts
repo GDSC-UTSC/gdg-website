@@ -4,8 +4,8 @@
 import * as admin from "firebase-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import * as functions from "firebase-functions/v1";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
+import { beforeUserCreated } from "firebase-functions/v2/identity";
 
 // Initialize the Firebase Admin SDK to interact with Firebase services.
 admin.initializeApp();
@@ -17,14 +17,10 @@ admin.initializeApp();
  * @param {admin.auth.UserRecord} user The user record from Firebase Authentication.
  * @param {functions.EventContext} context The event metadata.
  */
-export const createUserInFirestore = functions.auth.user().onCreate(async (user) => {
-  const { uid, displayName } = user;
-
-  logger.info(`New user created, starting document creation for UID: ${uid}`);
-
-  // This is the data that will be stored in the new Firestore document.
+export const beforecreated = beforeUserCreated(async (event) => {
+  const user = event.data;
   const userDocument = {
-    publicName: displayName || "",
+    publicName: user.displayName || "",
     updatedAt: Timestamp.now(),
     profileImageUrl: "",
     bio: "",
@@ -35,12 +31,12 @@ export const createUserInFirestore = functions.auth.user().onCreate(async (user)
 
   try {
     // Write the new document to the 'users' collection using the user's UID as the document ID.
-    await admin.firestore().collection("users").doc(uid).set(userDocument);
+    await admin.firestore().collection("users").doc(user.uid).set(userDocument);
 
-    logger.info(`Successfully created user document for UID: ${uid}`);
+    logger.info(`Successfully created user document for UID: ${user.uid}`);
   } catch (error) {
-    logger.error(`Error creating user document for UID: ${uid}`, {
-      uid: uid,
+    logger.error(`Error creating user document for UID: ${user.uid}`, {
+      uid: user.uid,
       error: error, // Log the full error object for better debugging
     });
   }
