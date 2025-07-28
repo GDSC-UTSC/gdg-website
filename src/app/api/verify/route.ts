@@ -36,10 +36,10 @@ export async function POST(request: NextRequest) {
 
     const idTokenResult = await user.getIdTokenResult();
     const claims = idTokenResult.claims;
-
     const isAdmin = claims.admin === true;
+    const isSuperAdmin = claims.superadmin === true;
 
-    return NextResponse.json({ isAdmin });
+    return NextResponse.json({ isAdmin, isSuperAdmin });
   } catch (error) {
     console.error("Admin verification error:", error);
     return NextResponse.json({ isAdmin: false }, { status: 500 });
