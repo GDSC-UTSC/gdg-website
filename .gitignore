@@ -33,6 +33,8 @@ pglite-debug.log
 /firebase-data
 .firebase/
 functions/node_modules/
+storage.rules
+firestore.rules
 
 # python
 serviceKey.json*
