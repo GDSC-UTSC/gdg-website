@@ -3,13 +3,7 @@ import PositionCard from "@/components/positions/PositionCard";
 import PageTitle from "@/components/ui/PageTitle";
 
 export default async function PositionsPage() {
-  let positions: Position[] = [];
-
-  try {
-    positions = [];
-  } catch (error) {
-    console.error("Error fetching positions:", error);
-  }
+  const positions: Position[] = await Position.readAllActive({ server: true, public: true });
 
   return (
     <div className="min-h-screen py-12">
@@ -27,9 +21,7 @@ export default async function PositionsPage() {
 
         {positions.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              No positions available at the moment.
-            </p>
+            <p className="text-muted-foreground">No positions available at the moment.</p>
           </div>
         )}
       </div>
