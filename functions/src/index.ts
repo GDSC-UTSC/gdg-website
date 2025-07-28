@@ -5,7 +5,7 @@ import * as admin from "firebase-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
-import { beforeUserCreated } from "firebase-functions/v2/identity";
+import { beforeUserCreated, HttpsError } from "firebase-functions/v2/identity";
 
 // Initialize the Firebase Admin SDK to interact with Firebase services.
 admin.initializeApp();
@@ -19,6 +19,10 @@ admin.initializeApp();
  */
 export const beforecreated = beforeUserCreated(async (event) => {
   const user = event.data;
+  if (!user) {
+    logger.error("No user data found");
+    throw new HttpsError("invalid-argument", "User could not be created");
+  }
   const userDocument = {
     publicName: user.displayName || "",
     updatedAt: Timestamp.now(),
