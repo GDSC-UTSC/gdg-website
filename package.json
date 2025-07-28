@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "prod": "next build && next start",
     "lint": "next lint",
     "firebase": "cd functions && npm i && npm run build && cd .. && firebase --config=firebase.local.json emulators:start --import=./firebase-data --export-on-exit=./firebase-data",
     "seed": "npx tsx scripts/seed-firestore.ts"
@@ -48,6 +49,7 @@
     "embla-carousel-react": "^8.6.0",
     "firebase": "^11.9.1",
     "firebase-admin": "^13.4.0",
+    "firebase-functions": "^6.4.0",
     "framer-motion": "^12.18.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.454.0",

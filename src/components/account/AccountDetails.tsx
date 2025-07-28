@@ -47,13 +47,23 @@ export function AccountDetails({ userData, onUpdate }: AccountDetailsProps) {
   const handleSave = async () => {
     if (!userData) return;
 
+    // Validate public name is not empty
+    if (!formData.publicName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Public name is required and cannot be empty.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // Update the userData instance
-      userData.publicName = formData.publicName || undefined;
-      userData.bio = formData.bio || undefined;
-      userData.linkedin = formData.linkedin || undefined;
-      userData.github = formData.github || undefined;
+      // Update the userData instance - use empty strings instead of undefined
+      userData.publicName = formData.publicName.trim();
+      userData.bio = formData.bio || "";
+      userData.linkedin = formData.linkedin || "";
+      userData.github = formData.github || "";
 
       // Save to database
       await userData.update();
