@@ -6,13 +6,13 @@ import { ProfileCard } from "@/components/account/ProfileCard";
 import { ProfileImage } from "@/components/account/ProfileImage";
 import { ProfileImageUpload } from "@/components/account/ProfileImageUpload";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase/client";
 import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
-import { Calendar, FolderOpen, Users } from "lucide-react";
+import { Calendar, FolderOpen, Shield, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { revalidateAuth } from "../../lib/actions/validations";
@@ -127,17 +127,15 @@ export default function AccountPage() {
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <ProfileImage
-              user={user}
-              profileImageUrl={profileImageUrl}
-              isLoading={isLoadingProfile}
-            />
+            <ProfileImage user={user} profileImageUrl={profileImageUrl} isLoading={isLoadingProfile} />
           </motion.div>
         </motion.div>
-
         {/* Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/account/events')}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+            onClick={() => router.push("/account/events")}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-blue-500" />
@@ -149,7 +147,10 @@ export default function AccountPage() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/account/projects')}>
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+            onClick={() => router.push("/account/projects")}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <FolderOpen className="h-4 w-4 text-green-500" />
@@ -161,19 +162,38 @@ export default function AccountPage() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={() => router.push('/account/positions')}>
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+            onClick={() => router.push("/admin/positions")}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Users className="h-4 w-4 text-orange-500" />
-                My Applications
+                Positions
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xs text-muted-foreground">View your position applications</p>
+              <p className="text-xs text-muted-foreground">Manage positions</p>
             </CardContent>
           </Card>
-        </div>
 
+          {userData?.isAdmin && (
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+              onClick={() => router.push("/admin")}
+            >
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-red-500" />
+                  Admin Panel
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">Access admin dashboard</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
         <Card className="border-0 shadow-lg">
           <CardHeader>
             <CardTitle>Account</CardTitle>
@@ -200,10 +220,7 @@ export default function AccountPage() {
                   visible: { y: 0, opacity: 1 },
                 }}
               >
-                <AccountDetails
-                  userData={userData}
-                  onUpdate={handleUserDataUpdate}
-                />
+                <AccountDetails userData={userData} onUpdate={handleUserDataUpdate} />
               </motion.div>
 
               <motion.div
@@ -212,10 +229,7 @@ export default function AccountPage() {
                   visible: { y: 0, opacity: 1 },
                 }}
               >
-                <ProfileImageUpload
-                  onUpload={uploadProfileImage}
-                  isUploading={isUploading}
-                />
+                <ProfileImageUpload onUpload={uploadProfileImage} isUploading={isUploading} />
               </motion.div>
 
               <motion.div
@@ -225,10 +239,7 @@ export default function AccountPage() {
                   visible: { y: 0, opacity: 1 },
                 }}
               >
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button onClick={handleSignOut} variant="outline">
                     Sign Out
                   </Button>
