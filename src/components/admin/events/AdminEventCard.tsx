@@ -15,7 +15,7 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
   };
 
   const handleEdit = () => {
-    router.push(`/admin/events/${event.id}/edit`);
+    router.push(`/events/${event.id}/edit`);
   };
 
   const getStatusColor = (status: string) => {

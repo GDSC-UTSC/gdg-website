@@ -11,7 +11,7 @@ export default function AdminProjectCard({ project }: AdminProjectCardProps) {
   const router = useRouter();
 
   const handleView = () => {
-    router.push(`/admin/projects/${project.id}`);
+    router.push(`/projects/${project.id}`);
   };
 
   const handleEdit = () => {

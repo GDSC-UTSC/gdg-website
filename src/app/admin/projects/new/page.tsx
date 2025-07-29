@@ -42,7 +42,7 @@ export default function AdminNewProjectPage() {
         title: formData.title,
         description: formData.description,
         languages: formData.languages,
-        contributors: formData.contributors.map((user) => user.id),
+        contributors: formData.contributors,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         imageUrls: formData.imageUrls,
