@@ -1,6 +1,6 @@
 "use client";
 
-import { Project, Contributor } from "@/app/types/projects";
+import { Project } from "@/app/types/projects";
 import { UserData } from "@/app/types/userdata";
 import UserSearch from "@/components/admin/UserSearch";
 import { TextInput, TextareaInput } from "@/components/positions/questions";
@@ -36,14 +36,14 @@ export default function AdminEditProjectPage({ params }: AdminEditProjectPagePro
         const fetchedProject = await Project.read(projectId);
         if (fetchedProject) {
           setProject(fetchedProject);
-          
+
           // Load contributor user data
-          const contributorPromises = fetchedProject.contributors?.map(contributor => 
-            UserData.read(contributor.userId)
+          const contributorPromises = fetchedProject.contributors?.map(contributor =>
+            UserData.read(contributor)
           ) || [];
           const contributors = await Promise.all(contributorPromises);
           const validContributors = contributors.filter(contrib => contrib !== null) as UserData[];
-          
+
           setFormData({
             title: fetchedProject.title,
             description: fetchedProject.description,
@@ -80,7 +80,7 @@ export default function AdminEditProjectPage({ params }: AdminEditProjectPagePro
         description: formData.description.trim(),
         languages: formData.languages,
         link: formData.link,
-        contributors: formData.contributors.map(user => ({ userId: user.id } as Contributor)),
+        contributors: formData.contributors.map(user => user.id),
       });
 
       await updatedProject.update();
