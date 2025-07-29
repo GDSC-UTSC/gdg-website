@@ -174,7 +174,7 @@ export default function AdminRegistrationsPage({ params }: AdminRegistrationsPag
         <div className="mb-6">
           <Button
             variant="outline"
-            onClick={() => router.push(`/events/${eventId}`)}
+            onClick={() => router.push(`/admin/events/${eventId}`)}
             className="mb-4"
           >
             ← Back to Event Details

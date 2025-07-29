@@ -1,19 +1,20 @@
 "use client";
 
 import { Event, EventType, QuestionType } from "@/app/types/events";
-import { UserData } from "@/app/types/userdata";
-import UserSearch from "@/components/admin/UserSearch";
 import QuestionBuilder from "@/components/positions/QuestionBuilder";
-import { SelectInput, TextInput, TextareaInput } from "@/components/positions/questions";
+import {
+  SelectInput,
+  TextInput,
+  TextareaInput,
+} from "@/components/positions/questions";
 import { Button } from "@/components/ui/button";
+import TagsInput from "@/components/ui/tags-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import TagsInput from "@/components/ui/tags-input";
 import { Timestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { X } from "lucide-react";
 
 type FormData = {
   title: string;
@@ -27,8 +28,6 @@ type FormData = {
   tags: string[];
   link: string;
   questions: QuestionType[];
-  imageUrls: string[];
-  organizers: UserData[];
 };
 
 export default function AdminNewEventPage() {
@@ -46,8 +45,6 @@ export default function AdminNewEventPage() {
     tags: [],
     link: "",
     questions: [],
-    imageUrls: [],
-    organizers: [],
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,27 +53,27 @@ export default function AdminNewEventPage() {
 
     try {
       const eventData: EventType = {
-        id: "",
+        id: "", // Will be set by Firebase
         title: formData.title,
         description: formData.description,
         eventDate: Timestamp.fromDate(new Date(formData.eventDate)),
         startTime: formData.startTime || undefined,
         endTime: formData.endTime || undefined,
         location: formData.location || undefined,
-        registrationDeadline: formData.registrationDeadline
-          ? Timestamp.fromDate(new Date(formData.registrationDeadline))
-          : undefined,
+        registrationDeadline: formData.registrationDeadline ? Timestamp.fromDate(new Date(formData.registrationDeadline)) : undefined,
         status: formData.status,
         tags: formData.tags,
-        organizers: formData.organizers.map(user => user.id),
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
-        imageUrls: formData.imageUrls,
-        link: formData.link,
+        organizers: undefined,
+        createdAt: Timestamp.now(), // Will be overridden by serverTimestamp
+        updatedAt: Timestamp.now(), // Will be overridden by serverTimestamp
+        imageUrls: undefined,
+        link: formData.link || undefined,
         questions: formData.questions,
       };
 
+      console.log(eventData);
       const event = new Event(eventData);
+
       await event.create();
       toast.success("Event created successfully!");
       router.push("/admin/events");
@@ -104,7 +101,9 @@ export default function AdminNewEventPage() {
               id="title"
               label="Event Title"
               value={formData.title}
-              onChange={(value) => setFormData((prev) => ({ ...prev, title: value }))}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, title: value }))
+              }
               placeholder="e.g., React Workshop"
               required
             />
@@ -113,7 +112,9 @@ export default function AdminNewEventPage() {
               id="description"
               label="Description"
               value={formData.description}
-              onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, description: value }))
+              }
               placeholder="Describe the event, what attendees will learn, and any prerequisites..."
               required
               rows={8}
@@ -126,7 +127,9 @@ export default function AdminNewEventPage() {
                   id="eventDate"
                   type="date"
                   value={formData.eventDate}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, eventDate: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, eventDate: e.target.value }))
+                  }
                   required
                 />
               </div>
@@ -137,7 +140,9 @@ export default function AdminNewEventPage() {
                   id="registrationDeadline"
                   type="date"
                   value={formData.registrationDeadline}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, registrationDeadline: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, registrationDeadline: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -149,7 +154,9 @@ export default function AdminNewEventPage() {
                   id="startTime"
                   type="time"
                   value={formData.startTime}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, startTime: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, startTime: e.target.value }))
+                  }
                 />
               </div>
 
@@ -159,7 +166,9 @@ export default function AdminNewEventPage() {
                   id="endTime"
                   type="time"
                   value={formData.endTime}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, endTime: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, endTime: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -168,7 +177,9 @@ export default function AdminNewEventPage() {
               id="location"
               label="Location"
               value={formData.location}
-              onChange={(value) => setFormData((prev) => ({ ...prev, location: value }))}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, location: value }))
+              }
               placeholder="e.g., University of Toronto Scarborough"
             />
 
@@ -176,7 +187,9 @@ export default function AdminNewEventPage() {
               id="link"
               label="Event Link"
               value={formData.link}
-              onChange={(value) => setFormData((prev) => ({ ...prev, link: value }))}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, link: value }))
+              }
               placeholder="e.g., Zoom link or event website"
             />
 
@@ -187,52 +200,6 @@ export default function AdminNewEventPage() {
               onChange={(tags) => setFormData((prev) => ({ ...prev, tags }))}
               placeholder="Type a tag and press Enter..."
             />
-
-            <div className="space-y-4">
-              <Label>Event Organizers</Label>
-              <div className="space-y-3">
-                {formData.organizers.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">
-                      Selected organizers:
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.organizers.map((organizer) => (
-                        <div
-                          key={organizer.id}
-                          className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm"
-                        >
-                          <span>{organizer.publicName || "Unknown User"}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                organizers: prev.organizers.filter((u) => u.id !== organizer.id),
-                              }));
-                            }}
-                            className="hover:text-destructive transition-colors"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <UserSearch
-                  placeholder="Search for organizers..."
-                  onUserSelect={(user) => {
-                    if (!formData.organizers.find((org) => org.id === user.id)) {
-                      setFormData((prev) => ({
-                        ...prev,
-                        organizers: [...prev.organizers, user],
-                      }));
-                    }
-                  }}
-                />
-              </div>
-            </div>
 
             <SelectInput
               id="status"
@@ -255,7 +222,9 @@ export default function AdminNewEventPage() {
 
             <QuestionBuilder
               questions={formData.questions}
-              onChange={(questions) => setFormData((prev) => ({ ...prev, questions }))}
+              onChange={(questions) =>
+                setFormData((prev) => ({ ...prev, questions }))
+              }
             />
 
             <div className="flex gap-4 pt-8 justify-center">
@@ -268,7 +237,11 @@ export default function AdminNewEventPage() {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="px-8 py-3 text-base">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-8 py-3 text-base"
+              >
                 {isSubmitting ? "Creating..." : "Create Event"}
               </Button>
             </div>
