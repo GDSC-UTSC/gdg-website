@@ -13,7 +13,7 @@ export default function AdminPositionCard({
   const router = useRouter();
 
   const handleView = () => {
-    router.push(`/admin/positions/${position.id}`);
+    router.push(`/positions/${position.id}`);
   };
 
   const handleEdit = () => {
