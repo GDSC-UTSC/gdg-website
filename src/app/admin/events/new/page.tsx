@@ -1,6 +1,8 @@
 "use client";
 
 import { Event, EventType, QuestionType } from "@/app/types/events";
+import { UserData } from "@/app/types/userdata";
+import UserSearch from "@/components/admin/UserSearch";
 import QuestionBuilder from "@/components/positions/QuestionBuilder";
 import { SelectInput, TextInput, TextareaInput } from "@/components/positions/questions";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import { Timestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { X } from "lucide-react";
 
 type FormData = {
   title: string;
@@ -25,6 +28,7 @@ type FormData = {
   link: string;
   questions: QuestionType[];
   imageUrls: string[];
+  organizers: UserData[];
 };
 
 export default function AdminNewEventPage() {
@@ -43,6 +47,7 @@ export default function AdminNewEventPage() {
     link: "",
     questions: [],
     imageUrls: [],
+    organizers: [],
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,7 +68,7 @@ export default function AdminNewEventPage() {
           : undefined,
         status: formData.status,
         tags: formData.tags,
-        organizers: [],
+        organizers: formData.organizers.map(user => user.id),
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         imageUrls: formData.imageUrls,
@@ -182,6 +187,52 @@ export default function AdminNewEventPage() {
               onChange={(tags) => setFormData((prev) => ({ ...prev, tags }))}
               placeholder="Type a tag and press Enter..."
             />
+
+            <div className="space-y-4">
+              <Label>Event Organizers</Label>
+              <div className="space-y-3">
+                {formData.organizers.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="text-sm text-muted-foreground">
+                      Selected organizers:
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.organizers.map((organizer) => (
+                        <div
+                          key={organizer.id}
+                          className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm"
+                        >
+                          <span>{organizer.publicName || "Unknown User"}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                organizers: prev.organizers.filter((u) => u.id !== organizer.id),
+                              }));
+                            }}
+                            className="hover:text-destructive transition-colors"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <UserSearch
+                  placeholder="Search for organizers..."
+                  onUserSelect={(user) => {
+                    if (!formData.organizers.find((org) => org.id === user.id)) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        organizers: [...prev.organizers, user],
+                      }));
+                    }
+                  }}
+                />
+              </div>
+            </div>
 
             <SelectInput
               id="status"

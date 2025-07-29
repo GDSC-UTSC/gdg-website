@@ -8,9 +8,7 @@ import {
 import { deleteFile, uploadFile } from "@/lib/firebase/client/storage";
 import { serverTimestamp, Timestamp } from "firebase/firestore";
 
-export interface Organizer {
-  userId: string;
-}
+
 
 export type QuestionType = {
   type: "text" | "textarea" | "select" | "checkbox" | "file";
@@ -30,7 +28,7 @@ export interface EventType {
   registrationDeadline?: Timestamp;
   status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
   tags?: string[];
-  organizers?: Organizer[];
+  organizers?: string[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   imageUrls?: string[];
@@ -49,7 +47,7 @@ export class Event implements EventType {
   registrationDeadline?: Timestamp;
   status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
   tags?: string[];
-  organizers?: Organizer[];
+  organizers?: string[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   imageUrls?: string[];
