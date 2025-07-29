@@ -54,26 +54,32 @@ env:
   - variable: NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT
     secret: NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT
     availability:
+      - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_PORT
     secret: NEXT_PUBLIC_FIREBASE_AUTH_PORT
     availability:
+      - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_PORT
     secret: NEXT_PUBLIC_FIREBASE_STORAGE_PORT
     availability:
+      - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_FUNCTIONS_PORT
     secret: NEXT_PUBLIC_FIREBASE_FUNCTIONS_PORT
     availability:
+      - BUILD
       - RUNTIME
   - variable: FIREBASE_CLIENT_EMAIL
     secret: FIREBASE_CLIENT_EMAIL
     availability:
+      - BUILD
       - RUNTIME
   - variable: FIREBASE_PRIVATE_KEY
     secret: FIREBASE_PRIVATE_KEY
     availability:
+      - BUILD
       - RUNTIME
 # Grant access to secrets in Cloud Secret Manager.
 # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
