@@ -1,6 +1,8 @@
 "use client";
 
 import { Event, QuestionType } from "@/app/types/events";
+import { UserData } from "@/app/types/userdata";
+import UserSearch from "@/components/admin/UserSearch";
 import QuestionBuilder from "@/components/positions/QuestionBuilder";
 import {
   SelectInput,
@@ -12,10 +14,12 @@ import { Card } from "@/components/ui/card";
 import TagsInput from "@/components/ui/tags-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Timestamp } from "firebase/firestore";
+import { X } from "lucide-react";
 
 interface AdminEditEventPageProps {
   params: Promise<{ eventId: string }>;
@@ -39,6 +43,7 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
     tags: [] as string[],
     link: "",
     questions: [] as QuestionType[],
+    organizers: [] as UserData[],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -48,6 +53,14 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
         const fetchedEvent = await Event.read(eventId);
         if (fetchedEvent) {
           setEvent(fetchedEvent);
+          
+          // Load organizer user data
+          const organizerPromises = fetchedEvent.organizers?.map(organizerId => 
+            UserData.read(organizerId)
+          ) || [];
+          const organizers = await Promise.all(organizerPromises);
+          const validOrganizers = organizers.filter(org => org !== null) as UserData[];
+          
           setFormData({
             title: fetchedEvent.title,
             description: fetchedEvent.description,
@@ -60,6 +73,7 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
             tags: fetchedEvent.tags || [],
             link: fetchedEvent.link || "",
             questions: fetchedEvent.questions || [],
+            organizers: validOrganizers,
           });
         }
       } catch (error) {
@@ -117,6 +131,7 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
         tags: formData.tags,
         link: formData.link,
         questions: formData.questions,
+        organizers: formData.organizers.map(user => user.id),
       });
 
       await updatedEvent.update();
@@ -178,8 +193,17 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
         </div>
 
         <div className="max-w-2xl mx-auto">
-          <Card className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="space-y-8">
+            <ImageUpload 
+              storagePath={`events/${eventId}`}
+              firestorePath={`events/${eventId}`}
+              onUploadComplete={(urls) => {
+                console.log('Uploaded image URLs:', urls);
+              }}
+            />
+            
+            <Card className="p-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
               <TextInput
                 id="title"
                 label="Event Title"
@@ -187,7 +211,6 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
                 onChange={(value) => handleInputChange("title", value)}
                 placeholder="Enter event title"
                 required
-                error={errors.title}
               />
 
               <TextareaInput
@@ -198,7 +221,6 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
                 placeholder="Enter event description"
                 required
                 rows={8}
-                error={errors.description}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -273,6 +295,49 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
                 placeholder="Type a tag and press Enter..."
               />
 
+              <div className="space-y-4">
+                <Label>Event Organizers</Label>
+                <div className="space-y-3">
+                  {formData.organizers.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="text-sm text-muted-foreground">
+                        Selected organizers:
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.organizers.map((organizer) => (
+                          <div
+                            key={organizer.id}
+                            className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm"
+                          >
+                            <span>{organizer.publicName || "Unknown User"}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleInputChange(
+                                  "organizers",
+                                  formData.organizers.filter((u) => u.id !== organizer.id)
+                                );
+                              }}
+                              className="hover:text-destructive transition-colors"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <UserSearch
+                    placeholder="Search for organizers..."
+                    onUserSelect={(user) => {
+                      if (!formData.organizers.find((org) => org.id === user.id)) {
+                        handleInputChange("organizers", [...formData.organizers, user]);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
               <SelectInput
                 id="status"
                 label="Status"
@@ -310,8 +375,9 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
                   {isSubmitting ? "Updating..." : "Update Event"}
                 </Button>
               </div>
-            </form>
-          </Card>
+              </form>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

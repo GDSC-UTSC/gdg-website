@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Send } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -15,13 +16,13 @@ interface RegistrationFormProps {
 }
 
 export default function RegistrationForm({ event }: RegistrationFormProps) {
+  const router = useRouter();
   const { user } = useAuth();
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [registrantName, setRegistrantName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [existingRegistration, setExistingRegistration] =
-    useState<Registration | null>(null);
+  const [existingRegistration, setExistingRegistration] = useState<Registration | null>(null);
   const [loadingRegistration, setLoadingRegistration] = useState(false);
 
   // Fetch existing registration when user/event changes
@@ -134,8 +135,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
         toast.success("Registration submitted successfully!");
       }
 
-      // Reload to show updated state
-      window.location.reload();
+      router.push(`/account/events`);
     } catch (error) {
       console.error("Registration error:", error);
       toast.error("Failed to submit registration. Please try again.");
@@ -152,9 +152,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
       <Card className="p-8">
         <div className="text-center">
           <h3 className="text-xl font-semibold mb-2">Registration Closed</h3>
-          <p className="text-muted-foreground">
-            Registration for this event is no longer available.
-          </p>
+          <p className="text-muted-foreground">Registration for this event is no longer available.</p>
         </div>
       </Card>
     );
@@ -178,9 +176,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
     return (
       <Card className="p-8 text-center">
         <h3 className="text-2xl font-semibold mb-4">Register for This Event</h3>
-        <p className="text-muted-foreground mb-6">
-          Please sign in to register for this event.
-        </p>
+        <p className="text-muted-foreground mb-6">Please sign in to register for this event.</p>
         <Button size="lg">
           <a href="/account/login">Sign In to Register</a>
         </Button>
@@ -189,11 +185,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-4xl mx-auto"
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-4xl mx-auto">
       <Card className="p-8">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -202,9 +194,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
           className="mb-8"
         >
           <h2 className="text-3xl font-bold mb-2">
-            {existingRegistration
-              ? "Update Registration"
-              : "Event Registration"}
+            {existingRegistration ? "Update Registration" : "Event Registration"}
           </h2>
           <p className="text-muted-foreground text-lg">
             {existingRegistration
@@ -215,15 +205,9 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
 
         <form onSubmit={handleFormSubmit} className="space-y-8">
           {/* Registrant Information */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
-          >
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
             <div className="bg-muted/30 p-6 rounded-lg border border-border/50">
-              <h3 className="text-lg font-semibold mb-4">
-                Registrant Information
-              </h3>
+              <h3 className="text-lg font-semibold mb-4">Registrant Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="registrantName">
@@ -266,9 +250,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                     placeholder="Email from your account"
                     className="bg-muted/50"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Using email from your logged-in account
-                  </p>
+                  <p className="text-xs text-muted-foreground">Using email from your logged-in account</p>
                 </div>
               </div>
               <AnimatePresence>
@@ -306,9 +288,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                       <div className="space-y-2">
                         <Label htmlFor={`question_${index}`}>
                           {question.label}
-                          {question.required && (
-                            <span className="text-red-500 ml-1">*</span>
-                          )}
+                          {question.required && <span className="text-red-500 ml-1">*</span>}
                         </Label>
 
                         {question.type === "text" && (
@@ -316,12 +296,8 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                             id={`question_${index}`}
                             type="text"
                             value={formData[question.label] || ""}
-                            onChange={(e) =>
-                              handleInputChange(question.label, e.target.value)
-                            }
-                            className={
-                              errors[question.label] ? "border-red-500" : ""
-                            }
+                            onChange={(e) => handleInputChange(question.label, e.target.value)}
+                            className={errors[question.label] ? "border-red-500" : ""}
                           />
                         )}
 
@@ -329,9 +305,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                           <textarea
                             id={`question_${index}`}
                             value={formData[question.label] || ""}
-                            onChange={(e) =>
-                              handleInputChange(question.label, e.target.value)
-                            }
+                            onChange={(e) => handleInputChange(question.label, e.target.value)}
                             className={`flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
                               errors[question.label] ? "border-red-500" : ""
                             }`}
@@ -343,9 +317,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                           <select
                             id={`question_${index}`}
                             value={formData[question.label] || ""}
-                            onChange={(e) =>
-                              handleInputChange(question.label, e.target.value)
-                            }
+                            onChange={(e) => handleInputChange(question.label, e.target.value)}
                             className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
                               errors[question.label] ? "border-red-500" : ""
                             }`}
@@ -362,37 +334,21 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                         {question.type === "checkbox" && question.options && (
                           <div className="space-y-2">
                             {question.options.map((option, optionIndex) => (
-                              <div
-                                key={optionIndex}
-                                className="flex items-center space-x-2"
-                              >
+                              <div key={optionIndex} className="flex items-center space-x-2">
                                 <input
                                   type="checkbox"
                                   id={`question_${index}_${optionIndex}`}
-                                  checked={
-                                    formData[question.label]?.includes(
-                                      option
-                                    ) || false
-                                  }
+                                  checked={formData[question.label]?.includes(option) || false}
                                   onChange={(e) => {
-                                    const currentValues =
-                                      formData[question.label] || [];
+                                    const currentValues = formData[question.label] || [];
                                     const newValues = e.target.checked
                                       ? [...currentValues, option]
-                                      : currentValues.filter(
-                                          (v: string) => v !== option
-                                        );
-                                    handleInputChange(
-                                      question.label,
-                                      newValues
-                                    );
+                                      : currentValues.filter((v: string) => v !== option);
+                                    handleInputChange(question.label, newValues);
                                   }}
                                   className="h-4 w-4 rounded border-gray-300"
                                 />
-                                <Label
-                                  htmlFor={`question_${index}_${optionIndex}`}
-                                  className="text-sm font-normal"
-                                >
+                                <Label htmlFor={`question_${index}_${optionIndex}`} className="text-sm font-normal">
                                   {option}
                                 </Label>
                               </div>
@@ -410,9 +366,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                                 handleInputChange(question.label, file);
                               }
                             }}
-                            className={
-                              errors[question.label] ? "border-red-500" : ""
-                            }
+                            className={errors[question.label] ? "border-red-500" : ""}
                           />
                         )}
                       </div>
@@ -442,11 +396,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
             transition={{ delay: event.questions.length * 0.1 + 0.2 }}
             className="flex gap-4 pt-6 border-t border-border/50"
           >
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex-1"
-            >
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
               <Button
                 type="submit"
                 disabled={isSubmitting || event.status !== "upcoming"}
@@ -454,11 +404,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                 size="lg"
               >
                 <Send className="w-5 h-5 mr-2" />
-                {isSubmitting
-                  ? "Submitting..."
-                  : existingRegistration
-                  ? "Update Registration"
-                  : "Register for Event"}
+                {isSubmitting ? "Submitting..." : existingRegistration ? "Update Registration" : "Register for Event"}
               </Button>
             </motion.div>
           </motion.div>
