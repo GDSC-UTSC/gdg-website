@@ -1,3 +1,4 @@
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
 import Tesseract from "tesseract.js";
 import { uploadFile } from "@/lib/firebase/client/storage";
@@ -6,55 +7,54 @@ export default class Parser {
   private async parse(file: File): Promise<string> {
     // Handle PDF files
     if (file.type === "application/pdf") {
-      // Dynamic import to avoid SSR issues
-      const pdfjsLib = await import("pdfjs-dist");
 
-      // Configure worker only on client-side
-      if (typeof window !== "undefined") {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-      }
+      // 1. Save the current global worker setting, whatever it may be.
+      const originalWorkerSrc = GlobalWorkerOptions.workerSrc;
+      let fullText = "";
 
-      const reader = new FileReader();
-      //read the file as an array buffer since pdfjsLib expects an array buffer
-      const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as ArrayBuffer);
-        reader.onerror = () => reject(new Error("Error reading file"));
-        reader.readAsArrayBuffer(file);
-      });
-      //parse the pdf
-      const pdf = await pdfjsLib
-        .getDocument(arrayBuffer)
-        .promise.catch((error) => {
-          return Promise.reject(new Error(`Error parsing PDF: ${error}`));
+      try {
+        // 2. Temporarily set the worker source to a reliable CDN path.
+        GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.54/build/pdf.worker.min.mjs`;
+
+        const reader = new FileReader();
+        const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as ArrayBuffer);
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(file);
         });
-      //create a promise that will resolve when the pdf is parsed
-      const textPromises = [];
-      //get text from each page
-      for (let i = 1; i <= pdf.numPages; i++) {
-        textPromises.push(
-          pdf
-            .getPage(i)
-            .then((page) =>
-              page
-                .getTextContent()
-                .then((content) =>
-                  content.items
-                    .map((item: TextItem | TextMarkedContent) =>
-                      "str" in item ? item.str : ""
-                    )
-                    .join("\n")
-                )
+
+        const pdf = await getDocument(arrayBuffer).promise;
+        const textPromises = [];
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          textPromises.push(
+            pdf.getPage(i).then((page) =>
+              page.getTextContent().then((content) =>
+                content.items
+                  .map((item: TextItem | TextMarkedContent) => ("str" in item ? item.str : ""))
+                  .join("\n")
+              )
             )
-        );
+          );
+        }
+
+        const textArray = await Promise.all(textPromises);
+        fullText = textArray.join("\n").trim();
+
+      } catch (error) {
+        console.error("An error occurred during PDF parsing:", error);
+        throw error; // Re-throw the error to be handled by the calling function
+
+      } finally {
+        // This runs whether the parsing succeeded or failed.
+        console.log("Restoring original PDF.js worker source.");
+        GlobalWorkerOptions.workerSrc = originalWorkerSrc;
       }
-      //join the text from each page
-      const textArray = await Promise.all(textPromises);
-      const fullText = textArray.join("\n").trim();
-      //console.log("Full text:", fullText);
+
       return fullText || "File content is empty";
     }
 
-    // images
+    // images (This part remains unchanged and is correct)
     if (file.type.startsWith("image/")) {
       return Tesseract.recognize(file, "eng", {
         logger: (m) => console.log(m),
