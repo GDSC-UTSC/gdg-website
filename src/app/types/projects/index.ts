@@ -8,16 +8,14 @@ import {
 import { deleteFile, uploadFile } from "@/lib/firebase/client/storage";
 import { serverTimestamp, Timestamp } from "firebase/firestore";
 
-export interface Contributor {
-  userId: string;
-}
+
 
 export interface ProjectType {
   id: string;
   title: string;
   description: string;
   languages?: string[];
-  contributors?: Contributor[];
+  contributors?: string[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   imageUrls?: string[];
@@ -29,7 +27,7 @@ export class Project implements ProjectType {
   title: string;
   description: string;
   languages?: string[];
-  contributors?: Contributor[];
+  contributors?: string[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   imageUrls?: string[];
