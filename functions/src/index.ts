@@ -127,7 +127,7 @@ export const checkAdminClaims = onRequest(async (request, response) => {
 
     response.json({
       isAdmin: decodedToken.admin || false,
-      isSuperAdmin: decodedToken.superAdmin || false,
+      isSuperAdmin: decodedToken.superadmin || false,
       uid: decodedToken.uid,
     });
   } catch (error) {
