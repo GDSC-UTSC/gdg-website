@@ -1,14 +1,8 @@
 import { EventType } from "@/app/types/events";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Camera, MapPin, Calendar, Clock } from "lucide-react";
-import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar, Camera, Clock, MapPin } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface EventCardProps {
   event: EventType;
@@ -16,7 +10,7 @@ interface EventCardProps {
 
 const EventCard = ({ event }: EventCardProps) => {
   const firstImage = event.imageUrls?.[0];
-  
+
   const formatDate = (timestamp: any) => {
     return timestamp?.toDate?.()?.toLocaleDateString() || "TBD";
   };
@@ -30,11 +24,11 @@ const EventCard = ({ event }: EventCardProps) => {
     const displayHour = hour % 12 || 12;
     return `${displayHour}:${minutes} ${ampm}`;
   };
-  
+
   return (
     <Link href={`/events/${event.id}`}>
       <div className="bg-card/20 backdrop-blur-sm border-border hover:bg-card/80 transition-all duration-300 w-full">
-        <Card className="aspect-square flex flex-col">
+        <Card className="flex flex-col min-h-[320px] w-full h-full">
           {/* Event Image */}
           <div className="relative w-full h-48 overflow-hidden rounded-t-lg flex-shrink-0">
             {firstImage ? (
@@ -49,7 +43,7 @@ const EventCard = ({ event }: EventCardProps) => {
                 <Camera className="w-8 h-8 text-muted-foreground opacity-50" />
               </div>
             )}
-            
+
             {/* Status Badge */}
             <div className="absolute top-3 right-3">
               <span className="px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
@@ -57,12 +51,12 @@ const EventCard = ({ event }: EventCardProps) => {
               </span>
             </div>
           </div>
-          
+
           <CardHeader className="flex-shrink-0 pb-3">
             <CardTitle className="text-lg line-clamp-1">{event.title}</CardTitle>
             <CardDescription className="line-clamp-2 text-sm">{event.description}</CardDescription>
           </CardHeader>
-          
+
           <CardContent className="flex-1 flex flex-col justify-between space-y-3">
             {/* Event Details */}
             <div className="space-y-2 text-sm">
@@ -78,7 +72,7 @@ const EventCard = ({ event }: EventCardProps) => {
                   </>
                 )}
               </div>
-              
+
               {/* Location */}
               {event.location && (
                 <div className="flex items-center gap-2 text-muted-foreground">

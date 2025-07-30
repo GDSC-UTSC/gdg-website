@@ -1,11 +1,5 @@
 import { ProjectType } from "@/app/types/projects";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,7 +14,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
   return (
     <Link href={`/projects/${project.id}`}>
       <div className="bg-card/20 backdrop-blur-sm border-border hover:bg-card/80 transition-all duration-300 w-full">
-        <Card className="aspect-square flex flex-col">
+        <Card className="flex flex-col min-h-[280px] w-full h-full">
           {/* Project Image */}
           <div className="relative w-full h-56 overflow-hidden rounded-t-lg flex-shrink-0">
             {firstImage ? (
@@ -38,12 +32,8 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           </div>
 
           <CardHeader className="flex-shrink-0 pb-3">
-            <CardTitle className="text-lg line-clamp-1">
-              {project.title}
-            </CardTitle>
-            <CardDescription className="line-clamp-2 text-sm">
-              {project.description}
-            </CardDescription>
+            <CardTitle className="text-lg line-clamp-1">{project.title}</CardTitle>
+            <CardDescription className="line-clamp-2 text-sm">{project.description}</CardDescription>
           </CardHeader>
 
           <CardContent className="flex-1 flex flex-col justify-between space-y-3">
@@ -71,9 +61,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                   )}
                 </div>
               ) : (
-                <div className="text-xs text-muted-foreground">
-                  No technologies listed
-                </div>
+                <div className="text-xs text-muted-foreground">No technologies listed</div>
               )}
             </div>
           </CardContent>
