@@ -113,24 +113,26 @@ export const checkAdminClaims = onRequest(async (request, response) => {
     // Check method
     if (request.method !== "POST") {
       response.status(405).json({ error: "Method Not Allowed" });
+      return;
     }
 
     const { token } = request.body;
 
     if (!token) {
       response.status(400).json({ error: "Token is required" });
+      return;
     }
 
     const decodedToken = await admin.auth().verifyIdToken(token);
-    const customClaims = decodedToken.customClaims || {};
 
     response.json({
-      isAdmin: customClaims.admin || false,
-      isSuperAdmin: customClaims.superAdmin || false,
+      isAdmin: decodedToken.admin || false,
+      isSuperAdmin: decodedToken.superAdmin || false,
       uid: decodedToken.uid,
     });
   } catch (error) {
     logger.error("Error verifying token or checking claims:", error);
     response.status(401).json({ error: "Failed to verify token" });
+    return;
   }
 });
