@@ -5,10 +5,13 @@ import * as admin from "firebase-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
+import { onRequest } from "firebase-functions/v2/https";
 import { beforeUserCreated, HttpsError } from "firebase-functions/v2/identity";
-
 // Initialize the Firebase Admin SDK to interact with Firebase services.
-admin.initializeApp();
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
 /**
  * A 1st generation Cloud Function that triggers when a new user is created
@@ -104,3 +107,30 @@ export const createCollaboration = onDocumentWritten(
     }
   }
 );
+
+export const checkAdminClaims = onRequest(async (request, response) => {
+  try {
+    // Check method
+    if (request.method !== "POST") {
+      response.status(405).json({ error: "Method Not Allowed" });
+    }
+
+    const { token } = request.body;
+
+    if (!token) {
+      response.status(400).json({ error: "Token is required" });
+    }
+
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    const customClaims = decodedToken.customClaims || {};
+
+    response.json({
+      isAdmin: customClaims.admin || false,
+      isSuperAdmin: customClaims.superAdmin || false,
+      uid: decodedToken.uid,
+    });
+  } catch (error) {
+    logger.error("Error verifying token or checking claims:", error);
+    response.status(401).json({ error: "Failed to verify token" });
+  }
+});

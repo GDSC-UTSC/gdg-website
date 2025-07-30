@@ -81,6 +81,11 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  - variable: CLOUD_FUNCTIONS_URL
+    secret: CLOUD_FUNCTIONS_URL
+    availability:
+      - BUILD
+      - RUNTIME
 # Grant access to secrets in Cloud Secret Manager.
 # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
 # - variable: SECRET

@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
 
       const token = await user.getIdToken();
 
-      const response = await fetch(new URL("/api/verify", request.url), {
+      const response = await fetch(new URL(process.env.CLOUD_FUNCTIONS_URL!), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -21,7 +21,9 @@ export async function middleware(request: NextRequest) {
         body: JSON.stringify({ token }),
       });
 
-      const { isSuperAdmin } = await response.json();
+      const data = await response.json();
+
+      const { isSuperAdmin } = data;
 
       if (!isSuperAdmin) {
         return NextResponse.redirect(new URL("/", request.url));
@@ -42,7 +44,7 @@ export async function middleware(request: NextRequest) {
 
       const token = await user.getIdToken();
 
-      const response = await fetch(new URL("/api/verify", request.url), {
+      const response = await fetch(new URL(process.env.CLOUD_FUNCTIONS_URL!), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +52,9 @@ export async function middleware(request: NextRequest) {
         body: JSON.stringify({ token }),
       });
 
-      const { isAdmin, isSuperAdmin } = await response.json();
+      const data = await response.json();
+
+      const { isAdmin, isSuperAdmin } = data;
 
       if (!isAdmin && !isSuperAdmin) {
         return NextResponse.redirect(new URL("/", request.url));
