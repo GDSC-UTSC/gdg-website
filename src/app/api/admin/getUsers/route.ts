@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     const { query } = await request.json();
 
-    const response = await fetch(`${process.env.FIREBASE_CLOUD_FUNCTIONS}/getUsers`, {
+    const response = await fetch(new URL(process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL! + "/getUsers"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
         token: authIdToken,
         query,
       }),
-    });
+    });``
 
     const data = await response.json();
 

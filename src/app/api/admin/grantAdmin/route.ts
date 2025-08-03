@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward request to Cloud Function
-    const response = await fetch(`${process.env.FIREBASE_CLOUD_FUNCTIONS}/grantAdmin`, {
+    const response = await fetch(new URL(process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL! + "/grantAdmin"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

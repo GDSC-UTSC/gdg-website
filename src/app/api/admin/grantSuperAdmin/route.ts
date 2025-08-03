@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    const response = await fetch(`${process.env.FIREBASE_CLOUD_FUNCTIONS}/grantSuperAdmin`, {
+    const response = await fetch(new URL(process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL! + "/grantSuperAdmin"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

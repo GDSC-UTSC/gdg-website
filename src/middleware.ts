@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
 
       const token = await user.getIdToken();
 
-      const response = await fetch(`${process.env.FIREBASE_CLOUD_FUNCTIONS}/checkAdminClaims`, {
+      const response = await fetch(new URL(process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL! + "/checkAdminClaims"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
 
       const token = await user.getIdToken();
 
-      const response = await fetch(`${process.env.FIREBASE_CLOUD_FUNCTIONS}/checkAdminClaims`, {
+      const response = await fetch(new URL(process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL! + "/checkAdminClaims"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
