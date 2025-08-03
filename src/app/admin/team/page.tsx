@@ -2,46 +2,54 @@
 
 import { Team } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
+import AddTeamMemberComponent from "@/components/admin/AddTeamMemberComponent";
+import CreateTeamComponent from "@/components/admin/CreateTeamComponent";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Timestamp } from "firebase/firestore";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function AdminTeamPage() {
   const [teams, setTeams] = useState<Team[]>([]);
-  const [allUsers, setAllUsers] = useState<UserData[]>([]);
+  const [memberUsers, setMemberUsers] = useState<Map<string, UserData>>(new Map());
 
-  // Dialog states
-  const [teamDialogOpen, setTeamDialogOpen] = useState(false);
-  const [memberDialogOpen, setMemberDialogOpen] = useState(false);
-  const [selectedTeamId, setSelectedTeamId] = useState("");
-
-  // Form data
-  const [teamFormData, setTeamFormData] = useState({
-    name: "",
-    description: "",
-  });
-
-  const [memberFormData, setMemberFormData] = useState({
-    email: "",
-    position: "",
-  });
-
-  // Load teams and all users on mount
+  // Load teams and then load individual team member users
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [teamsData, usersData] = await Promise.all([Team.readAll(), UserData.readAll()]);
+        const teamsData = await Team.readAll();
         setTeams(teamsData);
-        setAllUsers(usersData);
+        
+        // Collect all unique user IDs from all teams
+        const allMemberIds = new Set<string>();
+        teamsData.forEach(team => {
+          team.members.forEach(member => {
+            allMemberIds.add(member.userId);
+          });
+        });
+        
+        // Load only the users who are team members
+        const userPromises = Array.from(allMemberIds).map(async (userId) => {
+          try {
+            const user = await UserData.read(userId);
+            return { userId, user };
+          } catch (error) {
+            console.error(`Error loading user ${userId}:`, error);
+            return { userId, user: null };
+          }
+        });
+        
+        const userResults = await Promise.all(userPromises);
+        const usersMap = new Map<string, UserData>();
+        userResults.forEach(({ userId, user }) => {
+          if (user) {
+            usersMap.set(userId, user);
+          }
+        });
+        
+        setMemberUsers(usersMap);
       } catch (error) {
         console.error("Error loading data:", error);
       }
@@ -50,78 +58,6 @@ export default function AdminTeamPage() {
     loadData();
   }, []);
 
-  const handleCreateTeam = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const team = new Team({
-        id: crypto.randomUUID(),
-        name: teamFormData.name,
-        description: teamFormData.description,
-        members: [],
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
-      });
-
-      await team.create();
-
-      // Refresh teams list
-      const updatedTeams = await Team.readAll();
-      setTeams(updatedTeams);
-      setTeamDialogOpen(false);
-      setTeamFormData({ name: "", description: "" });
-      toast.success("Team created successfully");
-    } catch (error) {
-      console.error("Error creating team:", error);
-      toast.error("Failed to create team");
-    }
-  };
-
-  const handleAddMember = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!selectedTeamId || !memberFormData.email || !memberFormData.position) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-
-    try {
-      const selectedTeam = teams.find((t) => t.id === selectedTeamId);
-      if (!selectedTeam) {
-        toast.error("Team not found");
-        return;
-      }
-
-      const response = await fetch("/api/admin/addUserToTeam", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: memberFormData.email,
-          teamName: selectedTeam.name,
-          position: memberFormData.position,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        toast.error(result.error || "Failed to add team member");
-        return;
-      }
-
-      // Refresh teams list
-      const updatedTeams = await Team.readAll();
-      setTeams(updatedTeams);
-      setMemberDialogOpen(false);
-      setMemberFormData({ email: "", position: "" });
-      toast.success("Team member added successfully");
-    } catch (error) {
-      console.error("Error adding team member:", error);
-      toast.error("Failed to add team member");
-    }
-  };
 
   const handleRemoveMember = async (teamId: string, userId: string) => {
     try {
@@ -132,9 +68,27 @@ export default function AdminTeamPage() {
         team.removeMember(userId);
         await team.update();
 
-        // Refresh teams list
+        // Refresh teams list and update member users if needed
         const updatedTeams = await Team.readAll();
         setTeams(updatedTeams);
+        
+        // Remove the user from memberUsers map if they're no longer in any team
+        const allCurrentMemberIds = new Set<string>();
+        updatedTeams.forEach(team => {
+          team.members.forEach(member => {
+            allCurrentMemberIds.add(member.userId);
+          });
+        });
+        
+        setMemberUsers(prev => {
+          const updated = new Map(prev);
+          for (const [id] of prev) {
+            if (!allCurrentMemberIds.has(id)) {
+              updated.delete(id);
+            }
+          }
+          return updated;
+        });
         toast.success("Team member removed successfully");
       }
     } catch (error) {
@@ -169,125 +123,8 @@ export default function AdminTeamPage() {
           <PageTitle title="Team Management" description="Manage teams and their members" />
 
           <div className="flex gap-2">
-            {/* Create Team Dialog */}
-            <Dialog open={teamDialogOpen} onOpenChange={setTeamDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Team
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Team</DialogTitle>
-                </DialogHeader>
-
-                <form onSubmit={handleCreateTeam} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Team Name</Label>
-                    <Input
-                      id="name"
-                      value={teamFormData.name}
-                      onChange={(e) =>
-                        setTeamFormData((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g., Executive Team"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={teamFormData.description}
-                      onChange={(e) =>
-                        setTeamFormData((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
-                      placeholder="Team description..."
-                      rows={3}
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full">
-                    Create Team
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-
-            {/* Add Member Dialog */}
-            <Dialog open={memberDialogOpen} onOpenChange={setMemberDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>Add Team Member</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Team Member</DialogTitle>
-                </DialogHeader>
-
-                <form onSubmit={handleAddMember} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="team">Team</Label>
-                    <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a team" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {teams.map((team) => (
-                          <SelectItem key={team.id} value={team.id}>
-                            {team.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">User Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={memberFormData.email}
-                      onChange={(e) =>
-                        setMemberFormData((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
-                      }
-                      placeholder="user@example.com"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="position">Position</Label>
-                    <Input
-                      id="position"
-                      value={memberFormData.position}
-                      onChange={(e) =>
-                        setMemberFormData((prev) => ({
-                          ...prev,
-                          position: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g., Co-Lead, Director, Associate"
-                      required
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full">
-                    Add Member
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <CreateTeamComponent />
+            <AddTeamMemberComponent />
           </div>
         </div>
 
@@ -312,7 +149,7 @@ export default function AdminTeamPage() {
                 ) : (
                   <div className="space-y-3">
                     {sortedMembers.map((member) => {
-                      const user = allUsers.find((u) => u.id === member.userId);
+                      const user = memberUsers.get(member.userId);
                       return (
                         <div
                           key={member.userId}
