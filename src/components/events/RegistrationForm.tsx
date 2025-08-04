@@ -1,5 +1,5 @@
 import { Event } from "@/app/types/events";
-import { Registration } from "@/app/types/registrations";
+import { Registration } from "@/app/types/events/registrations";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

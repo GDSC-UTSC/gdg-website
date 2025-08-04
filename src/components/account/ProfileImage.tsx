@@ -1,6 +1,7 @@
 "use client";
 
 import { User } from "firebase/auth";
+import Image from "next/image";
 
 interface ProfileImageProps {
   user: User;
@@ -19,9 +20,11 @@ export function ProfileImage({ user, profileImageUrl, isLoading }: ProfileImageP
 
   if (profileImageUrl) {
     return (
-      <img
+      <Image
         src={profileImageUrl}
         alt="Profile"
+        width={128}
+        height={128}
         className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
       />
     );

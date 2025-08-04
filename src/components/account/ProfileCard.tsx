@@ -6,6 +6,7 @@ import { UserData } from "@/app/types/userdata";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { GithubIcon, LinkedinIcon, User as UserIcon } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface ProfileCardProps {
@@ -20,6 +21,7 @@ export function ProfileCard({ userId }: ProfileCardProps) {
     const fetchUserData = async () => {
       try {
         const data = await UserData.read(userId);
+        console.log("data", data);
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -70,14 +72,19 @@ export function ProfileCard({ userId }: ProfileCardProps) {
             >
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-border bg-muted flex items-center justify-center">
                 {userData?.profileImageUrl ? (
-                  <motion.img
-                    src={userData.profileImageUrl}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.7 }}
-                  />
+                  >
+                    <Image
+                      src={userData.profileImageUrl}
+                      alt="Profile"
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
                 ) : (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -96,9 +103,7 @@ export function ProfileCard({ userId }: ProfileCardProps) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
             >
-              <h3 className="text-lg font-semibold text-foreground truncate">
-                {userData.publicName || "User"}
-              </h3>
+              <h3 className="text-lg font-semibold text-foreground truncate">{userData.publicName || "User"}</h3>
             </motion.div>
 
             <motion.div

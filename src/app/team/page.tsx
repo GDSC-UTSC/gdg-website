@@ -8,13 +8,29 @@ export default async function TeamPage() {
   let users: UserData[] = [];
 
   try {
-    const [fetchedTeams, fetchedUsers] = await Promise.all([
-      Team.readAll({ server: true, public: true }),
-      UserData.readAll({ server: true, public: true }),
-    ]);
-
-    teams = fetchedTeams;
-    users = fetchedUsers;
+    // First load all teams
+    teams = await Team.readAll({ server: true, public: true });
+    
+    // Collect all unique user IDs from all teams
+    const allMemberIds = new Set<string>();
+    teams.forEach(team => {
+      team.members.forEach(member => {
+        allMemberIds.add(member.userId);
+      });
+    });
+    
+    // Load only the users who are team members
+    const userPromises = Array.from(allMemberIds).map(async (userId) => {
+      try {
+        return await UserData.read(userId, { server: true });
+      } catch (error) {
+        console.error(`Error loading user ${userId}:`, error);
+        return null;
+      }
+    });
+    
+    const userResults = await Promise.all(userPromises);
+    users = userResults.filter((user): user is UserData => user !== null);
   } catch (error) {
     console.error("Error fetching team data:", error);
   }

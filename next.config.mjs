@@ -7,11 +7,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['blob.v0.dev'],
-    unoptimized: true
+    domains: ["blob.v0.dev", "localhost", "firebasestorage.googleapis.com"],
   },
   experimental: {
-    optimizePackageImports: ['lucide-react']
+    optimizePackageImports: ["lucide-react"],
   },
 };
 
