@@ -74,6 +74,14 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
           <Button className="w-full" onClick={handleEdit}>
             Edit Event
           </Button>
+          <Button
+            className="w-full"
+            onClick={() => {
+              router.push(`/admin/events/${event.id}/registrations`);
+            }}
+          >
+            View Registrations
+          </Button>
         </div>
       </Card>
     </div>
