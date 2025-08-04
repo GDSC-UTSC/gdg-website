@@ -59,7 +59,13 @@ export default function AdminPage() {
     setGrantAdminMessage(null);
 
     try {
-      const result = await Admin.grantAdmin(adminEmail);
+      if (!user) {
+        setGrantAdminMessage({ type: "error", text: "User not authenticated" });
+        return;
+      }
+      
+      const token = await user.getIdToken();
+      const result = await Admin.grantAdmin(adminEmail, token);
       setGrantAdminMessage({ type: "success", text: result.message });
       setAdminEmail("");
     } catch (error) {
@@ -81,7 +87,13 @@ export default function AdminPage() {
     setRemoveAdminMessage(null);
 
     try {
-      const result = await Admin.removeAdmin(removeAdminEmail);
+      if (!user) {
+        setRemoveAdminMessage({ type: "error", text: "User not authenticated" });
+        return;
+      }
+      
+      const token = await user.getIdToken();
+      const result = await Admin.removeAdmin(removeAdminEmail, token);
       setRemoveAdminMessage({ type: "success", text: result.message });
       setRemoveAdminEmail("");
     } catch (error) {
