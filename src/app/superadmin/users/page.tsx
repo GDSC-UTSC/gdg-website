@@ -83,7 +83,24 @@ export default function SuperAdminUsersPage() {
 
   const loadAllUsers = async () => {
     try {
-      const users = await UserData.readAll();
+      if (!user) return;
+      
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/getUsers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+
+      const usersData = await response.json();
+      // Convert raw data to UserData objects
+      const users = usersData.map((userData: any) => new UserData(userData));
       setAllUsers(users);
     } catch (error) {
       console.error("Error loading users:", error);
@@ -102,10 +119,38 @@ export default function SuperAdminUsersPage() {
         return;
       }
 
-      // For direct user promotion, we still use the UserData method since we have the user object
-      // This is different from email-based promotion which goes through the API
-      targetUser.role = USER_ROLES.ADMIN;
-      await targetUser.update();
+      if (!user) {
+        console.error("No authenticated user");
+        return;
+      }
+      
+      if (!targetUser.email) {
+        console.error("Target user has no email:", targetUser);
+        return;
+      }
+      
+      console.log("Promoting user:", targetUser.email);
+      
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/grantAdmin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          token, 
+          email: targetUser.email 
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error:", response.status, errorText);
+        throw new Error(`Failed to promote user: ${response.status} ${errorText}`);
+      }
+      
+      const result = await response.json();
+      console.log("Promotion successful:", result);
 
       await loadAllUsers(); // Refresh the users list
     } catch (error) {
@@ -128,8 +173,38 @@ export default function SuperAdminUsersPage() {
         return;
       }
 
-      targetUser.role = USER_ROLES.MEMBER;
-      await targetUser.update();
+      if (!user) {
+        console.error("No authenticated user");
+        return;
+      }
+      
+      if (!targetUser.email) {
+        console.error("Target user has no email:", targetUser);
+        return;
+      }
+      
+      console.log("Removing admin from user:", targetUser.email);
+      
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/removeAdmin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          token, 
+          email: targetUser.email 
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error:", response.status, errorText);
+        throw new Error(`Failed to remove admin privileges: ${response.status} ${errorText}`);
+      }
+      
+      const result = await response.json();
+      console.log("Admin removal successful:", result);
 
       await loadAllUsers(); // Refresh the users list
     } catch (error) {
@@ -147,7 +222,13 @@ export default function SuperAdminUsersPage() {
     setGrantSuperAdminMessage(null);
 
     try {
-      const result = await SuperAdmin.grantSuperAdmin(superAdminEmail);
+      if (!user) {
+        setGrantSuperAdminMessage({ type: "error", text: "User not authenticated" });
+        return;
+      }
+      
+      const token = await user.getIdToken();
+      const result = await SuperAdmin.grantSuperAdmin(superAdminEmail, token);
       setGrantSuperAdminMessage({ type: "success", text: result.message });
       setSuperAdminEmail("");
     } catch (error) {

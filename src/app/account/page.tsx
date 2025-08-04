@@ -108,16 +108,6 @@ export default function AccountPage() {
     );
   }
 
-
-
-  const getToken = async () => {
-    if (user) {
-      const token = await user.getIdToken();
-      console.log('Token:', token);
-      alert(token); // Shows token in popup
-    }
-  };
-
   return (
     <motion.div
       className="min-h-screen py-12"
@@ -125,7 +115,6 @@ export default function AccountPage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <Button onClick={getToken}>Get Token</Button>
       <div className="container mx-auto max-w-2xl">
         <motion.div
           className="mb-8 text-center"

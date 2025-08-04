@@ -25,6 +25,26 @@ export default function AdminPage() {
   const [removeAdminMessage, setRemoveAdminMessage] = useState<{ type: "success" | "error"; text: string } | null>(
     null
   );
+  
+  // Auto-hide grant admin message after 5 seconds
+  useEffect(() => {
+    if (grantAdminMessage) {
+      const timer = setTimeout(() => {
+        setGrantAdminMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [grantAdminMessage]);
+
+  // Auto-hide remove admin message after 5 seconds
+  useEffect(() => {
+    if (removeAdminMessage) {
+      const timer = setTimeout(() => {
+        setRemoveAdminMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [removeAdminMessage]);
 
 
 
