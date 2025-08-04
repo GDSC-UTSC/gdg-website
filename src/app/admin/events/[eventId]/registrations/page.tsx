@@ -1,6 +1,6 @@
 "use client";
 
-import { Registration } from "@/app/types/registrations";
+import { Registration } from "@/app/types/events/registrations";
 import { UserData } from "@/app/types/userdata";
 import { Event } from "@/app/types/events";
 import { Button } from "@/components/ui/button";
