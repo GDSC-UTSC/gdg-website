@@ -48,18 +48,24 @@ export default function AddTeamMemberComponent() {
     }
 
     try {
+      const selectedTeam = teams.find(t => t.id === selectedTeamId);
+      if (!selectedTeam) {
+        toast.error("Selected team not found");
+        return;
+      }
+
       const token = await user.getIdToken();
 
-      const response = await fetch(process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL! + "/addUserToTeam", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/addUserToTeam`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          token,
           email: formData.email,
-          teamId: selectedTeamId,
+          teamName: selectedTeam.name,
           position: formData.position,
-          token: token,
         }),
       });
 

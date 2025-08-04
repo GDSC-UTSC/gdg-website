@@ -28,11 +28,25 @@ export default function AdminTeamPage() {
   const [memberDialogOpen, setMemberDialogOpen] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState("");
 
-  // Load teams and then load individual team member users
+  // Form data
+  const [teamFormData, setTeamFormData] = useState({
+    name: "",
+    description: "",
+  });
+
+  const [memberFormData, setMemberFormData] = useState({
+    email: "",
+    position: "",
+  });
+
+  // Load teams and users
   useEffect(() => {
     const loadData = async () => {
       try {
-        const teamsData = await Team.readAll();
+        const [teamsData, usersData] = await Promise.all([
+          Team.readAll(),
+          UserData.readAll()
+        ]);
         setTeams(teamsData);
         setAllUsers(usersData);
       } catch (error) {
@@ -195,7 +209,7 @@ export default function AdminTeamPage() {
                 ) : (
                   <div className="space-y-3">
                     {sortedMembers.map((member) => {
-                      const user = memberUsers.get(member.userId);
+                      const user = allUsers.find(u => u.id === member.userId);
                       return (
                         <div
                           key={member.userId}
