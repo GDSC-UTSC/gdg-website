@@ -11,7 +11,7 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
   const router = useRouter();
 
   const handleView = () => {
-    router.push(`/admin/events/${event.id}`);
+    router.push(`/events/${event.id}`);
   };
 
   const handleEdit = () => {
