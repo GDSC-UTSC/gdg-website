@@ -121,7 +121,6 @@ export class UserData implements UserDataType {
       const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentServer(documentPath, UserData.converter);
     }
-
     return await getDocument(documentPath, UserData.converter);
   }
 

@@ -6,6 +6,7 @@ import UserSearch from "@/components/admin/UserSearch";
 import QuestionBuilder from "@/components/positions/QuestionBuilder";
 import { SelectInput, TextInput, TextareaInput } from "@/components/positions/questions";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TagsInput from "@/components/ui/tags-input";
@@ -18,11 +19,11 @@ import { X } from "lucide-react";
 type FormData = {
   title: string;
   description: string;
-  eventDate: string;
+  eventDate: Date | undefined;
   startTime: string;
   endTime: string;
   location: string;
-  registrationDeadline: string;
+  registrationDeadline: Date | undefined;
   status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
   tags: string[];
   link: string;
@@ -37,11 +38,11 @@ export default function AdminNewEventPage() {
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
-    eventDate: "",
+    eventDate: undefined,
     startTime: "",
     endTime: "",
     location: "",
-    registrationDeadline: "",
+    registrationDeadline: undefined,
     status: "upcoming",
     tags: [],
     link: "",
@@ -55,16 +56,21 @@ export default function AdminNewEventPage() {
     setIsSubmitting(true);
 
     try {
+      if (!formData.eventDate) {
+        toast.error("Event date is required");
+        return;
+      }
+
       const eventData: EventType = {
         id: "",
         title: formData.title,
         description: formData.description,
-        eventDate: Timestamp.fromDate(new Date(formData.eventDate)),
+        eventDate: Timestamp.fromDate(formData.eventDate),
         startTime: formData.startTime || undefined,
         endTime: formData.endTime || undefined,
         location: formData.location || undefined,
         registrationDeadline: formData.registrationDeadline
-          ? Timestamp.fromDate(new Date(formData.registrationDeadline))
+          ? Timestamp.fromDate(formData.registrationDeadline)
           : undefined,
         status: formData.status,
         tags: formData.tags,
@@ -122,22 +128,19 @@ export default function AdminNewEventPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="eventDate">Event Date *</Label>
-                <Input
-                  id="eventDate"
-                  type="date"
-                  value={formData.eventDate}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, eventDate: e.target.value }))}
-                  required
+                <DatePicker
+                  date={formData.eventDate}
+                  onSelect={(date) => setFormData((prev) => ({ ...prev, eventDate: date }))}
+                  placeholder="Select event date"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="registrationDeadline">Registration Deadline</Label>
-                <Input
-                  id="registrationDeadline"
-                  type="date"
-                  value={formData.registrationDeadline}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, registrationDeadline: e.target.value }))}
+                <DatePicker
+                  date={formData.registrationDeadline}
+                  onSelect={(date) => setFormData((prev) => ({ ...prev, registrationDeadline: date }))}
+                  placeholder="Select deadline (optional)"
                 />
               </div>
             </div>

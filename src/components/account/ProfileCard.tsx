@@ -20,6 +20,7 @@ export function ProfileCard({ userId }: ProfileCardProps) {
     const fetchUserData = async () => {
       try {
         const data = await UserData.read(userId);
+        console.log("data", data);
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -96,9 +97,7 @@ export function ProfileCard({ userId }: ProfileCardProps) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
             >
-              <h3 className="text-lg font-semibold text-foreground truncate">
-                {userData.publicName || "User"}
-              </h3>
+              <h3 className="text-lg font-semibold text-foreground truncate">{userData.publicName || "User"}</h3>
             </motion.div>
 
             <motion.div

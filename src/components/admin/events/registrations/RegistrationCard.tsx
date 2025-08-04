@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp, Github, Linkedin, FileText } from "lucide-react";
+import Image from "next/image";
 
 interface RegistrationCardProps {
   registration: Registration;
@@ -52,9 +53,11 @@ export default function RegistrationCard({
               {/* Avatar/Initials */}
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 {user?.profileImageUrl ? (
-                  <img
+                  <Image
                     src={user.profileImageUrl}
                     alt={user.publicName || registration.name}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 ) : (
