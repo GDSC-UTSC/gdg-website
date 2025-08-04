@@ -154,7 +154,7 @@ export const grantAdmin = onRequest(async (request, response) => {
     });
   } catch (error) {
     logger.error("Error in grantAdmin:", error);
-    
+
     if (error instanceof Error) {
       if (error.message.includes("Super admin privileges required")) {
         response.status(403).json({ error: error.message });
@@ -389,7 +389,7 @@ export const addUserToTeam = onRequest(async (request, response) => {
     });
   } catch (error) {
     logger.error("Error in addUserToTeam:", error);
-    
+
     if (error instanceof Error) {
       if (error.message.includes("Admin privileges required")) {
         response.status(403).json({ error: error.message });

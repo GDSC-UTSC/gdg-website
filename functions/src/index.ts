@@ -1,6 +1,6 @@
 /**
  * Cloud Functions for GDG Website
- * 
+ *
  * This file re-exports all Cloud Functions organized in their respective files:
  * - requests.ts: HTTP Cloud Functions (onRequest)
  * - triggers.ts: Event-triggered Cloud Functions (onDocumentWritten, beforeUserCreated)

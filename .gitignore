@@ -40,3 +40,7 @@ firestore.rules
 serviceKey.json*
 .venv/
 __pycache__/
+
+# mcp
+mcp/build
+mcp/node_modules

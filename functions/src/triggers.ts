@@ -14,7 +14,7 @@ export const beforecreated = beforeUserCreated(async (event) => {
     logger.error("No user data found");
     throw new HttpsError("invalid-argument", "User could not be created");
   }
-  
+
   const userDocument = {
     email: user.email || "",
     publicName: user.displayName || "",
