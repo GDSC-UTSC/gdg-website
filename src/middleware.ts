@@ -11,7 +11,6 @@ export async function middleware(request: NextRequest) {
   if (!user) {
     return NextResponse.redirect(new URL("/account/login", request.url));
   }
-  console.log("cloud url", process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL);
   if (request.nextUrl.pathname.startsWith("/superadmin") || request.nextUrl.pathname.startsWith("/api/superadmin")) {
     try {
       const token = await user.getIdToken();
