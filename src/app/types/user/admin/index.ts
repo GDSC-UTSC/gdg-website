@@ -12,14 +12,14 @@ export class Admin {
   /**
    * Grant admin privileges to a user by email
    */
-  static async grantAdmin(email: string): Promise<AdminResponse> {
+  static async grantAdmin(email: string, token: string): Promise<AdminResponse> {
     try {
-      const response = await fetch('/api/admin/grantAdmin', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/grantAdmin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), token }),
       });
 
       const data = await response.json();
@@ -37,14 +37,14 @@ export class Admin {
   /**
    * Remove admin privileges from a user by email
    */
-  static async removeAdmin(email: string): Promise<AdminResponse> {
+  static async removeAdmin(email: string, token: string): Promise<AdminResponse> {
     try {
-      const response = await fetch('/api/admin/removeAdmin', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/removeAdmin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), token }),
       });
 
       const data = await response.json();

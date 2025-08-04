@@ -4,14 +4,14 @@ export class SuperAdmin extends Admin {
   /**
    * Grant super admin privileges to a user by email
    */
-  static async grantSuperAdmin(email: string): Promise<AdminResponse> {
+  static async grantSuperAdmin(email: string, token: string): Promise<AdminResponse> {
     try {
-      const response = await fetch('/api/admin/grantSuperAdmin', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/grantSuperAdmin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), token }),
       });
 
       const data = await response.json();

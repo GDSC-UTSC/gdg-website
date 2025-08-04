@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
   // Handle superadmin routes
-  if (request.nextUrl.pathname.startsWith("/superadmin") || request.nextUrl.pathname.startsWith("/api/superadmin")) {
+  if (request.nextUrl.pathname.startsWith("/superadmin")) {
     try {
       const user = await getAuthenticatedUser();
 
@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
     }
   }
   // Handle admin routes
-  else if (request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/api/admin")) {
+  else if (request.nextUrl.pathname.startsWith("/admin")) {
     try {
       const user = await getAuthenticatedUser();
 
@@ -69,5 +69,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/superadmin/:path*", "/api/superadmin/:path*"],
+  matcher: ["/admin/:path*", "/superadmin/:path*"],
 };

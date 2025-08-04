@@ -93,7 +93,7 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=
-NEXT_PUBLIC_CLOUD_FUNCTIONS_URL=
+NEXT_PUBLIC_CLOUD_FUNCTIONS_URL="http://127.0.0.1:5001/gdg-website-314a4/us-central1"
 ```
 
 ## Development Notes
@@ -102,3 +102,9 @@ NEXT_PUBLIC_CLOUD_FUNCTIONS_URL=
 - All unused shadcn/ui components have been removed
 - Login form includes both email/password and Google OAuth
 - Global dark background applied via Tailwind CSS
+
+## Cloud Functions Architecture
+- **functions/src/requests.ts**: All HTTP Cloud Functions with built-in admin authentication
+- **functions/src/triggers.ts**: All event-triggered Cloud Functions
+- **Direct calls**: Client code calls Cloud Functions directly (no API route proxies)
+- **Middleware protection**: Next.js middleware only protects admin pages, not API routes

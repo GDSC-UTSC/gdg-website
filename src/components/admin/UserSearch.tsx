@@ -3,6 +3,7 @@
 import { UserData } from "@/app/types/userdata";
 import { Command, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import useDebounce from "@/hooks/useDebounce";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 
 interface UserSearchProps {
@@ -22,6 +23,7 @@ export default function UserSearch({
   const debouncedQuery = useDebounce(input, 300);
   const [users, setUsers] = useState<UserData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (onValueChange) {
@@ -44,9 +46,19 @@ export default function UserSearch({
     const fetchUsers = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch("/api/admin/getUsers", {
+        if (!user) {
+          console.error("User not authenticated");
+          setUsers([]);
+          return;
+        }
+
+        const token = await user.getIdToken();
+        const res = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/getUsers`, {
           method: "POST",
-          body: JSON.stringify({ query: debouncedQuery }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token, query: debouncedQuery }),
         });
         const userData = await res.json();
         console.log(userData);

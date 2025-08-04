@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/contexts/AuthContext";
 import { Timestamp } from "firebase/firestore";
 import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -18,6 +19,7 @@ import { toast } from "sonner";
 export default function AdminTeamPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [allUsers, setAllUsers] = useState<UserData[]>([]);
+  const { user } = useAuth();
 
   // Dialog states
   const [teamDialogOpen, setTeamDialogOpen] = useState(false);
@@ -86,18 +88,25 @@ export default function AdminTeamPage() {
     }
 
     try {
+      if (!user) {
+        toast.error("User not authenticated");
+        return;
+      }
+
       const selectedTeam = teams.find((t) => t.id === selectedTeamId);
       if (!selectedTeam) {
         toast.error("Team not found");
         return;
       }
 
-      const response = await fetch("/api/admin/addUserToTeam", {
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/addUserToTeam`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          token,
           email: memberFormData.email,
           teamName: selectedTeam.name,
           position: memberFormData.position,
