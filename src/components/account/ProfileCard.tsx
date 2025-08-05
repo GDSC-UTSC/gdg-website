@@ -103,7 +103,7 @@ export function ProfileCard({ userId }: ProfileCardProps) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
             >
-              <h3 className="text-lg font-semibold text-foreground truncate">{userData.publicName || "User"}</h3>
+              <h3 className="text-lg font-semibold text-foreground line-clamp-2 leading-tight min-h-[3.5rem] flex items-start">{userData.publicName || "User"}</h3>
             </motion.div>
 
             <motion.div
