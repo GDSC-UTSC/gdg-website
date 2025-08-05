@@ -1,74 +1,36 @@
-import { Team } from "@/app/types/team";
-import { UserData } from "@/app/types/userdata";
-import PageTitle from "@/components/ui/PageTitle";
-import TeamCard from "../../components/team/TeamCard";
+import TeamPageContent from "@/components/pages/TeamPageContent";
+import { CardSkeleton } from "@/components/ui/loading-skeleton";
+import { Suspense } from "react";
 
-export default async function TeamPage() {
-  let teams: Team[] = [];
-  let users: UserData[] = [];
-
-  try {
-    // First load all teams
-    teams = await Team.readAll({ server: true, public: true });
-    
-    // Collect all unique user IDs from all teams
-    const allMemberIds = new Set<string>();
-    teams.forEach(team => {
-      team.members.forEach(member => {
-        allMemberIds.add(member.userId);
-      });
-    });
-    
-    // Load only the users who are team members
-    const userPromises = Array.from(allMemberIds).map(async (userId) => {
-      try {
-        return await UserData.read(userId, { server: true });
-      } catch (error) {
-        console.error(`Error loading user ${userId}:`, error);
-        return null;
-      }
-    });
-    
-    const userResults = await Promise.all(userPromises);
-    users = userResults.filter((user): user is UserData => user !== null);
-  } catch (error) {
-    console.error("Error fetching team data:", error);
-  }
-
+export default function TeamPage() {
   return (
-    <div className="min-h-screen py-12">
-      <div className="container mx-auto px-4">
-        <PageTitle title="Our Team" description="Meet the amazing people behind GDG @ UTSC" />
+    <section className="py-20 min-h-screen gradient-bg">
+      <div className="container mx-auto px-4 pb-10 flex flex-col items-center justify-center gap-10">
+        <Suspense fallback={<TeamPageSkeleton />}>
+          <TeamPageContent />
+        </Suspense>
+      </div>
+    </section>
+  );
+}
 
-        <div className="grid gap-12">
-          {teams.map((team) => {
-            const sortedMembers = team.getSortedMembers();
-
-            return (
-              <section key={team.id}>
-                <h2 className="text-3xl font-bold mb-8 text-center pb-2 border-b border-border border-dashed">
-                  {team.name}
-                </h2>
-
-                {team.description && <p className="text-muted-foreground text-center mb-8">{team.description}</p>}
-
-                {sortedMembers.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">No team members assigned yet.</p>
-                ) : (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {sortedMembers.map((member, index) => {
-                      const user = users.find((u) => u.id === member.userId);
-                      if (!user) return null;
-
-                      return <TeamCard key={`${team.id}-${member.userId}`} member={member} user={user} index={index} />;
-                    })}
-                  </div>
-                )}
-              </section>
-            );
-          })}
+function TeamPageSkeleton() {
+  return (
+    <>
+      <div className="text-center mb-16">
+        <div className="h-12 w-96 mx-auto rounded bg-gray-700 animate-pulse mb-4"></div>
+        <div className="h-6 w-3/4 mx-auto rounded bg-gray-700 animate-pulse"></div>
+      </div>
+      <div className="grid gap-12 max-w-6xl mx-auto">
+        <div className="space-y-8">
+          <div className="h-8 w-48 mx-auto rounded bg-gray-700 animate-pulse"></div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

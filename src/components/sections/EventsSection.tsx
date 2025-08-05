@@ -1,4 +1,5 @@
 import { Event } from "@/app/types/events";
+import { StaggerContainer, FadeInOnScroll } from "@/components/animations";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "lucide-react";
@@ -21,10 +22,11 @@ const EventsSection = async () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {upcomingEvents.map((event, index) => (
-            <Link key={index} href={`/events/${event.id}`}>
-              <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 h-full cursor-pointer">
+            <FadeInOnScroll key={index} delay={index * 0.1}>
+              <Link href={`/events/${event.id}`}>
+                <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 h-full cursor-pointer">
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-xs px-2 py-1 rounded-full text-white ${event.status}`}>{event.status}</span>
@@ -45,17 +47,19 @@ const EventsSection = async () => {
                     Register Now
                   </Button>
                 </CardContent>
-              </Card>
-            </Link>
+                </Card>
+              </Link>
+            </FadeInOnScroll>
           ))}
-        </div>
+        </StaggerContainer>
 
         <div className="bg-secondary/30 rounded-2xl p-8 md:p-12">
           <h3 className="text-3xl font-bold mb-8 text-center">Past Events</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {pastEvents.map((event, index) => (
-              <Link key={index} href={`/events/${event.id}`}>
-                <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 h-full cursor-pointer opacity-75">
+              <FadeInOnScroll key={index} delay={index * 0.1}>
+                <Link href={`/events/${event.id}`}>
+                  <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 h-full cursor-pointer opacity-75">
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs px-2 py-1 rounded-full text-white bg-muted">{event.status}</span>
@@ -79,10 +83,11 @@ const EventsSection = async () => {
                       Event Completed
                     </Button>
                   </CardContent>
-                </Card>
-              </Link>
+                  </Card>
+                </Link>
+              </FadeInOnScroll>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </div>
     </section>
