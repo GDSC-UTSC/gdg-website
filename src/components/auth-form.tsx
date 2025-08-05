@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { revalidateAuth } from "@/lib/actions/validations";
 import { auth } from "@/lib/firebase/client";
 import { cn } from "@/lib/utils";
 import {
@@ -68,10 +67,6 @@ export function AuthForm({
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      // Do not remove, we need to wait for the worker to capture the user
-      setTimeout(async () => {
-        await revalidateAuth();
-      }, 1000);
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -86,10 +81,6 @@ export function AuthForm({
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      // Do not remove, we need to wait for the worker to capture the user
-      setTimeout(async () => {
-        await revalidateAuth();
-      }, 1000);
     } catch (error: any) {
       setError(error.message);
     } finally {

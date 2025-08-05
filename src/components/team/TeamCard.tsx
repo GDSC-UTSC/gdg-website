@@ -1,9 +1,9 @@
 import { TeamMember } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Github, Linkedin } from "lucide-react";
+import Image from "next/image";
 
 interface TeamCardProps {
   member: TeamMember;
@@ -16,15 +16,21 @@ const TeamCard = ({ member, user, index }: TeamCardProps) => {
     <Card className="bg-card/20 backdrop-blur-sm border-border hover:bg-card/80 transition-all duration-300 h-full">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage
-              src={user.profileImageUrl || ""}
-              alt={user.publicName || "Unknown"}
-            />
-            <AvatarFallback className="text-lg font-semibold">
-              {user.publicName?.charAt(0).toUpperCase() || "?"}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative h-20 w-20 rounded-full overflow-hidden bg-muted">
+            {user.profileImageUrl ? (
+              <Image
+                src={user.profileImageUrl}
+                alt={user.publicName || "Unknown"}
+                fill
+                className="object-cover"
+                sizes="80px"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full w-full text-lg font-semibold text-muted-foreground">
+                {user.publicName?.charAt(0).toUpperCase() || "?"}
+              </div>
+            )}
+          </div>
         </div>
         <CardTitle className="text-xl">{user.publicName || "Unknown"}</CardTitle>
         <p className="text-primary font-medium">{member.position}</p>
