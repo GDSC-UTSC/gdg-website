@@ -1,15 +1,13 @@
 "use client";
 
 import { Project } from "@/app/types/projects";
-import { ProfileCard } from "@/components/account/ProfileCard";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { ContentSection } from "@/components/ui/ContentSection";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, ExternalLink, Code2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
-import { ImageCarousel } from "../../../components/projects/ImageCarousel";
 
 interface ProjectDetailPageProps {
   params: Promise<{ id: string }>;
@@ -120,75 +118,43 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="lg:col-span-2 space-y-8"
-          >
-            <ImageCarousel images={project.imageUrls || []} title="" altTextPrefix={project.title} />
+          <ContentSection
+            config={{
+              images: {
+                urls: project.imageUrls || [],
+                altTextPrefix: project.title
+              },
+              about: {
+                title: "About This Project",
+                description: project.description
+              }
+            }}
+            delay={0.1}
+            className="lg:col-span-2"
+          />
 
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">About This Project</h2>
-              <p className="text-gray-300 leading-relaxed text-lg">{project.description}</p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Project Details</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Created:</span>
-                  <span className="text-gray-300">{formatDate(project.createdAt)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Last Updated:</span>
-                  <span className="text-gray-300">{formatDate(project.updatedAt)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Contributors:</span>
-                  <span className="text-gray-300">{project.contributors?.length || 0}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Technologies:</span>
-                  <span className="text-gray-300">{project.languages?.length || 0}</span>
-                </div>
-              </div>
-            </div>
-
-            {project.languages && project.languages.length > 0 && (
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Technologies</h3>
-                <div className="flex flex-wrap gap-2">
-                  {project.languages.map((language, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium transition-transform hover:scale-105"
-                    >
-                      {language}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {project.contributors && project.contributors.length > 0 && (
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Project Contributors</h3>
-                <div className="space-y-3">
-                  {project.contributors.map((contributorId, idx) => (
-                    <ProfileCard key={contributorId} userId={contributorId} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
+          <ContentSection
+            config={{
+              details: {
+                title: "Project Details",
+                items: [
+                  { label: "Created", value: formatDate(project.createdAt) },
+                  { label: "Last Updated", value: formatDate(project.updatedAt) },
+                  { label: "Contributors", value: String(project.contributors?.length || 0) },
+                  { label: "Technologies", value: String(project.languages?.length || 0) }
+                ]
+              },
+              tags: project.languages && project.languages.length > 0 ? {
+                title: "Technologies",
+                items: project.languages
+              } : undefined,
+              profiles: project.contributors && project.contributors.length > 0 ? {
+                title: "Project Contributors",
+                userIds: project.contributors
+              } : undefined
+            }}
+            delay={0.2}
+          />
         </div>
       </div>
     </div>

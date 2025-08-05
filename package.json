@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "setup": "sh startup.sh",
     "dev": "next dev",
     "build": "next build",
+    "build:worker": "node scripts/build-worker.js",
     "start": "next start",
     "prod": "next build && next start",
     "lint": "next lint",
@@ -76,6 +78,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16.4.7",
     "firebase-tools": "^14.10.1",
     "postcss": "^8.5",
     "tailwindcss": "^4.1.10",

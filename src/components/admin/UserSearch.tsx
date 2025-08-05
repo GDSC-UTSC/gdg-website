@@ -49,7 +49,6 @@ export default function UserSearch({
           body: JSON.stringify({ query: debouncedQuery }),
         });
         const userData = await res.json();
-        console.log(userData);
         setUsers(userData as UserData[]);
       } catch (error) {
         console.error("Error fetching users:", error);

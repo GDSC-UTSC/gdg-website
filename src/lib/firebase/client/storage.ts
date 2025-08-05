@@ -26,7 +26,6 @@ export async function uploadFile(
 
     const storageRef = ref(storage, path);
 
-    console.log(file.name);
     // Prepare metadata
     const uploadMetadata = {
       contentType: metadata?.contentType || file.type,
@@ -82,7 +81,6 @@ export async function deleteFile(path: string) {
   try {
     const storageRef = ref(storage, path);
     await deleteObject(storageRef);
-    console.log("File deleted successfully");
   } catch (error) {
     console.error("Error deleting file:", error);
     throw error;

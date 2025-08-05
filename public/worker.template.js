@@ -1,18 +1,14 @@
-importScripts(
-  "https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"
-);
-importScripts(
-  "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"
-);
+importScripts("https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js");
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDkkBylEA-_GbsLuUpNbu1770vCsYlc5Ho",
-  authDomain: "gdg-website-314a4.firebaseapp.com",
-  projectId: "gdg-website-314a4",
-  storageBucket: "gdg-website-314a4.firebasestorage.app",
-  messagingSenderId: "765873570971",
-  appId: "1:765873570971:web:31d09e516b4dbe9764b23e",
-  measurementId: "G-68BM0DGRV6",
+  apiKey: "{{FIREBASE_API_KEY}}",
+  authDomain: "{{FIREBASE_AUTH_DOMAIN}}",
+  projectId: "{{FIREBASE_PROJECT_ID}}",
+  storageBucket: "{{FIREBASE_STORAGE_BUCKET}}",
+  messagingSenderId: "{{FIREBASE_MESSAGING_SENDER_ID}}",
+  appId: "{{FIREBASE_APP_ID}}",
+  measurementId: "{{FIREBASE_MEASUREMENT_ID}}",
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -66,8 +62,7 @@ self.addEventListener("fetch", (event) => {
 
     if (
       self.location.origin === getOriginFromUrl(event.request.url) &&
-      (self.location.protocol === "https:" ||
-        self.location.hostname === "localhost") &&
+      (self.location.protocol === "https:" || self.location.hostname === "localhost") &&
       idToken
     ) {
       const headers = new Headers();
@@ -75,6 +70,7 @@ self.addEventListener("fetch", (event) => {
         headers.append(key, val);
       });
       headers.append("Authorization", "Bearer " + idToken);
+      console.log("headers token", idToken);
       processRequestPromise = getBodyContent(req).then((body) => {
         try {
           req = new Request(req.url, {
@@ -96,7 +92,5 @@ self.addEventListener("fetch", (event) => {
       return fetch(req);
     });
   };
-  event.respondWith(
-    getIdTokenPromise().then(requestProcessor, requestProcessor)
-  );
+  event.respondWith(getIdTokenPromise().then(requestProcessor, requestProcessor));
 });
