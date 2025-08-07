@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { db, auth } from "../firebase.js";
-import { UserDataType, Role, USER_ROLES } from "../types.js";
+import { UserDataType, Role } from "../types.js";
 
 export function registerAdminTools(server: McpServer) {
   server.tool(
@@ -505,6 +505,313 @@ export function registerAdminTools(server: McpServer) {
             {
               type: "text",
               text: `Error syncing admin claims: ${error}`,
+            },
+          ],
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "get_recent_logins",
+    "Get recently logged in users from Firebase Auth",
+    {
+      limit: z.number().optional().describe("Maximum number of users to return (default: 20)"),
+      hoursBack: z.number().optional().describe("How many hours back to look for recent activity (default: 24)"),
+    },
+    async ({ limit = 20, hoursBack = 24 }) => {
+      try {
+        // Get all users from Firebase Auth
+        const listUsersResult = await auth.listUsers(1000); // Get up to 1000 users
+        
+        const now = new Date();
+        const cutoffTime = new Date(now.getTime() - (hoursBack * 60 * 60 * 1000));
+        
+        // Filter and sort users by last sign in time
+        const recentUsers = listUsersResult.users
+          .filter(user => {
+            if (!user.metadata.lastSignInTime) return false;
+            const lastSignIn = new Date(user.metadata.lastSignInTime);
+            return lastSignIn > cutoffTime;
+          })
+          .sort((a, b) => {
+            const timeA = new Date(a.metadata.lastSignInTime!).getTime();
+            const timeB = new Date(b.metadata.lastSignInTime!).getTime();
+            return timeB - timeA; // Most recent first
+          })
+          .slice(0, limit);
+
+        // Enrich with Firestore data
+        const enrichedUsers = await Promise.all(
+          recentUsers.map(async (user) => {
+            try {
+              const userDoc = await db.collection("users").doc(user.uid).get();
+              const userData = userDoc.exists ? userDoc.data() as UserDataType : null;
+              
+              return {
+                uid: user.uid,
+                email: user.email,
+                publicName: userData?.publicName || null,
+                role: userData?.role || "member",
+                lastSignInTime: user.metadata.lastSignInTime,
+                creationTime: user.metadata.creationTime,
+                lastRefreshTime: user.metadata.lastRefreshTime,
+                emailVerified: user.emailVerified,
+                disabled: user.disabled,
+                customClaims: user.customClaims || {},
+                providerData: user.providerData.map(p => ({
+                  providerId: p.providerId,
+                  uid: p.uid,
+                })),
+              };
+            } catch (error) {
+              return {
+                uid: user.uid,
+                email: user.email,
+                publicName: null,
+                role: "member",
+                lastSignInTime: user.metadata.lastSignInTime,
+                creationTime: user.metadata.creationTime,
+                lastRefreshTime: user.metadata.lastRefreshTime,
+                emailVerified: user.emailVerified,
+                disabled: user.disabled,
+                customClaims: user.customClaims || {},
+                error: `Failed to fetch Firestore data: ${error}`,
+              };
+            }
+          })
+        );
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                totalFound: enrichedUsers.length,
+                hoursBack,
+                cutoffTime: cutoffTime.toISOString(),
+                users: enrichedUsers,
+              }, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error fetching recent logins: ${error}`,
+            },
+          ],
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "get_user_login_activity",
+    "Get detailed login activity for a specific user",
+    {
+      identifier: z.string().describe("User email or UID"),
+    },
+    async ({ identifier }) => {
+      try {
+        // Find user by email or UID
+        let userRecord;
+        try {
+          if (identifier.includes("@")) {
+            userRecord = await auth.getUserByEmail(identifier);
+          } else {
+            userRecord = await auth.getUser(identifier);
+          }
+        } catch (error) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `User not found: ${identifier}`,
+              },
+            ],
+          };
+        }
+
+        // Get Firestore user data
+        const userDoc = await db.collection("users").doc(userRecord.uid).get();
+        const userData = userDoc.exists ? userDoc.data() as UserDataType : null;
+
+        const activity = {
+          uid: userRecord.uid,
+          email: userRecord.email,
+          publicName: userData?.publicName || null,
+          role: userData?.role || "member",
+          
+          // Auth metadata
+          creationTime: userRecord.metadata.creationTime,
+          lastSignInTime: userRecord.metadata.lastSignInTime,
+          lastRefreshTime: userRecord.metadata.lastRefreshTime,
+          
+          // Account status
+          emailVerified: userRecord.emailVerified,
+          disabled: userRecord.disabled,
+          
+          // Login providers
+          providerData: userRecord.providerData.map(provider => ({
+            providerId: provider.providerId,
+            uid: provider.uid,
+            email: provider.email,
+            displayName: provider.displayName,
+          })),
+          
+          // Admin status
+          customClaims: userRecord.customClaims || {},
+          
+          // Calculate activity metrics
+          daysSinceCreation: userRecord.metadata.creationTime 
+            ? Math.floor((Date.now() - new Date(userRecord.metadata.creationTime).getTime()) / (1000 * 60 * 60 * 24))
+            : null,
+          daysSinceLastLogin: userRecord.metadata.lastSignInTime
+            ? Math.floor((Date.now() - new Date(userRecord.metadata.lastSignInTime).getTime()) / (1000 * 60 * 60 * 24))
+            : null,
+          minutesSinceLastRefresh: userRecord.metadata.lastRefreshTime
+            ? Math.floor((Date.now() - new Date(userRecord.metadata.lastRefreshTime).getTime()) / (1000 * 60))
+            : null,
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(activity, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error fetching user login activity: ${error}`,
+            },
+          ],
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "get_login_statistics",
+    "Get overall login statistics and user activity metrics",
+    {
+      daysPeriod: z.number().optional().describe("Period in days to analyze (default: 7)"),
+    },
+    async ({ daysPeriod = 7 }) => {
+      try {
+        // Get all users from Firebase Auth
+        const listUsersResult = await auth.listUsers(1000);
+        
+        const now = new Date();
+        const periodStart = new Date(now.getTime() - (daysPeriod * 24 * 60 * 60 * 1000));
+        
+        let totalUsers = 0;
+        let activeUsers = 0;
+        let newUsers = 0;
+        let verifiedUsers = 0;
+        let disabledUsers = 0;
+        let adminUsers = 0;
+        let superadminUsers = 0;
+        
+        const providerStats: { [key: string]: number } = {};
+        const roleStats: { [key: string]: number } = {};
+        
+        // Analyze each user
+        for (const user of listUsersResult.users) {
+          totalUsers++;
+          
+          // Check if user was active in the period
+          if (user.metadata.lastSignInTime) {
+            const lastSignIn = new Date(user.metadata.lastSignInTime);
+            if (lastSignIn > periodStart) {
+              activeUsers++;
+            }
+          }
+          
+          // Check if user was created in the period
+          if (user.metadata.creationTime) {
+            const creationTime = new Date(user.metadata.creationTime);
+            if (creationTime > periodStart) {
+              newUsers++;
+            }
+          }
+          
+          // Other stats
+          if (user.emailVerified) verifiedUsers++;
+          if (user.disabled) disabledUsers++;
+          
+          // Admin stats
+          const claims = user.customClaims || {};
+          if (claims.admin) adminUsers++;
+          if (claims.superadmin) superadminUsers++;
+          
+          // Provider stats
+          user.providerData.forEach(provider => {
+            providerStats[provider.providerId] = (providerStats[provider.providerId] || 0) + 1;
+          });
+          
+          // Get Firestore role data
+          try {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            if (userDoc.exists) {
+              const userData = userDoc.data() as UserDataType;
+              const role = userData.role || "member";
+              roleStats[role] = (roleStats[role] || 0) + 1;
+            }
+          } catch (error) {
+            // Skip if can't get Firestore data
+            roleStats["unknown"] = (roleStats["unknown"] || 0) + 1;
+          }
+        }
+        
+        const statistics = {
+          period: {
+            days: daysPeriod,
+            startDate: periodStart.toISOString(),
+            endDate: now.toISOString(),
+          },
+          
+          userCounts: {
+            total: totalUsers,
+            active: activeUsers,
+            new: newUsers,
+            verified: verifiedUsers,
+            disabled: disabledUsers,
+            admins: adminUsers,
+            superadmins: superadminUsers,
+          },
+          
+          percentages: {
+            activeRate: totalUsers > 0 ? Math.round((activeUsers / totalUsers) * 100) : 0,
+            verificationRate: totalUsers > 0 ? Math.round((verifiedUsers / totalUsers) * 100) : 0,
+            adminRate: totalUsers > 0 ? Math.round((adminUsers / totalUsers) * 100) : 0,
+          },
+          
+          authProviders: providerStats,
+          roleDistribution: roleStats,
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(statistics, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error generating login statistics: ${error}`,
             },
           ],
         };
