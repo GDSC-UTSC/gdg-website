@@ -1,21 +1,57 @@
-# GDG Website
+<h1>
+    <picture>
+        <img alt="GDG Logo" src="./public/gdg-logo.png" height="34">
+    </picture>
+    GDG Website
+</h1>
 
-## Development Setup
+Google Developer Group (GDG) at University of Toronto Scarborough - An open-source student-led community focused on building technology solutions and fostering developer growth through workshops, projects, and collaboration.
 
-To run the project locally:
+## About The Project
 
-run this the first time: ```curl -sL https://firebase.tools | bash
-npm install -g firebase-tools```
+This is the official website for the University of Toronto Scarborough Google Developer Group. Built with Next.js 15, TypeScript, Tailwind CSS v4, and Firebase, featuring modern development practices and comprehensive tooling for student developers.
 
-1. Start the Next.js development server:
+## Features
 
-   ```bash
-   npm run dev
-   ```
+- **MCP Server**: Model Context Protocol server for admin integrations
+- **Custom CMS**: Content management system for events, projects, and more
+- **Resume AutoRanker API**: Automated resume evaluation service
 
-2. Start the Firestore emulator (in a separate terminal):
-   ```bash
-   npm run firebase
-   ```
+## Getting Started
 
-The app will be available at http://localhost:3000 and the Firestore emulator UI at http://localhost:4000.
+Run the startup script to install dependencies and start development:
+
+```bash
+sh startup.sh
+```
+
+This will:
+- Install Firebase CLI tools
+- Install project dependencies
+- Start the Next.js development server (localhost:3000)
+- Launch Firebase emulators (Auth: 9099, Firestore: 8080, UI: 4000)
+
+## Development Commands
+
+```bash
+npm run firebase    # Start Firebase emulators
+npm run seed        # Seed the database with sample data
+npm run build:worker # Build the worker for Firebase SSR
+```
+
+## Contributing
+
+We welcome contributions from students and developers! This is an open-source project designed to help the GDG community learn and grow together.
+
+### Development Guidelines
+
+- Follow the existing code style and TypeScript conventions
+- Test your changes with both development server and Firebase emulators
+- Ensure your code is accessible and responsive
+- Update documentation if needed
+
+Questions? [Open a GitHub issue](https://github.com/GDSC-UTSC/gdg-website/issues) or reach out to the GDG UofT Scarborough team!
+
+
+
+
