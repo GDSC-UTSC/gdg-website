@@ -53,14 +53,14 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
         const fetchedEvent = await Event.read(eventId);
         if (fetchedEvent) {
           setEvent(fetchedEvent);
-          
+
           // Load organizer user data
-          const organizerPromises = fetchedEvent.organizers?.map(organizerId => 
+          const organizerPromises = fetchedEvent.organizers?.map(organizerId =>
             UserData.read(organizerId)
           ) || [];
           const organizers = await Promise.all(organizerPromises);
           const validOrganizers = organizers.filter(org => org !== null) as UserData[];
-          
+
           setFormData({
             title: fetchedEvent.title,
             description: fetchedEvent.description,
@@ -194,14 +194,13 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
 
         <div className="max-w-2xl mx-auto">
           <div className="space-y-8">
-            <ImageUpload 
+            <ImageUpload
               storagePath={`events/${eventId}`}
               firestorePath={`events/${eventId}`}
               onUploadComplete={(urls) => {
-                console.log('Uploaded image URLs:', urls);
               }}
             />
-            
+
             <Card className="p-8">
               <form onSubmit={handleSubmit} className="space-y-8">
               <TextInput

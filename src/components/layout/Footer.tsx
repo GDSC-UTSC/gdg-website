@@ -1,15 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Github, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Github, Instagram, Linkedin } from "lucide-react";
 import Image from "next/image";
 
 const Footer = () => {
   const socialLinks = [
-    { icon: <Github className="h-5 w-5" />, href: "#", label: "GitHub" },
-    { icon: <Linkedin className="h-5 w-5" />, href: "#", label: "LinkedIn" },
-    { icon: <Twitter className="h-5 w-5" />, href: "#", label: "Twitter" },
-    { icon: <Instagram className="h-5 w-5" />, href: "#", label: "Instagram" },
+    { icon: <Github className="h-5 w-5" />, href: "https://github.com/GDSC-UTSC", label: "GitHub" },
+    { icon: <Linkedin className="h-5 w-5" />, href: "https://www.linkedin.com/company/gdscutsc/posts/", label: "LinkedIn" },
+    { icon: <Instagram className="h-5 w-5" />, href: "https://www.instagram.com/gdgutsc/", label: "Instagram" },
   ];
 
   return (

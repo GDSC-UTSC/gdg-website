@@ -1,16 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { revalidateAuth } from "@/lib/actions/validations";
 import { auth } from "@/lib/firebase/client";
 import { cn } from "@/lib/utils";
 import {
@@ -28,12 +21,7 @@ interface AuthFormProps extends React.ComponentProps<"div"> {
   onModeSwitch?: () => void;
 }
 
-export function AuthForm({
-  className,
-  mode = "login",
-  onModeSwitch,
-  ...props
-}: AuthFormProps) {
+export function AuthForm({ className, mode = "login", onModeSwitch, ...props }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -68,10 +56,6 @@ export function AuthForm({
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      // Do not remove, we need to wait for the worker to capture the user
-      setTimeout(async () => {
-        await revalidateAuth();
-      }, 1000);
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -86,10 +70,7 @@ export function AuthForm({
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      // Do not remove, we need to wait for the worker to capture the user
-      setTimeout(async () => {
-        await revalidateAuth();
-      }, 1000);
+      router.push("/");
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -124,16 +105,12 @@ export function AuthForm({
         <Card className="border-0">
           <CardHeader>
             <CardTitle>Reset your password</CardTitle>
-            <CardDescription>
-              Enter your email and we'll send you a reset link
-            </CardDescription>
+            <CardDescription>Enter your email and we'll send you a reset link</CardDescription>
           </CardHeader>
           <CardContent>
             {resetEmailSent ? (
               <div className="text-center">
-                <div className="text-sm text-green-600 mb-4">
-                  Password reset email sent! Check your inbox.
-                </div>
+                <div className="text-sm text-green-600 mb-4">Password reset email sent! Check your inbox.</div>
                 <Button
                   type="button"
                   variant="outline"
@@ -148,11 +125,7 @@ export function AuthForm({
             ) : (
               <form onSubmit={handleForgotPassword}>
                 <div className="flex flex-col gap-6">
-                  {error && (
-                    <div className="text-sm text-red-500 text-center">
-                      {error}
-                    </div>
-                  )}
+                  {error && <div className="text-sm text-red-500 text-center">{error}</div>}
                   <div className="grid gap-3">
                     <Label htmlFor="reset-email">Email</Label>
                     <Input
@@ -190,9 +163,7 @@ export function AuthForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-0">
         <CardHeader>
-          <CardTitle>
-            {isRegisterMode ? "Create an account" : "Login to your account"}
-          </CardTitle>
+          <CardTitle>{isRegisterMode ? "Create an account" : "Login to your account"}</CardTitle>
           <CardDescription>
             {isRegisterMode
               ? "Enter your details below to create your account"
@@ -202,9 +173,7 @@ export function AuthForm({
         <CardContent>
           <form onSubmit={handleEmailAuth}>
             <div className="flex flex-col gap-6">
-              {error && (
-                <div className="text-sm text-red-500 text-center">{error}</div>
-              )}
+              {error && <div className="text-sm text-red-500 text-center">{error}</div>}
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
                 <Input

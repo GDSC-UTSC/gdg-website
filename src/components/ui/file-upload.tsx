@@ -4,6 +4,7 @@ import { Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "./button";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface FileUploadProps {
   files: File[];
@@ -158,9 +159,11 @@ export function FileUpload({
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
                       >
-                        <img
+                        <Image
                           src={URL.createObjectURL(file)}
                           alt="Preview"
+                          width={40}
+                          height={40}
                           className="w-full h-full object-cover"
                         />
                       </motion.div>

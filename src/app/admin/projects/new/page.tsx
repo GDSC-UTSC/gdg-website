@@ -48,7 +48,6 @@ export default function AdminNewProjectPage() {
         imageUrls: formData.imageUrls,
         link: formData.link,
       };
-      console.log(projectData);
       const project = new Project(projectData);
       await project.create();
       toast.success("Project created successfully!");
@@ -141,7 +140,6 @@ export default function AdminNewProjectPage() {
                 <UserSearch
                   placeholder="Search for contributors..."
                   onUserSelect={(user) => {
-                    console.log(user);
                     if (!formData.contributors.find((contrib) => contrib === user.id)) {
                       setFormData((prev) => ({
                         ...prev,

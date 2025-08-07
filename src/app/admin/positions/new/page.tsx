@@ -49,7 +49,6 @@ export default function AdminNewPositionPage() {
         questions: formData.questions,
       };
 
-      console.log(positionData);
       const position = new Position(positionData);
 
       await position.create();
