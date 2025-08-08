@@ -25,7 +25,7 @@ export default function AdminPage() {
   const [removeAdminMessage, setRemoveAdminMessage] = useState<{ type: "success" | "error"; text: string } | null>(
     null
   );
-  
+
   // Auto-hide grant admin message after 5 seconds
   useEffect(() => {
     if (grantAdminMessage) {
@@ -83,9 +83,9 @@ export default function AdminPage() {
         setGrantAdminMessage({ type: "error", text: "User not authenticated" });
         return;
       }
-      
+
       const token = await user.getIdToken();
-      const result = await Admin.grantAdmin(adminEmail, token);
+      const result = await Admin.grantAdminByEmail(adminEmail, token);
       setGrantAdminMessage({ type: "success", text: result.message });
       setAdminEmail("");
     } catch (error) {
@@ -111,9 +111,9 @@ export default function AdminPage() {
         setRemoveAdminMessage({ type: "error", text: "User not authenticated" });
         return;
       }
-      
+
       const token = await user.getIdToken();
-      const result = await Admin.removeAdmin(removeAdminEmail, token);
+      const result = await Admin.removeAdminByEmail(removeAdminEmail, token);
       setRemoveAdminMessage({ type: "success", text: result.message });
       setRemoveAdminEmail("");
     } catch (error) {

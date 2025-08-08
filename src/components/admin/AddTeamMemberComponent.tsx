@@ -1,11 +1,13 @@
 "use client";
 
 import { Team } from "@/app/types/team";
+import { UserData } from "@/app/types/userdata";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import UserSearch from "@/components/admin/UserSearch";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -16,10 +18,8 @@ export default function AddTeamMemberComponent() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [teamsLoaded, setTeamsLoaded] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState("");
-  const [formData, setFormData] = useState({
-    email: "",
-    position: "",
-  });
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [position, setPosition] = useState("");
 
   const loadTeams = async () => {
     if (teamsLoaded) return;
@@ -37,7 +37,7 @@ export default function AddTeamMemberComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedTeamId || !formData.email || !formData.position) {
+    if (!selectedTeamId || !selectedUser || !position) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -63,9 +63,9 @@ export default function AddTeamMemberComponent() {
         },
         body: JSON.stringify({
           token,
-          email: formData.email,
+          userId: selectedUser.id,
           teamName: selectedTeam.name,
-          position: formData.position,
+          position: position,
         }),
       });
 
@@ -77,7 +77,8 @@ export default function AddTeamMemberComponent() {
       }
 
       setDialogOpen(false);
-      setFormData({ email: "", position: "" });
+      setSelectedUser(null);
+      setPosition("");
       setSelectedTeamId("");
       toast.success("Team member added successfully");
 
@@ -124,33 +125,25 @@ export default function AddTeamMemberComponent() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">User Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  email: e.target.value,
-                }))
-              }
-              placeholder="user@example.com"
-              required
+            <Label htmlFor="user">Select User</Label>
+            <UserSearch
+              onUserSelect={setSelectedUser}
+              placeholder="Search for a user by name"
+              value={selectedUser?.publicName || ""}
             />
+            {selectedUser && (
+              <div className="text-sm text-muted-foreground">
+                Selected: {selectedUser.publicName || "Unknown User"}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="position">Position</Label>
             <Input
               id="position"
-              value={formData.position}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  position: e.target.value,
-                }))
-              }
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
               placeholder="e.g., Co-Lead, Director, Associate"
               required
             />
