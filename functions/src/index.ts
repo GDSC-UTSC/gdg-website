@@ -1,18 +1,33 @@
 /**
- * Main entry point for Firebase Cloud Functions.
- * Re-exports functions from organized modules.
+ * Cloud Functions for GDG Website
+ *
+ * This file re-exports all Cloud Functions organized in their respective files:
+ * - requests.ts: HTTP Cloud Functions (onRequest)
+ * - triggers.ts: Event-triggered Cloud Functions (onDocumentWritten, beforeUserCreated)
  */
+import * as admin from "firebase-admin";
 
-// Import and re-export trigger functions
+// Initialize the Firebase Admin SDK to interact with Firebase services.
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
+// HTTP Request Functions (Admin Operations)
+export {
+  checkAdminClaims,
+  getUsers,
+  grantAdminByEmail,
+  grantAdminByUserId,
+  grantSuperAdmin,
+  removeAdminByEmail,
+  removeAdminByUserId,
+  addUserToTeam
+} from "./requests";
+
+// Trigger Functions (Event-driven)
 export {
   beforecreated,
   createApplication,
   createRegistration,
-  createCollaboration,
+  createCollaboration
 } from "./triggers";
-
-// Import and re-export request functions
-export {
-  checkAdminClaims,
-  addUserToTeam,
-} from "./requests";

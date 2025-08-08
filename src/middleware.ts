@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
     }
   }
   // Handle admin routes
-  else if (request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/api/admin")) {
+  else if (request.nextUrl.pathname.startsWith("/admin")) {
     try {
       const token = await user.getIdToken();
 

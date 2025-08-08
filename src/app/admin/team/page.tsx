@@ -7,49 +7,48 @@ import CreateTeamComponent from "@/components/admin/CreateTeamComponent";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/contexts/AuthContext";
+import { Timestamp } from "firebase/firestore";
+import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function AdminTeamPage() {
   const [teams, setTeams] = useState<Team[]>([]);
-  const [memberUsers, setMemberUsers] = useState<Map<string, UserData>>(new Map());
+  const [allUsers, setAllUsers] = useState<UserData[]>([]);
+  const { user } = useAuth();
 
-  // Load teams and then load individual team member users
+  // Dialog states
+  const [teamDialogOpen, setTeamDialogOpen] = useState(false);
+  const [memberDialogOpen, setMemberDialogOpen] = useState(false);
+  const [selectedTeamId, setSelectedTeamId] = useState("");
+
+  // Form data
+  const [teamFormData, setTeamFormData] = useState({
+    name: "",
+    description: "",
+  });
+
+  const [memberFormData, setMemberFormData] = useState({
+    email: "",
+    position: "",
+  });
+
+  // Load teams and users
   useEffect(() => {
     const loadData = async () => {
       try {
-        const teamsData = await Team.readAll();
+        const [teamsData, usersData] = await Promise.all([
+          Team.readAll(),
+          UserData.readAll()
+        ]);
         setTeams(teamsData);
-        
-        // Collect all unique user IDs from all teams
-        const allMemberIds = new Set<string>();
-        teamsData.forEach(team => {
-          team.members.forEach(member => {
-            allMemberIds.add(member.userId);
-          });
-        });
-        
-        // Load only the users who are team members
-        const userPromises = Array.from(allMemberIds).map(async (userId) => {
-          try {
-            const user = await UserData.read(userId);
-            return { userId, user };
-          } catch (error) {
-            console.error(`Error loading user ${userId}:`, error);
-            return { userId, user: null };
-          }
-        });
-        
-        const userResults = await Promise.all(userPromises);
-        const usersMap = new Map<string, UserData>();
-        userResults.forEach(({ userId, user }) => {
-          if (user) {
-            usersMap.set(userId, user);
-          }
-        });
-        
-        setMemberUsers(usersMap);
+        setAllUsers(usersData);
       } catch (error) {
         console.error("Error loading data:", error);
       }
@@ -58,6 +57,85 @@ export default function AdminTeamPage() {
     loadData();
   }, []);
 
+  const handleCreateTeam = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const team = new Team({
+        id: crypto.randomUUID(),
+        name: teamFormData.name,
+        description: teamFormData.description,
+        members: [],
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      });
+
+      await team.create();
+
+      // Refresh teams list
+      const updatedTeams = await Team.readAll();
+      setTeams(updatedTeams);
+      setTeamDialogOpen(false);
+      setTeamFormData({ name: "", description: "" });
+      toast.success("Team created successfully");
+    } catch (error) {
+      console.error("Error creating team:", error);
+      toast.error("Failed to create team");
+    }
+  };
+
+  const handleAddMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedTeamId || !memberFormData.email || !memberFormData.position) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      if (!user) {
+        toast.error("User not authenticated");
+        return;
+      }
+
+      const selectedTeam = teams.find((t) => t.id === selectedTeamId);
+      if (!selectedTeam) {
+        toast.error("Team not found");
+        return;
+      }
+
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/addUserToTeam`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token,
+          email: memberFormData.email,
+          teamName: selectedTeam.name,
+          position: memberFormData.position,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || "Failed to add team member");
+        return;
+      }
+
+      // Refresh teams list
+      const updatedTeams = await Team.readAll();
+      setTeams(updatedTeams);
+      setMemberDialogOpen(false);
+      setMemberFormData({ email: "", position: "" });
+      toast.success("Team member added successfully");
+    } catch (error) {
+      console.error("Error adding team member:", error);
+      toast.error("Failed to add team member");
+    }
+  };
 
   const handleRemoveMember = async (teamId: string, userId: string) => {
     try {
@@ -71,24 +149,6 @@ export default function AdminTeamPage() {
         // Refresh teams list and update member users if needed
         const updatedTeams = await Team.readAll();
         setTeams(updatedTeams);
-        
-        // Remove the user from memberUsers map if they're no longer in any team
-        const allCurrentMemberIds = new Set<string>();
-        updatedTeams.forEach(team => {
-          team.members.forEach(member => {
-            allCurrentMemberIds.add(member.userId);
-          });
-        });
-        
-        setMemberUsers(prev => {
-          const updated = new Map(prev);
-          for (const [id] of prev) {
-            if (!allCurrentMemberIds.has(id)) {
-              updated.delete(id);
-            }
-          }
-          return updated;
-        });
         toast.success("Team member removed successfully");
       }
     } catch (error) {
@@ -149,7 +209,7 @@ export default function AdminTeamPage() {
                 ) : (
                   <div className="space-y-3">
                     {sortedMembers.map((member) => {
-                      const user = memberUsers.get(member.userId);
+                      const user = allUsers.find(u => u.id === member.userId);
                       return (
                         <div
                           key={member.userId}
