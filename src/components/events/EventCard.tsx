@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ScaleIn } from "@/components/animations";
 import { Camera, MapPin, Calendar, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -32,9 +33,10 @@ const EventCard = ({ event }: EventCardProps) => {
   };
   
   return (
-    <Link href={`/events/${event.id}`}>
-      <div className="bg-card/20 backdrop-blur-sm border-border hover:bg-card/80 transition-all duration-300 w-full">
-        <Card className="aspect-square flex flex-col">
+    <ScaleIn hover className="w-full">
+      <Link href={`/events/${event.id}`}>
+        <div className="bg-card/20 backdrop-blur-sm border-border hover:bg-card/80 transition-all duration-300 w-full h-full">
+          <Card className="h-[420px] flex flex-col">
           {/* Event Image */}
           <div className="relative w-full h-48 overflow-hidden rounded-t-lg flex-shrink-0">
             {firstImage ? (
@@ -63,7 +65,7 @@ const EventCard = ({ event }: EventCardProps) => {
             <CardDescription className="line-clamp-2 text-sm">{event.description}</CardDescription>
           </CardHeader>
           
-          <CardContent className="flex-1 flex flex-col justify-between space-y-3">
+          <CardContent className="flex-1 flex flex-col justify-between pb-6">
             {/* Event Details */}
             <div className="space-y-2 text-sm">
               {/* Date and Time */}
@@ -89,7 +91,7 @@ const EventCard = ({ event }: EventCardProps) => {
             </div>
 
             {/* Tags */}
-            <div className="h-8 flex flex-col justify-start">
+            <div className="min-h-[32px] flex flex-col justify-center mt-3">
               {event.tags && event.tags.length > 0 ? (
                 <div className="flex flex-wrap gap-1">
                   {event.tags.slice(0, 3).map((tag, tagIndex) => (
@@ -107,13 +109,14 @@ const EventCard = ({ event }: EventCardProps) => {
                   )}
                 </div>
               ) : (
-                <div className="text-xs text-muted-foreground">No tags</div>
+                <div className="text-xs text-muted-foreground text-center">No tags</div>
               )}
             </div>
           </CardContent>
-        </Card>
-      </div>
-    </Link>
+          </Card>
+        </div>
+      </Link>
+    </ScaleIn>
   );
 };
 

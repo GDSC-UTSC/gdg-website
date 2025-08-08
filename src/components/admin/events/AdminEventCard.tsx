@@ -11,11 +11,11 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
   const router = useRouter();
 
   const handleView = () => {
-    router.push(`/admin/events/${event.id}`);
+    router.push(`/events/${event.id}`);
   };
 
   const handleEdit = () => {
-    router.push(`/events/${event.id}/edit`);
+    router.push(`/admin/events/${event.id}/edit`);
   };
 
   const getStatusColor = (status: string) => {
@@ -40,9 +40,7 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
       <Card className="p-6 hover:shadow-lg transition-shadow h-full flex flex-col">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-semibold">{event.title}</h3>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}
-          >
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
             {event.status}
           </span>
         </div>
@@ -54,10 +52,7 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
         <div className="flex flex-wrap gap-2 mb-4 min-h-[2rem]">
           {event.tags && event.tags.length > 0 ? (
             event.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 bg-primary/10 text-primary rounded-md text-sm"
-              >
+              <span key={index} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-sm">
                 {tag}
               </span>
             ))
@@ -67,28 +62,25 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
         </div>
 
         <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
-          <span>
-            Created: {event.createdAt?.toDate().toLocaleDateString()}
-          </span>
-          <span>
-            Updated: {event.updatedAt?.toDate().toLocaleDateString()}
-          </span>
+          <span>Created: {event.createdAt?.toDate().toLocaleDateString()}</span>
+          <span>Updated: {event.updatedAt?.toDate().toLocaleDateString()}</span>
         </div>
 
         <div className="space-y-2 mt-auto">
-          <Button
-            className="w-full"
-            variant="outline"
-            onClick={handleView}
-          >
+          <Button className="w-full" variant="outline" onClick={handleView}>
             View Event
           </Button>
 
+          <Button className="w-full" onClick={handleEdit}>
+            Edit Event
+          </Button>
           <Button
             className="w-full"
-            onClick={handleEdit}
+            onClick={() => {
+              router.push(`/admin/events/${event.id}/registrations`);
+            }}
           >
-            Edit Event
+            View Registrations
           </Button>
         </div>
       </Card>

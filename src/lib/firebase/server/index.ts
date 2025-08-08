@@ -18,6 +18,7 @@ export async function getAuthenticatedUser() {
   try {
     const headerObj = await headers();
     const authIdToken = headerObj.get("Authorization")?.split("Bearer ")[1];
+
     let appSettings: FirebaseServerAppSettings = { authIdToken };
     appSettings.releaseOnDeref = headerObj;
     const serverApp = initializeServerApp(firebaseConfig, appSettings);

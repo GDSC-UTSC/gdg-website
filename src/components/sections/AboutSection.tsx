@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { FadeInOnScroll, StaggerContainer } from "@/components/animations";
 import { motion } from "framer-motion";
 import { Circle, Github, Menu } from "lucide-react";
 
@@ -46,10 +47,10 @@ const AboutSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => (
-            <div key={index}>
-              <Card className="bg-card/50 backdrop-blur-xs  hover:bg-card/80 transition-all duration-300 h-full">
+            <FadeInOnScroll key={index} delay={index * 0.1}>
+              <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 h-full">
                 <CardContent className="p-8 text-center">
                   <div className="mb-4 flex justify-center">{feature.icon}</div>
                   <h3 className="text-xl font-semibold mb-3">
@@ -58,9 +59,9 @@ const AboutSection = () => {
                   <p className="text-muted-foreground">{feature.description}</p>
                 </CardContent>
               </Card>
-            </div>
+            </FadeInOnScroll>
           ))}
-        </div>
+        </StaggerContainer>
 
         <motion.div
           initial={{ opacity: 0, y: 50 }}

@@ -1,16 +1,14 @@
 "use client";
 
 import { Event } from "@/app/types/events";
-import { ProfileCard } from "@/components/account/ProfileCard";
 import RegistrationForm from "@/components/events/RegistrationForm";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { ContentSection } from "@/components/ui/ContentSection";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Clock, ExternalLink, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
-import { ImageCarousel } from "../../../components/projects/ImageCarousel";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -19,7 +17,6 @@ interface EventDetailPageProps {
 export default function EventDetailPage({ params }: EventDetailPageProps) {
   const router = useRouter();
   const { id } = use(params);
-  const { user } = useAuth();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -159,85 +156,54 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="lg:col-span-2 space-y-8"
-          >
-            <ImageCarousel images={event.imageUrls || []} title="" altTextPrefix={event.title} />
+          <ContentSection
+            config={{
+              images: {
+                urls: event.imageUrls || [],
+                altTextPrefix: event.title
+              },
+              about: {
+                title: "About This Event",
+                description: event.description
+              }
+            }}
+            delay={0.1}
+            className="lg:col-span-2"
+          />
 
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">About This Event</h2>
-              <p className="text-gray-300 leading-relaxed text-lg">{event.description}</p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Event Details</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Date:</span>
-                  <span className="text-gray-300">{formatDate(event.eventDate)}</span>
-                </div>
-                {event.startTime && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Time:</span>
-                    <span className="text-gray-300">
-                      {formatTime(event.startTime)}
-                      {event.endTime && ` - ${formatTime(event.endTime)}`}
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Status:</span>
-                  <span className="text-gray-300">{event.status}</span>
-                </div>
-                {event.registrationDeadline && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Registration Deadline:</span>
-                    <span className="text-gray-300">{formatDate(event.registrationDeadline)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {event.tags && event.tags.length > 0 && (
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {event.tags.map((tag, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium transition-transform hover:scale-105"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {event.organizers && event.organizers.length > 0 && (
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Event Organizers</h3>
-                <div className="space-y-3">
-                  {event.organizers.map((organizerId, idx) => (
-                    <ProfileCard key={organizerId} userId={organizerId} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
+          <ContentSection
+            config={{
+              details: {
+                title: "Event Details",
+                items: [
+                  { label: "Date", value: formatDate(event.eventDate) },
+                  ...(event.startTime ? [{
+                    label: "Time",
+                    value: `${formatTime(event.startTime)}${event.endTime ? ` - ${formatTime(event.endTime)}` : ""}`
+                  }] : []),
+                  { label: "Status", value: event.status },
+                  ...(event.registrationDeadline ? [{
+                    label: "Registration Deadline",
+                    value: formatDate(event.registrationDeadline)
+                  }] : [])
+                ]
+              },
+              tags: event.tags && event.tags.length > 0 ? {
+                title: "Tags",
+                items: event.tags
+              } : undefined,
+              profiles: event.organizers && event.organizers.length > 0 ? {
+                title: "Event Organizers",
+                userIds: event.organizers
+              } : undefined
+            }}
+            delay={0.2}
+          />
         </div>
 
-        <RegistrationForm event={event} />
+        <div className="mt-12">
+          <RegistrationForm event={event} />
+        </div>
       </div>
     </div>
   );

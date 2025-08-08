@@ -14,6 +14,7 @@ import {
   Linkedin,
 } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 interface ApplicationCardProps {
   application: Application;
@@ -58,9 +59,11 @@ export default function ApplicationCard({
               {/* Avatar/Initials */}
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 {user?.profileImageUrl ? (
-                  <img
+                  <Image
                     src={user.profileImageUrl}
                     alt={user.publicName || application.name}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 ) : (

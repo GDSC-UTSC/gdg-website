@@ -6,7 +6,8 @@
       "Bash(npm install:*)",
       "Bash(mv:*)",
       "Bash(rm:*)",
-      "Bash(cd:*)"
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)"
     ],
     "deny": []
   }
