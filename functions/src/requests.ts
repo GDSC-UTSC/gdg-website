@@ -135,7 +135,6 @@ export const grantAdminByUserId = onRequest(async (request, response) => {
       });
     } else {
       await userRef.set({
-        id: userId,
         role: "admin",
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp()
@@ -200,7 +199,6 @@ export const grantSuperAdmin = onRequest(async (request, response) => {
       });
     } else {
       await userRef.set({
-        id: userId,
         role: "superadmin",
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp()
@@ -272,7 +270,6 @@ export const removeAdminByUserId = onRequest(async (request, response) => {
     } else {
       // Create user document if it doesn't exist
       await userRef.set({
-        id: userId,
         role: "member",
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp()
@@ -344,8 +341,6 @@ export const grantAdminByEmail = onRequest(async (request, response) => {
       });
     } else {
       await userRef.set({
-        id: userId,
-        email: email,
         role: "admin",
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp()
@@ -421,8 +416,6 @@ export const removeAdminByEmail = onRequest(async (request, response) => {
     } else {
       // Create user document if it doesn't exist
       await userRef.set({
-        id: userId,
-        email: email,
         role: "member",
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp()

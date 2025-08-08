@@ -16,8 +16,6 @@ export const beforecreated = beforeUserCreated(async (event) => {
   }
 
   const userDocument = {
-    id : user.uid,
-    email: user.email || "",
     publicName: user.displayName || "",
     updatedAt: Timestamp.now(),
     profileImageUrl: "",
