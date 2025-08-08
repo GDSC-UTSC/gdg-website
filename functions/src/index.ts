@@ -16,9 +16,11 @@ if (!admin.apps.length) {
 export {
   checkAdminClaims,
   getUsers,
-  grantAdmin,
+  grantAdminByEmail,
+  grantAdminByUserId,
   grantSuperAdmin,
-  removeAdmin,
+  removeAdminByEmail,
+  removeAdminByUserId,
   addUserToTeam
 } from "./requests";
 
