@@ -17,11 +17,14 @@ export {
   checkAdminClaims,
   getUsers,
   grantAdminByEmail,
-  grantAdminByUserId,
   grantSuperAdmin,
   removeAdminByEmail,
-  removeAdminByUserId,
-  addUserToTeam
+  getTeams,
+  createTeam,
+  deleteTeam,
+  addUserToTeam,
+  removeUserFromTeam,
+
 } from "./requests";
 
 // Trigger Functions (Event-driven)

@@ -3,6 +3,11 @@ import { FieldValue } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { onRequest } from "firebase-functions/v2/https";
 
+// Initialize Firebase Admin if not already initialized
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
 /**
  * Middleware to validate Firebase ID token and extract claims
  */
@@ -88,77 +93,7 @@ export const getUsers = onRequest(async (request, response) => {
   } catch (error) {
     logger.error("Error in getUsers:", error);
     if (error instanceof Error) {
-      if (error.message.includes("Admin privileges required")) {
-        response.status(403).json({ error: error.message });
-      } else if (error.message.includes("Token is required")) {
-        response.status(400).json({ error: error.message });
-      } else {
-        response.status(401).json({ error: "Failed to verify token" });
-      }
-    } else {
-      response.status(500).json({ error: "Internal server error" });
-    }
-  }
-});
-
-/**
- * Grant admin privileges to a user by userId
- */
-export const grantAdminByUserId = onRequest(async (request, response) => {
-  try {
-    if (request.method !== "POST") {
-      response.status(405).json({ error: "Method Not Allowed" });
-      return;
-    }
-
-    const { token, userId } = request.body;
-
-    if (!userId) {
-      response.status(400).json({ error: "User ID is required" });
-      return;
-    }
-
-    const decodedToken = await validateToken(token);
-    requireSuperAdmin(decodedToken);
-
-    // Set custom claims for admin access
-    await admin.auth().setCustomUserClaims(userId, { admin: true });
-
-    // Update user document in Firestore
-    const userRef = admin.firestore().collection("users").doc(userId);
-    const userDoc = await userRef.get();
-
-    if (userDoc.exists) {
-      await userRef.update({
-        role: "admin",
-        updatedAt: FieldValue.serverTimestamp()
-      });
-    } else {
-      await userRef.set({
-        role: "admin",
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp()
-      });
-    }
-
-    response.json({
-      success: true,
-      message: "Admin privileges granted successfully",
-      userId: userId
-    });
-  } catch (error) {
-    logger.error("Error in grantAdminByUserId:", error);
-
-    if (error instanceof Error) {
-      if (error.message.includes("Super admin privileges required")) {
-        response.status(403).json({ error: error.message });
-      } else if (error.message.includes("Token is required")) {
-        response.status(400).json({ error: error.message });
-      } else if (error.message.includes("auth/user-not-found")) {
-        response.status(404).json({ error: "User not found" });
-      } else {
-        response.status(401).json({ error: "Failed to verify token" });
-      }
+      response.status(400).json({ error: error.message });
     } else {
       response.status(500).json({ error: "Internal server error" });
     }
@@ -188,115 +123,23 @@ export const grantSuperAdmin = onRequest(async (request, response) => {
     // Set custom claims for super admin access
     await admin.auth().setCustomUserClaims(userId, { admin: true, superadmin: true });
 
-    // Update user document in Firestore
+    // Update user document in Firestore - will fail if user doesn't exist
     const userRef = admin.firestore().collection("users").doc(userId);
-    const userDoc = await userRef.get();
-
-    if (userDoc.exists) {
-      await userRef.update({
-        role: "superadmin",
-        updatedAt: FieldValue.serverTimestamp()
-      });
-    } else {
-      await userRef.set({
-        role: "superadmin",
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp()
-      });
-    }
+    await userRef.update({
+      role: "superadmin",
+      updatedAt: FieldValue.serverTimestamp(),
+    });
 
     response.json({
       success: true,
       message: "Super admin privileges granted successfully",
-      userId: userId
+      userId: userId,
     });
   } catch (error) {
     logger.error("Error in grantSuperAdmin:", error);
 
     if (error instanceof Error) {
-      if (error.message.includes("Super admin privileges required")) {
-        response.status(403).json({ error: error.message });
-      } else if (error.message.includes("Token is required")) {
-        response.status(400).json({ error: error.message });
-      } else if (error.message.includes("auth/user-not-found")) {
-        response.status(404).json({ error: "User not found" });
-      } else {
-        response.status(401).json({ error: "Failed to verify token" });
-      }
-    } else {
-      response.status(500).json({ error: "Internal server error" });
-    }
-  }
-});
-
-/**
- * Remove admin privileges from a user by userId
- */
-export const removeAdminByUserId = onRequest(async (request, response) => {
-  try {
-    if (request.method !== "POST") {
-      response.status(405).json({ error: "Method Not Allowed" });
-      return;
-    }
-
-    const { token, userId } = request.body;
-
-    if (!userId) {
-      response.status(400).json({ error: "User ID is required" });
-      return;
-    }
-
-    const decodedToken = await validateToken(token);
-    requireSuperAdmin(decodedToken);
-
-    // Get user document to check current role
-    const userRef = admin.firestore().collection("users").doc(userId);
-    const userDoc = await userRef.get();
-
-    if (userDoc.exists) {
-      const userData = userDoc.data();
-
-      // Prevent removing super admin privileges
-      if (userData?.role === "superadmin") {
-        response.status(403).json({ error: "Cannot remove super admin privileges" });
-        return;
-      }
-
-      // Update existing user document
-      await userRef.update({
-        role: "member",
-        updatedAt: FieldValue.serverTimestamp()
-      });
-    } else {
-      // Create user document if it doesn't exist
-      await userRef.set({
-        role: "member",
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp()
-      });
-    }
-
-    // Remove custom claims for admin access
-    await admin.auth().setCustomUserClaims(userId, { admin: false });
-
-    response.json({
-      success: true,
-      message: "Admin privileges removed successfully",
-      userId: userId
-    });
-  } catch (error) {
-    logger.error("Error in removeAdminByUserId:", error);
-
-    if (error instanceof Error) {
-      if (error.message.includes("Super admin privileges required")) {
-        response.status(403).json({ error: error.message });
-      } else if (error.message.includes("Token is required")) {
-        response.status(400).json({ error: error.message });
-      } else if (error.message.includes("auth/user-not-found")) {
-        response.status(404).json({ error: "User not found" });
-      } else {
-        response.status(401).json({ error: "Failed to verify token" });
-      }
+      response.status(400).json({ error: error.message });
     } else {
       response.status(500).json({ error: "Internal server error" });
     }
@@ -313,58 +156,47 @@ export const grantAdminByEmail = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, email } = request.body;
+    const { token, email, userId } = request.body;
 
-    if (!email) {
-      response.status(400).json({ error: "Email is required" });
+    if (!email && !userId) {
+      response.status(400).json({ error: "Either email or userId is required" });
       return;
     }
 
     const decodedToken = await validateToken(token);
     requireSuperAdmin(decodedToken);
 
-    // Get user by email from Firebase Auth
-    const userRecord = await admin.auth().getUserByEmail(email);
-    const userId = userRecord.uid;
+    // Get user by email or userId from Firebase Auth
+    let userRecord;
+    let finalUserId;
+    if (email) {
+      userRecord = await admin.auth().getUserByEmail(email);
+      finalUserId = userRecord.uid;
+    } else {
+      userRecord = await admin.auth().getUser(userId);
+      finalUserId = userId;
+    }
+
+    // Update user document in Firestore - will fail if user doesn't exist
+    const userRef = admin.firestore().collection("users").doc(finalUserId);
+    await userRef.update({
+      role: "admin",
+      updatedAt: FieldValue.serverTimestamp(),
+    });
 
     // Set custom claims for admin access
-    await admin.auth().setCustomUserClaims(userId, { admin: true });
-
-    // Update user document in Firestore
-    const userRef = admin.firestore().collection("users").doc(userId);
-    const userDoc = await userRef.get();
-
-    if (userDoc.exists) {
-      await userRef.update({
-        role: "admin",
-        updatedAt: FieldValue.serverTimestamp()
-      });
-    } else {
-      await userRef.set({
-        role: "admin",
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp()
-      });
-    }
+    await admin.auth().setCustomUserClaims(finalUserId, { admin: true });
 
     response.json({
       success: true,
       message: "Admin privileges granted successfully",
-      userId: userId
+      userId: finalUserId,
     });
   } catch (error) {
     logger.error("Error in grantAdminByEmail:", error);
 
     if (error instanceof Error) {
-      if (error.message.includes("Super admin privileges required")) {
-        response.status(403).json({ error: error.message });
-      } else if (error.message.includes("Token is required")) {
-        response.status(400).json({ error: error.message });
-      } else if (error.message.includes("auth/user-not-found")) {
-        response.status(404).json({ error: "User not found with that email" });
-      } else {
-        response.status(401).json({ error: "Failed to verify token" });
-      }
+      response.status(400).json({ error: error.message });
     } else {
       response.status(500).json({ error: "Internal server error" });
     }
@@ -381,68 +213,47 @@ export const removeAdminByEmail = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, email } = request.body;
+    const { token, email, userId } = request.body;
 
-    if (!email) {
-      response.status(400).json({ error: "Email is required" });
+    if (!email && !userId) {
+      response.status(400).json({ error: "Either email or userId is required" });
       return;
     }
 
     const decodedToken = await validateToken(token);
     requireSuperAdmin(decodedToken);
 
-    // Get user by email from Firebase Auth
-    const userRecord = await admin.auth().getUserByEmail(email);
-    const userId = userRecord.uid;
-
-    // Get user document to check current role
-    const userRef = admin.firestore().collection("users").doc(userId);
-    const userDoc = await userRef.get();
-
-    if (userDoc.exists) {
-      const userData = userDoc.data();
-
-      // Prevent removing super admin privileges
-      if (userData?.role === "superadmin") {
-        response.status(403).json({ error: "Cannot remove super admin privileges" });
-        return;
-      }
-
-      // Update existing user document
-      await userRef.update({
-        role: "member",
-        updatedAt: FieldValue.serverTimestamp()
-      });
+    // Get user by email or userId from Firebase Auth
+    let userRecord;
+    let finalUserId;
+    if (email) {
+      userRecord = await admin.auth().getUserByEmail(email);
+      finalUserId = userRecord.uid;
     } else {
-      // Create user document if it doesn't exist
-      await userRef.set({
-        role: "member",
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp()
-      });
+      userRecord = await admin.auth().getUser(userId);
+      finalUserId = userId;
     }
 
-    // Remove custom claims for admin access
-    await admin.auth().setCustomUserClaims(userId, { admin: false });
+    // Update user document - will fail if user doesn't exist
+    const userRef = admin.firestore().collection("users").doc(finalUserId);
+    await userRef.update({
+      role: "member",
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    // Remove all custom claims for admin access
+    await admin.auth().setCustomUserClaims(finalUserId, { admin: false, superadmin: false });
 
     response.json({
       success: true,
       message: "Admin privileges removed successfully",
-      userId: userId
+      userId: finalUserId,
     });
   } catch (error) {
     logger.error("Error in removeAdminByEmail:", error);
 
     if (error instanceof Error) {
-      if (error.message.includes("Super admin privileges required")) {
-        response.status(403).json({ error: error.message });
-      } else if (error.message.includes("Token is required")) {
-        response.status(400).json({ error: error.message });
-      } else if (error.message.includes("auth/user-not-found")) {
-        response.status(404).json({ error: "User not found with that email" });
-      } else {
-        response.status(401).json({ error: "Failed to verify token" });
-      }
+      response.status(400).json({ error: error.message });
     } else {
       response.status(500).json({ error: "Internal server error" });
     }
@@ -451,6 +262,100 @@ export const removeAdminByEmail = onRequest(async (request, response) => {
 
 /**
  * Add a user to a team
+ */
+/**
+ * Get all teams (secure read operation)
+ */
+export const getTeams = onRequest(async (request, response) => {
+  try {
+    if (request.method !== "POST") {
+      response.status(405).json({ error: "Method Not Allowed" });
+      return;
+    }
+
+    const { token } = request.body;
+
+    if (!token) {
+      response.status(400).json({ error: "Token is required" });
+      return;
+    }
+
+    const decodedToken = await validateToken(token);
+    requireAdmin(decodedToken);
+
+    // Get all teams from Firestore
+    const teamsSnapshot = await admin.firestore().collection("teams").orderBy("createdAt", "desc").get();
+
+    // Convert to plain objects (no class methods)
+    const teams = teamsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    response.json({
+      success: true,
+      teams: teams,
+    });
+  } catch (error) {
+    logger.error("Error in getTeams:", error);
+
+    if (error instanceof Error) {
+      response.status(400).json({ error: error.message });
+    } else {
+      response.status(500).json({ error: "Internal server error" });
+    }
+  }
+});
+
+/**
+ * Create a new team
+ */
+export const createTeam = onRequest(async (request, response) => {
+  try {
+    if (request.method !== "POST") {
+      response.status(405).json({ error: "Method Not Allowed" });
+      return;
+    }
+
+    const { token, name, description } = request.body;
+
+    if (!name || !description) {
+      response.status(400).json({ error: "Team name and description are required" });
+      return;
+    }
+
+    const decodedToken = await validateToken(token);
+    requireAdmin(decodedToken);
+
+    // Create team document
+    const teamData = {
+      name: name.trim(),
+      description: description.trim(),
+      members: [],
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+
+    const docRef = await admin.firestore().collection("teams").add(teamData);
+
+    response.json({
+      success: true,
+      message: "Team created successfully",
+      teamId: docRef.id,
+    });
+  } catch (error) {
+    logger.error("Error in createTeam:", error);
+
+    if (error instanceof Error) {
+      response.status(400).json({ error: error.message });
+    } else {
+      response.status(500).json({ error: "Internal server error" });
+    }
+  }
+});
+
+/**
+ * Add user to team
  */
 export const addUserToTeam = onRequest(async (request, response) => {
   try {
@@ -463,7 +368,7 @@ export const addUserToTeam = onRequest(async (request, response) => {
 
     if (!userId || !teamName || !position) {
       response.status(400).json({
-        error: "User ID, team name, and position are required"
+        error: "User ID, team name, and position are required",
       });
       return;
     }
@@ -472,10 +377,7 @@ export const addUserToTeam = onRequest(async (request, response) => {
     requireAdmin(decodedToken);
 
     // Find the team by name
-    const teamsQuery = await admin.firestore()
-      .collection("teams")
-      .where("name", "==", teamName)
-      .get();
+    const teamsQuery = await admin.firestore().collection("teams").where("name", "==", teamName).get();
 
     if (teamsQuery.empty) {
       response.status(404).json({ error: "Team not found" });
@@ -485,43 +387,143 @@ export const addUserToTeam = onRequest(async (request, response) => {
     const teamDoc = teamsQuery.docs[0];
     const teamRef = admin.firestore().collection("teams").doc(teamDoc.id);
 
-    // Check if user is already a member
+    // Add or update member (following Team class logic)
     const teamData = teamDoc.data();
-    const existingMember = teamData.members?.find((member: any) => member.userId === userId);
+    const members = teamData.members || [];
+    const existingMemberIndex = members.findIndex((member: any) => member.userId === userId);
 
-    if (existingMember) {
-      response.status(400).json({ error: "User is already a member of this team" });
-      return;
+    if (existingMemberIndex >= 0) {
+      // Update existing member
+      members[existingMemberIndex] = { userId, position };
+    } else {
+      // Add new member
+      members.push({ userId, position });
     }
 
-    // Add user to team members array
-    const newMember = {
-      userId,
-      position,
-      addedAt: new Date().toISOString(),
-    };
-
     await teamRef.update({
-      members: FieldValue.arrayUnion(newMember),
+      members: members,
       updatedAt: FieldValue.serverTimestamp(),
     });
 
     response.json({
       success: true,
-      message: "User added to team successfully",
-      member: newMember,
+      message: existingMemberIndex >= 0 ? "User position updated successfully" : "User added to team successfully",
+      member: { userId, position },
     });
   } catch (error) {
     logger.error("Error in addUserToTeam:", error);
 
     if (error instanceof Error) {
-      if (error.message.includes("Admin privileges required")) {
-        response.status(403).json({ error: error.message });
-      } else if (error.message.includes("Token is required")) {
         response.status(400).json({ error: error.message });
-      } else {
-        response.status(401).json({ error: "Failed to verify token" });
-      }
+
+    } else {
+      response.status(500).json({ error: "Internal server error" });
+    }
+  }
+});
+
+/**
+ * Remove user from team
+ */
+export const removeUserFromTeam = onRequest(async (request, response) => {
+  try {
+    if (request.method !== "POST") {
+      response.status(405).json({ error: "Method Not Allowed" });
+      return;
+    }
+
+    const { token, teamId, userId } = request.body;
+
+    if (!teamId || !userId) {
+      response.status(400).json({ error: "Team ID and User ID are required" });
+      return;
+    }
+
+    const decodedToken = await validateToken(token);
+    requireAdmin(decodedToken);
+
+    // Get team document
+    const teamRef = admin.firestore().collection("teams").doc(teamId);
+    const teamDoc = await teamRef.get();
+
+    if (!teamDoc.exists) {
+      response.status(404).json({ error: "Team not found" });
+      return;
+    }
+
+    const teamData = teamDoc.data();
+    const currentMembers = teamData?.members || [];
+
+    // Find and remove the user
+    const updatedMembers = currentMembers.filter((member: any) => member.userId !== userId);
+
+    if (currentMembers.length === updatedMembers.length) {
+      response.status(404).json({ error: "User not found in this team" });
+      return;
+    }
+
+    // Update team with removed member
+    await teamRef.update({
+      members: updatedMembers,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    response.json({
+      success: true,
+      message: "User removed from team successfully",
+    });
+  } catch (error) {
+    logger.error("Error in removeUserFromTeam:", error);
+
+    if (error instanceof Error) {
+      response.status(400).json({ error: error.message });
+    } else {
+      response.status(500).json({ error: "Internal server error" });
+    }
+  }
+});
+
+/**
+ * Delete a team
+ */
+export const deleteTeam = onRequest(async (request, response) => {
+  try {
+    if (request.method !== "POST") {
+      response.status(405).json({ error: "Method Not Allowed" });
+      return;
+    }
+
+    const { token, teamId } = request.body;
+
+    if (!teamId) {
+      response.status(400).json({ error: "Team ID is required" });
+      return;
+    }
+
+    const decodedToken = await validateToken(token);
+    requireAdmin(decodedToken);
+
+    // Check if team exists
+    const teamRef = admin.firestore().collection("teams").doc(teamId);
+    const teamDoc = await teamRef.get();
+
+    if (!teamDoc.exists) {
+      response.status(404).json({ error: "Team not found" });
+      return;
+    }
+
+    // Delete the team
+    await teamRef.delete();
+
+    response.json({
+      success: true,
+      message: "Team deleted successfully",
+    });
+  } catch (error) {
+    logger.error("Error in deleteTeam:", error);
+
+    if (error instanceof Error) {
+      response.status(400).json({ error: error.message });
     } else {
       response.status(500).json({ error: "Internal server error" });
     }

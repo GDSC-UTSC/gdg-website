@@ -1,16 +1,40 @@
-import { Team } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
 import { StaggerContainer, FadeInOnScroll } from "@/components/animations";
 import PageTitle from "@/components/ui/PageTitle";
 import TeamCard from "@/components/team/TeamCard";
 
+// Plain team interface (no dangerous methods)
+interface PlainTeam {
+  id: string;
+  name: string;
+  description: string;
+  members: Array<{ userId: string; position: string; addedAt?: string; }>;
+  createdAt: any;
+  updatedAt: any;
+}
+
 export default async function TeamPageContent() {
-  let teams: Team[] = [];
+  let teams: PlainTeam[] = [];
   let users: UserData[] = [];
 
   try {
-    // First load all teams
-    teams = await Team.readAll({ server: true, public: true });
+    // Import server-side Firebase functions
+    const { getDocuments } = await import("@/lib/firebase/server/firestore");
+    
+    // First load all teams using server-side Firebase (safe, no class methods)
+    const serverTeams = await getDocuments("teams", {
+      toFirestore: () => ({}),
+      fromFirestore: (snapshot: any) => ({
+        id: snapshot.id,
+        name: snapshot.data().name,
+        description: snapshot.data().description,
+        members: snapshot.data().members || [],
+        createdAt: snapshot.data().createdAt,
+        updatedAt: snapshot.data().updatedAt,
+      }),
+    }, { public: true });
+    
+    teams = serverTeams;
     
     // Collect all unique user IDs from all teams
     const allMemberIds = new Set<string>();
@@ -42,7 +66,7 @@ export default async function TeamPageContent() {
 
       <div className="grid gap-12 w-full">
         {teams.map((team, teamIndex) => {
-          const sortedMembers = team.getSortedMembers();
+          const sortedMembers = team.members;
 
           return (
             <FadeInOnScroll key={team.id} delay={teamIndex * 0.2} once={false}>

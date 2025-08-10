@@ -2,6 +2,7 @@
 
 import { USER_ROLES, UserData } from "@/app/types/userdata";
 import { SuperAdmin } from "@/app/types/user/superadmin";
+import { Admin } from "@/app/types/user/admin";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -128,24 +129,7 @@ export default function SuperAdminUsersPage() {
       console.log("Promoting user:", targetUser.id);
       
       const token = await user.getIdToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/grantAdminByUserId`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          token, 
-          userId: targetUser.id 
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API Error:", response.status, errorText);
-        throw new Error(`Failed to promote user: ${response.status} ${errorText}`);
-      }
-      
-      const result = await response.json();
+      const result = await Admin.grantAdminByEmail(targetUser.id, token, true);
       console.log("Promotion successful:", result);
 
       await loadAllUsers(); // Refresh the users list
@@ -177,24 +161,7 @@ export default function SuperAdminUsersPage() {
       console.log("Removing admin from user:", targetUser.id);
       
       const token = await user.getIdToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/removeAdminByUserId`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          token, 
-          userId: targetUser.id 
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API Error:", response.status, errorText);
-        throw new Error(`Failed to remove admin privileges: ${response.status} ${errorText}`);
-      }
-      
-      const result = await response.json();
+      const result = await Admin.removeAdminByEmail(targetUser.id, token, true);
       console.log("Admin removal successful:", result);
 
       await loadAllUsers(); // Refresh the users list

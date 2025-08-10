@@ -4,8 +4,13 @@ import * as logger from "firebase-functions/logger";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { beforeUserCreated, HttpsError } from "firebase-functions/v2/identity";
 
+// Initialize Firebase Admin if not already initialized
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
 /**
- * Triggered before a new user is created in Firebase Authentication.
+ * Triggers when a new user is created in Firebase Authentication.
  * Creates a corresponding user document in Firestore.
  */
 export const beforecreated = beforeUserCreated(async (event) => {
@@ -26,21 +31,19 @@ export const beforecreated = beforeUserCreated(async (event) => {
   };
 
   try {
-    // Write the new document to the 'users' collection using the user's UID as the document ID.
     await admin.firestore().collection("users").doc(user.uid).set(userDocument);
-
     logger.info(`Successfully created user document for UID: ${user.uid}`);
   } catch (error) {
     logger.error(`Error creating user document for UID: ${user.uid}`, {
       uid: user.uid,
-      error: error, // Log the full error object for better debugging
+      error: error,
     });
   }
 });
 
 /**
- * Triggered when an application document is written to positions/{positionId}/applications/{applicationId}.
- * Updates the user's associations.applications array.
+ * Triggers when an application document is written.
+ * Updates the user's associations to include the position ID.
  */
 export const createApplication = onDocumentWritten(
   "positions/{positionId}/applications/{applicationId}",
@@ -63,8 +66,8 @@ export const createApplication = onDocumentWritten(
 );
 
 /**
- * Triggered when a registration document is written to events/{eventId}/registrations/{registrationId}.
- * Updates the user's associations.registrations array.
+ * Triggers when a registration document is written.
+ * Updates the user's associations to include the event ID.
  */
 export const createRegistration = onDocumentWritten(
   "events/{eventId}/registrations/{registrationId}",
@@ -87,8 +90,8 @@ export const createRegistration = onDocumentWritten(
 );
 
 /**
- * Triggered when a collaboration document is written to projects/{projectId}/collaborations/{collaborationId}.
- * Updates the user's associations.collaborations array.
+ * Triggers when a collaboration document is written.
+ * Updates the user's associations to include the project ID.
  */
 export const createCollaboration = onDocumentWritten(
   "projects/{projectId}/collaborations/{collaborationId}",

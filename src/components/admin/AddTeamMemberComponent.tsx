@@ -1,7 +1,16 @@
 "use client";
 
-import { Team } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
+
+// Plain team interface (no dangerous methods)
+interface PlainTeam {
+  id: string;
+  name: string;
+  description: string;
+  members: Array<{ userId: string; position: string; addedAt?: string; }>;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -15,7 +24,7 @@ import { toast } from "sonner";
 export default function AddTeamMemberComponent() {
   const { user } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<PlainTeam[]>([]);
   const [teamsLoaded, setTeamsLoaded] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -25,8 +34,23 @@ export default function AddTeamMemberComponent() {
     if (teamsLoaded) return;
 
     try {
-      const teamsData = await Team.readAll();
-      setTeams(teamsData);
+      if (!user) return;
+      
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/getTeams`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch teams');
+      }
+
+      const result = await response.json();
+      setTeams(result.teams);
       setTeamsLoaded(true);
     } catch (error) {
       console.error("Error loading teams:", error);

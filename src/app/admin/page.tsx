@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { Calendar, Crown, FolderOpen, Shield, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function AdminPage() {
   const { user, loading } = useAuth();
@@ -19,32 +20,9 @@ export default function AdminPage() {
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const [adminEmail, setAdminEmail] = useState("");
   const [isGrantingAdmin, setIsGrantingAdmin] = useState(false);
-  const [grantAdminMessage, setGrantAdminMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [removeAdminEmail, setRemoveAdminEmail] = useState("");
   const [isRemovingAdmin, setIsRemovingAdmin] = useState(false);
-  const [removeAdminMessage, setRemoveAdminMessage] = useState<{ type: "success" | "error"; text: string } | null>(
-    null
-  );
 
-  // Auto-hide grant admin message after 5 seconds
-  useEffect(() => {
-    if (grantAdminMessage) {
-      const timer = setTimeout(() => {
-        setGrantAdminMessage(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [grantAdminMessage]);
-
-  // Auto-hide remove admin message after 5 seconds
-  useEffect(() => {
-    if (removeAdminMessage) {
-      const timer = setTimeout(() => {
-        setRemoveAdminMessage(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [removeAdminMessage]);
 
 
 
@@ -76,23 +54,20 @@ export default function AdminPage() {
     if (!adminEmail.trim() || !userData?.isSuperAdmin) return;
 
     setIsGrantingAdmin(true);
-    setGrantAdminMessage(null);
 
     try {
       if (!user) {
-        setGrantAdminMessage({ type: "error", text: "User not authenticated" });
+        toast.error("User not authenticated");
         return;
       }
 
       const token = await user.getIdToken();
       const result = await Admin.grantAdminByEmail(adminEmail, token);
-      setGrantAdminMessage({ type: "success", text: result.message });
+      toast.success(result.message);
       setAdminEmail("");
     } catch (error) {
-      setGrantAdminMessage({
-        type: "error",
-        text: error instanceof Error ? error.message : "Failed to grant admin privileges",
-      });
+      const errorMessage = error instanceof Error ? error.message : "Failed to grant admin privileges";
+      toast.error(errorMessage);
       console.error("Error granting admin privileges:", error);
     } finally {
       setIsGrantingAdmin(false);
@@ -104,23 +79,20 @@ export default function AdminPage() {
     if (!removeAdminEmail.trim() || !userData?.isSuperAdmin) return;
 
     setIsRemovingAdmin(true);
-    setRemoveAdminMessage(null);
 
     try {
       if (!user) {
-        setRemoveAdminMessage({ type: "error", text: "User not authenticated" });
+        toast.error("User not authenticated");
         return;
       }
 
       const token = await user.getIdToken();
       const result = await Admin.removeAdminByEmail(removeAdminEmail, token);
-      setRemoveAdminMessage({ type: "success", text: result.message });
+      toast.success(result.message);
       setRemoveAdminEmail("");
     } catch (error) {
-      setRemoveAdminMessage({
-        type: "error",
-        text: error instanceof Error ? error.message : "Failed to remove admin privileges",
-      });
+      const errorMessage = error instanceof Error ? error.message : "Failed to remove admin privileges";
+      toast.error(errorMessage);
       console.error("Error removing admin privileges:", error);
     } finally {
       setIsRemovingAdmin(false);
@@ -288,17 +260,6 @@ export default function AdminPage() {
                     />
                   </div>
 
-                  {grantAdminMessage && (
-                    <div
-                      className={`p-3 rounded-lg text-sm ${
-                        grantAdminMessage.type === "success"
-                          ? "bg-green-500/10 text-green-500 border border-green-500/20"
-                          : "bg-red-500/10 text-red-500 border border-red-500/20"
-                      }`}
-                    >
-                      {grantAdminMessage.text}
-                    </div>
-                  )}
 
                   <Button type="submit" disabled={isGrantingAdmin || !adminEmail.trim()} className="w-full sm:w-auto">
                     {isGrantingAdmin ? "Granting Admin..." : "Grant Admin Privileges"}
@@ -334,17 +295,6 @@ export default function AdminPage() {
                     />
                   </div>
 
-                  {removeAdminMessage && (
-                    <div
-                      className={`p-3 rounded-lg text-sm ${
-                        removeAdminMessage.type === "success"
-                          ? "bg-green-500/10 text-green-500 border border-green-500/20"
-                          : "bg-red-500/10 text-red-500 border border-red-500/20"
-                      }`}
-                    >
-                      {removeAdminMessage.text}
-                    </div>
-                  )}
 
                   <Button
                     type="submit"
