@@ -9,17 +9,18 @@ export interface AdminError {
 }
 
 export class Admin {
-  /**
-   * Grant admin privileges to a user by email
-   */
-  static async grantAdmin(email: string): Promise<AdminResponse> {
+
+  static async grantAdminByEmail(emailOrUserId: string, token: string, isUserId = false): Promise<AdminResponse> {
     try {
-      const response = await fetch('/api/admin/grantAdmin', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/grantAdminByEmail`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ 
+          [isUserId ? 'userId' : 'email']: emailOrUserId.trim(),
+        }),
       });
 
       const data = await response.json();
@@ -34,17 +35,18 @@ export class Admin {
     }
   }
 
-  /**
-   * Remove admin privileges from a user by email
-   */
-  static async removeAdmin(email: string): Promise<AdminResponse> {
+
+  static async removeAdminByEmail(emailOrUserId: string, token: string, isUserId = false): Promise<AdminResponse> {
     try {
-      const response = await fetch('/api/admin/removeAdmin', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/removeAdminByEmail`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ 
+          [isUserId ? 'userId' : 'email']: emailOrUserId.trim(),
+        }),
       });
 
       const data = await response.json();

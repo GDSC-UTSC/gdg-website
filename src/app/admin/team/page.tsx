@@ -1,94 +1,126 @@
 "use client";
 
-import { Team } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
 import AddTeamMemberComponent from "@/components/admin/AddTeamMemberComponent";
 import CreateTeamComponent from "@/components/admin/CreateTeamComponent";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+// Plain team data interfaces (no dangerous methods)
+interface TeamMember {
+  userId: string;
+  position: string;
+  addedAt?: string;
+}
+
+interface PlainTeam {
+  id: string;
+  name: string;
+  description: string;
+  members: TeamMember[];
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
 export default function AdminTeamPage() {
-  const [teams, setTeams] = useState<Team[]>([]);
+  const { user } = useAuth();
+  const [teams, setTeams] = useState<PlainTeam[]>([]);
   const [memberUsers, setMemberUsers] = useState<Map<string, UserData>>(new Map());
+
+  // Load teams function
+  const loadTeams = async () => {
+    try {
+      if (!user) return;
+
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/getTeams`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch teams");
+      }
+
+      const result = await response.json();
+      const teamsData = result.teams;
+      setTeams(teamsData);
+
+      // Collect all unique user IDs from all teams
+      const allMemberIds = new Set<string>();
+      teamsData.forEach((team: PlainTeam) => {
+        team.members.forEach((member) => {
+          allMemberIds.add(member.userId);
+        });
+      });
+
+      // Load only the users who are team members
+      const userPromises = Array.from(allMemberIds).map(async (userId) => {
+        try {
+          const userData = await UserData.read(userId);
+          return { userId, user: userData };
+        } catch (error) {
+          console.error(`Error loading user ${userId}:`, error);
+          return { userId, user: null };
+        }
+      });
+
+      const userResults = await Promise.all(userPromises);
+      const usersMap = new Map<string, UserData>();
+      userResults.forEach(({ userId, user: userData }) => {
+        if (userData) {
+          usersMap.set(userId, userData);
+        }
+      });
+
+      setMemberUsers(usersMap);
+    } catch (error) {
+      console.error("Error loading teams:", error);
+      toast.error("Failed to load teams");
+    }
+  };
 
   // Load teams and then load individual team member users
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const teamsData = await Team.readAll();
-        setTeams(teamsData);
-        
-        // Collect all unique user IDs from all teams
-        const allMemberIds = new Set<string>();
-        teamsData.forEach(team => {
-          team.members.forEach(member => {
-            allMemberIds.add(member.userId);
-          });
-        });
-        
-        // Load only the users who are team members
-        const userPromises = Array.from(allMemberIds).map(async (userId) => {
-          try {
-            const user = await UserData.read(userId);
-            return { userId, user };
-          } catch (error) {
-            console.error(`Error loading user ${userId}:`, error);
-            return { userId, user: null };
-          }
-        });
-        
-        const userResults = await Promise.all(userPromises);
-        const usersMap = new Map<string, UserData>();
-        userResults.forEach(({ userId, user }) => {
-          if (user) {
-            usersMap.set(userId, user);
-          }
-        });
-        
-        setMemberUsers(usersMap);
-      } catch (error) {
-        console.error("Error loading data:", error);
-      }
-    };
-
-    loadData();
-  }, []);
-
+    loadTeams();
+  }, [user]);
 
   const handleRemoveMember = async (teamId: string, userId: string) => {
     try {
-      const team = teams.find((t) => t.id === teamId);
-      if (!team) return;
+      if (!user) return;
 
       if (confirm("Are you sure you want to remove this team member?")) {
-        team.removeMember(userId);
-        await team.update();
+        const token = await user.getIdToken();
+        const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/removeUserFromTeam`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ teamId, userId }),
+        });
 
-        // Refresh teams list and update member users if needed
-        const updatedTeams = await Team.readAll();
-        setTeams(updatedTeams);
-        
-        // Remove the user from memberUsers map if they're no longer in any team
-        const allCurrentMemberIds = new Set<string>();
-        updatedTeams.forEach(team => {
-          team.members.forEach(member => {
-            allCurrentMemberIds.add(member.userId);
-          });
-        });
-        
-        setMemberUsers(prev => {
-          const updated = new Map(prev);
-          for (const [id] of prev) {
-            if (!allCurrentMemberIds.has(id)) {
-              updated.delete(id);
-            }
-          }
-          return updated;
-        });
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Failed to remove team member");
+        }
+
+        // Update local state to remove the member
+        setTeams((prevTeams) =>
+          prevTeams.map((team) =>
+            team.id === teamId ? { ...team, members: team.members.filter((member) => member.userId !== userId) } : team
+          )
+        );
+
         toast.success("Team member removed successfully");
       }
     } catch (error) {
@@ -99,15 +131,26 @@ export default function AdminTeamPage() {
 
   const handleDeleteTeam = async (teamId: string) => {
     try {
-      const team = teams.find((t) => t.id === teamId);
-      if (!team) return;
+      if (!user) return;
 
       if (confirm("Are you sure you want to delete this entire team? This action cannot be undone.")) {
-        await team.delete();
+        const token = await user.getIdToken();
+        const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/deleteTeam`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ teamId }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Failed to delete team");
+        }
 
         // Refresh teams list
-        const updatedTeams = await Team.readAll();
-        setTeams(updatedTeams);
+        setTeams((prevTeams) => prevTeams.filter( (team) => team.id !== teamId ));
         toast.success("Team deleted successfully");
       }
     } catch (error) {
@@ -123,14 +166,44 @@ export default function AdminTeamPage() {
           <PageTitle title="Team Management" description="Manage teams and their members" />
 
           <div className="flex gap-2">
-            <CreateTeamComponent />
-            <AddTeamMemberComponent />
+            <CreateTeamComponent 
+              onTeamCreated={(newTeam) => {
+                setTeams(prevTeams => [newTeam, ...prevTeams]);
+              }}
+            />
+            <AddTeamMemberComponent
+              onMemberAdded={(teamName, newMember, userData) => {
+                // Update teams state - handle both new members and position updates
+                setTeams(prevTeams =>
+                  prevTeams.map(team => {
+                    if (team.name === teamName) {
+                      const existingMemberIndex = team.members.findIndex(m => m.userId === newMember.userId);
+                      if (existingMemberIndex >= 0) {
+                        // Update existing member's position
+                        const updatedMembers = [...team.members];
+                        updatedMembers[existingMemberIndex] = newMember;
+                        return { ...team, members: updatedMembers };
+                      } else {
+                        // Add new member
+                        return { ...team, members: [...team.members, newMember] };
+                      }
+                    }
+                    return team;
+                  })
+                );
+
+                // Update memberUsers state
+                setMemberUsers(prevUsers =>
+                  new Map(prevUsers.set(newMember.userId, userData))
+                );
+              }}
+            />
           </div>
         </div>
 
         <div className="grid gap-6">
           {teams.map((team) => {
-            const sortedMembers = team.getSortedMembers();
+            const sortedMembers = team.members;
 
             return (
               <Card key={team.id} className="p-6">

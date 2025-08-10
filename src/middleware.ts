@@ -19,8 +19,9 @@ export async function middleware(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({}),
       });
 
       const data = await response.json();
@@ -36,7 +37,7 @@ export async function middleware(request: NextRequest) {
     }
   }
   // Handle admin routes
-  else if (request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/api/admin")) {
+  else if (request.nextUrl.pathname.startsWith("/admin")) {
     try {
       const token = await user.getIdToken();
 
@@ -44,8 +45,9 @@ export async function middleware(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({}),
       });
 
       const data = await response.json();

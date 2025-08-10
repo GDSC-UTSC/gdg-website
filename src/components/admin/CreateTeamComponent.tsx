@@ -1,17 +1,37 @@
 "use client";
 
-import { Team } from "@/app/types/team";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Timestamp } from "firebase/firestore";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
-export default function CreateTeamComponent() {
+// Props interface for callback
+interface TeamMember {
+  userId: string;
+  position: string;
+  addedAt?: string;
+}
+
+interface PlainTeam {
+  id: string;
+  name: string;
+  description: string;
+  members: TeamMember[];
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+interface CreateTeamComponentProps {
+  onTeamCreated?: (newTeam: PlainTeam) => void;
+}
+
+export default function CreateTeamComponent({ onTeamCreated }: CreateTeamComponentProps) {
+  const { user } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -22,25 +42,51 @@ export default function CreateTeamComponent() {
     e.preventDefault();
 
     try {
-      const team = new Team({
-        id: crypto.randomUUID(),
-        name: formData.name,
-        description: formData.description,
-        members: [],
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
+      if (!user) {
+        toast.error("User not authenticated");
+        return;
+      }
+
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/createTeam`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description
+        }),
       });
 
-      await team.create();
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create team');
+      }
+
+      const result = await response.json();
 
       setDialogOpen(false);
       setFormData({ name: "", description: "" });
-      toast.success("Team created successfully");
-      
-      window.location.reload();
+      toast.success(result.message);
+
+      // Update local state instead of reloading
+      if (onTeamCreated) {
+        const newTeam: PlainTeam = {
+          id: result.teamId,
+          name: formData.name,
+          description: formData.description,
+          members: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        onTeamCreated(newTeam);
+      }
     } catch (error) {
       console.error("Error creating team:", error);
-      toast.error("Failed to create team");
+      const errorMessage = error instanceof Error ? error.message : "Failed to create team";
+      toast.error(errorMessage);
     }
   };
 

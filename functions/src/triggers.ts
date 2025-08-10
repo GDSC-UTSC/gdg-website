@@ -19,7 +19,7 @@ export const beforecreated = beforeUserCreated(async (event) => {
     logger.error("No user data found");
     throw new HttpsError("invalid-argument", "User could not be created");
   }
-  
+
   const userDocument = {
     publicName: user.displayName || "",
     updatedAt: Timestamp.now(),

@@ -2,6 +2,7 @@
 
 import { USER_ROLES, UserData } from "@/app/types/userdata";
 import { SuperAdmin } from "@/app/types/user/superadmin";
+import { Admin } from "@/app/types/user/admin";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import UserSearch from "@/components/admin/UserSearch";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { Crown, Shield, ShieldCheck, Users } from "lucide-react";
@@ -28,7 +30,7 @@ export default function SuperAdminUsersPage() {
   const [filteredUsers, setFilteredUsers] = useState<UserData[]>([]);
   const [promotingUserId, setPromotingUserId] = useState<string | null>(null);
   const [demotingUserId, setDemotingUserId] = useState<string | null>(null);
-  const [superAdminEmail, setSuperAdminEmail] = useState("");
+  const [selectedUserForSuperAdmin, setSelectedUserForSuperAdmin] = useState<UserData | null>(null);
   const [isGrantingSuperAdmin, setIsGrantingSuperAdmin] = useState(false);
   const [grantSuperAdminMessage, setGrantSuperAdminMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -83,7 +85,25 @@ export default function SuperAdminUsersPage() {
 
   const loadAllUsers = async () => {
     try {
-      const users = await UserData.readAll();
+      if (!user) return;
+      
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/getUsers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+
+      const usersData = await response.json();
+      // Convert raw data to UserData objects
+      const users = usersData.map((userData: any) => new UserData(userData));
       setAllUsers(users);
     } catch (error) {
       console.error("Error loading users:", error);
@@ -102,10 +122,16 @@ export default function SuperAdminUsersPage() {
         return;
       }
 
-      // For direct user promotion, we still use the UserData method since we have the user object
-      // This is different from email-based promotion which goes through the API
-      targetUser.role = USER_ROLES.ADMIN;
-      await targetUser.update();
+      if (!user) {
+        console.error("No authenticated user");
+        return;
+      }
+      
+      console.log("Promoting user:", targetUser.id);
+      
+      const token = await user.getIdToken();
+      const result = await Admin.grantAdminByEmail(targetUser.id, token, true);
+      console.log("Promotion successful:", result);
 
       await loadAllUsers(); // Refresh the users list
     } catch (error) {
@@ -128,8 +154,16 @@ export default function SuperAdminUsersPage() {
         return;
       }
 
-      targetUser.role = USER_ROLES.MEMBER;
-      await targetUser.update();
+      if (!user) {
+        console.error("No authenticated user");
+        return;
+      }
+      
+      console.log("Removing admin from user:", targetUser.id);
+      
+      const token = await user.getIdToken();
+      const result = await Admin.removeAdminByEmail(targetUser.id, token, true);
+      console.log("Admin removal successful:", result);
 
       await loadAllUsers(); // Refresh the users list
     } catch (error) {
@@ -139,17 +173,24 @@ export default function SuperAdminUsersPage() {
     }
   };
 
-  const grantSuperAdminByEmail = async (e: React.FormEvent) => {
+  const grantSuperAdminToUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!superAdminEmail.trim() || !userData?.isSuperAdmin) return;
+    if (!selectedUserForSuperAdmin || !userData?.isSuperAdmin) return;
 
     setIsGrantingSuperAdmin(true);
     setGrantSuperAdminMessage(null);
 
     try {
-      const result = await SuperAdmin.grantSuperAdmin(superAdminEmail);
+      if (!user) {
+        setGrantSuperAdminMessage({ type: "error", text: "User not authenticated" });
+        return;
+      }
+      
+      const token = await user.getIdToken();
+      const result = await SuperAdmin.grantSuperAdmin(selectedUserForSuperAdmin.id, token);
       setGrantSuperAdminMessage({ type: "success", text: result.message });
-      setSuperAdminEmail("");
+      setSelectedUserForSuperAdmin(null);
+      await loadAllUsers(); // Refresh the users list
     } catch (error) {
       setGrantSuperAdminMessage({ 
         type: "error", 
@@ -246,23 +287,23 @@ export default function SuperAdminUsersPage() {
                 Grant Super Admin
               </CardTitle>
               <CardDescription>
-                Grant super admin privileges to a user by email address
+                Grant super admin privileges to a user
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={grantSuperAdminByEmail} className="space-y-4">
+              <form onSubmit={grantSuperAdminToUser} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="superAdminEmail">Email Address</Label>
-                  <Input
-                    id="superAdminEmail"
-                    type="email"
-                    placeholder="Enter user's email address"
-                    value={superAdminEmail}
-                    onChange={(e) => setSuperAdminEmail(e.target.value)}
-                    required
-                    disabled={isGrantingSuperAdmin}
-                    className="focus-visible:ring-0 focus-visible:ring-offset-0"
+                  <Label htmlFor="superAdminUser">Select User</Label>
+                  <UserSearch
+                    onUserSelect={setSelectedUserForSuperAdmin}
+                    placeholder="Search for a user to grant super admin privileges"
+                    value={selectedUserForSuperAdmin?.publicName || ""}
                   />
+                  {selectedUserForSuperAdmin && (
+                    <div className="text-sm text-muted-foreground">
+                      Selected: {selectedUserForSuperAdmin.publicName || "Unknown User"} (Current role: {selectedUserForSuperAdmin.role})
+                    </div>
+                  )}
                 </div>
                 
                 {grantSuperAdminMessage && (
@@ -279,7 +320,7 @@ export default function SuperAdminUsersPage() {
                 
                 <Button 
                   type="submit" 
-                  disabled={isGrantingSuperAdmin || !superAdminEmail.trim()}
+                  disabled={isGrantingSuperAdmin || !selectedUserForSuperAdmin}
                   className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700"
                 >
                   {isGrantingSuperAdmin ? "Granting Super Admin..." : "Grant Super Admin Privileges"}
