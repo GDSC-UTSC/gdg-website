@@ -10,8 +10,9 @@ export class SuperAdmin extends Admin {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ userId: userId.trim(), token }),
+        body: JSON.stringify({ userId: userId.trim() }),
       });
 
       const data = await response.json();

@@ -9,12 +9,16 @@ if (!admin.apps.length) {
 }
 
 /**
- * Middleware to validate Firebase ID token and extract claims
+ * Middleware to validate Firebase ID token and extract claims from Authorization header
  */
-async function validateToken(token: string) {
-  if (!token) {
-    throw new Error("Token is required");
+async function validateToken(request: any) {
+  const authHeader = request.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new Error("Authorization header with Bearer token is required");
   }
+  
+  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
   return await admin.auth().verifyIdToken(token);
 }
 
@@ -46,8 +50,7 @@ export const checkAdminClaims = onRequest(async (request, response) => {
       return;
     }
 
-    const { token } = request.body;
-    const decodedToken = await validateToken(token);
+    const decodedToken = await validateToken(request);
 
     response.json({
       isAdmin: decodedToken.admin || false,
@@ -70,8 +73,8 @@ export const getUsers = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, query } = request.body;
-    const decodedToken = await validateToken(token);
+    const { query } = request.body;
+    const decodedToken = await validateToken(request);
     requireAdmin(decodedToken);
 
     // Get all users from Firestore
@@ -110,14 +113,14 @@ export const grantSuperAdmin = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, userId } = request.body;
+    const { userId } = request.body;
 
     if (!userId) {
       response.status(400).json({ error: "User ID is required" });
       return;
     }
 
-    const decodedToken = await validateToken(token);
+    const decodedToken = await validateToken(request);
     requireSuperAdmin(decodedToken);
 
     // Set custom claims for super admin access
@@ -156,14 +159,14 @@ export const grantAdminByEmail = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, email, userId } = request.body;
+    const { email, userId } = request.body;
 
     if (!email && !userId) {
       response.status(400).json({ error: "Either email or userId is required" });
       return;
     }
 
-    const decodedToken = await validateToken(token);
+    const decodedToken = await validateToken(request);
     requireSuperAdmin(decodedToken);
 
     // Get user by email or userId from Firebase Auth
@@ -213,14 +216,14 @@ export const removeAdminByEmail = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, email, userId } = request.body;
+    const { email, userId } = request.body;
 
     if (!email && !userId) {
       response.status(400).json({ error: "Either email or userId is required" });
       return;
     }
 
-    const decodedToken = await validateToken(token);
+    const decodedToken = await validateToken(request);
     requireSuperAdmin(decodedToken);
 
     // Get user by email or userId from Firebase Auth
@@ -273,14 +276,7 @@ export const getTeams = onRequest(async (request, response) => {
       return;
     }
 
-    const { token } = request.body;
-
-    if (!token) {
-      response.status(400).json({ error: "Token is required" });
-      return;
-    }
-
-    const decodedToken = await validateToken(token);
+    const decodedToken = await validateToken(request);
     requireAdmin(decodedToken);
 
     // Get all teams from Firestore
@@ -317,14 +313,14 @@ export const createTeam = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, name, description } = request.body;
+    const { name, description } = request.body;
 
     if (!name || !description) {
       response.status(400).json({ error: "Team name and description are required" });
       return;
     }
 
-    const decodedToken = await validateToken(token);
+    const decodedToken = await validateToken(request);
     requireAdmin(decodedToken);
 
     // Create team document
@@ -364,7 +360,7 @@ export const addUserToTeam = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, userId, teamName, position } = request.body;
+    const { userId, teamName, position } = request.body;
 
     if (!userId || !teamName || !position) {
       response.status(400).json({
@@ -373,7 +369,7 @@ export const addUserToTeam = onRequest(async (request, response) => {
       return;
     }
 
-    const decodedToken = await validateToken(token);
+    const decodedToken = await validateToken(request);
     requireAdmin(decodedToken);
 
     // Find the team by name
@@ -432,14 +428,14 @@ export const removeUserFromTeam = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, teamId, userId } = request.body;
+    const { teamId, userId } = request.body;
 
     if (!teamId || !userId) {
       response.status(400).json({ error: "Team ID and User ID are required" });
       return;
     }
 
-    const decodedToken = await validateToken(token);
+    const decodedToken = await validateToken(request);
     requireAdmin(decodedToken);
 
     // Get team document
@@ -493,14 +489,14 @@ export const deleteTeam = onRequest(async (request, response) => {
       return;
     }
 
-    const { token, teamId } = request.body;
+    const { teamId } = request.body;
 
     if (!teamId) {
       response.status(400).json({ error: "Team ID is required" });
       return;
     }
 
-    const decodedToken = await validateToken(token);
+    const decodedToken = await validateToken(request);
     requireAdmin(decodedToken);
 
     // Check if team exists

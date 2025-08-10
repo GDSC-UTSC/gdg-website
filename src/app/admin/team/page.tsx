@@ -6,10 +6,10 @@ import CreateTeamComponent from "@/components/admin/CreateTeamComponent";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
 
 // Plain team data interfaces (no dangerous methods)
 interface TeamMember {
@@ -36,18 +36,19 @@ export default function AdminTeamPage() {
   const loadTeams = async () => {
     try {
       if (!user) return;
-      
+
       const token = await user.getIdToken();
       const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/getTeams`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch teams');
+        throw new Error("Failed to fetch teams");
       }
 
       const result = await response.json();
@@ -57,7 +58,7 @@ export default function AdminTeamPage() {
       // Collect all unique user IDs from all teams
       const allMemberIds = new Set<string>();
       teamsData.forEach((team: PlainTeam) => {
-        team.members.forEach(member => {
+        team.members.forEach((member) => {
           allMemberIds.add(member.userId);
         });
       });
@@ -93,7 +94,6 @@ export default function AdminTeamPage() {
     loadTeams();
   }, [user]);
 
-
   const handleRemoveMember = async (teamId: string, userId: string) => {
     try {
       if (!user) return;
@@ -101,20 +101,26 @@ export default function AdminTeamPage() {
       if (confirm("Are you sure you want to remove this team member?")) {
         const token = await user.getIdToken();
         const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/removeUserFromTeam`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
-          body: JSON.stringify({ token, teamId, userId }),
+          body: JSON.stringify({ teamId, userId }),
         });
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.error || 'Failed to remove team member');
+          throw new Error(error.error || "Failed to remove team member");
         }
 
-        // Refresh teams list and update member users
-        await loadTeams();
+        // Update local state to remove the member
+        setTeams((prevTeams) =>
+          prevTeams.map((team) =>
+            team.id === teamId ? { ...team, members: team.members.filter((member) => member.userId !== userId) } : team
+          )
+        );
+
         toast.success("Team member removed successfully");
       }
     } catch (error) {
@@ -130,20 +136,21 @@ export default function AdminTeamPage() {
       if (confirm("Are you sure you want to delete this entire team? This action cannot be undone.")) {
         const token = await user.getIdToken();
         const response = await fetch(`${process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL}/deleteTeam`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
-          body: JSON.stringify({ token, teamId }),
+          body: JSON.stringify({ teamId }),
         });
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.error || 'Failed to delete team');
+          throw new Error(error.error || "Failed to delete team");
         }
 
         // Refresh teams list
-        await loadTeams();
+        setTeams((prevTeams) => prevTeams.filter( (team) => team.id !== teamId ));
         toast.success("Team deleted successfully");
       }
     } catch (error) {
@@ -159,8 +166,38 @@ export default function AdminTeamPage() {
           <PageTitle title="Team Management" description="Manage teams and their members" />
 
           <div className="flex gap-2">
-            <CreateTeamComponent />
-            <AddTeamMemberComponent />
+            <CreateTeamComponent 
+              onTeamCreated={(newTeam) => {
+                setTeams(prevTeams => [newTeam, ...prevTeams]);
+              }}
+            />
+            <AddTeamMemberComponent
+              onMemberAdded={(teamName, newMember, userData) => {
+                // Update teams state - handle both new members and position updates
+                setTeams(prevTeams =>
+                  prevTeams.map(team => {
+                    if (team.name === teamName) {
+                      const existingMemberIndex = team.members.findIndex(m => m.userId === newMember.userId);
+                      if (existingMemberIndex >= 0) {
+                        // Update existing member's position
+                        const updatedMembers = [...team.members];
+                        updatedMembers[existingMemberIndex] = newMember;
+                        return { ...team, members: updatedMembers };
+                      } else {
+                        // Add new member
+                        return { ...team, members: [...team.members, newMember] };
+                      }
+                    }
+                    return team;
+                  })
+                );
+
+                // Update memberUsers state
+                setMemberUsers(prevUsers =>
+                  new Map(prevUsers.set(newMember.userId, userData))
+                );
+              }}
+            />
           </div>
         </div>
 

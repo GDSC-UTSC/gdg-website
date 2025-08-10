@@ -21,7 +21,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function AddTeamMemberComponent() {
+// Props interface for callback
+interface TeamMember {
+  userId: string;
+  position: string;
+  addedAt?: string;
+}
+
+interface AddTeamMemberComponentProps {
+  onMemberAdded?: (teamName: string, member: TeamMember, userData: UserData) => void;
+}
+
+export default function AddTeamMemberComponent({ onMemberAdded }: AddTeamMemberComponentProps) {
   const { user } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [teams, setTeams] = useState<PlainTeam[]>([]);
@@ -41,8 +52,9 @@ export default function AddTeamMemberComponent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
@@ -84,9 +96,9 @@ export default function AddTeamMemberComponent() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
-          token,
           userId: selectedUser.id,
           teamName: selectedTeam.name,
           position: position,
@@ -104,9 +116,16 @@ export default function AddTeamMemberComponent() {
       setSelectedUser(null);
       setPosition("");
       setSelectedTeamId("");
-      toast.success("Team member added successfully");
+      toast.success(result.message || "Team member added successfully");
 
-      window.location.reload();
+      // Update local state instead of reloading
+      if (onMemberAdded && selectedUser) {
+        const newMember: TeamMember = {
+          userId: selectedUser.id,
+          position: position,
+        };
+        onMemberAdded(selectedTeam.name, newMember, selectedUser);
+      }
     } catch (error) {
       console.error("Error adding team member:", error);
       toast.error("Failed to add team member");

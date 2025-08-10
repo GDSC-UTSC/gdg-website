@@ -92,8 +92,9 @@ export default function SuperAdminUsersPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {

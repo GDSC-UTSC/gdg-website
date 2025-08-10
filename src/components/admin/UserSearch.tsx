@@ -57,9 +57,15 @@ export default function UserSearch({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
-          body: JSON.stringify({ token, query: debouncedQuery }),
+          body: JSON.stringify({ query: debouncedQuery }),
         });
+        
+        if (!res.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        
         const userData = await res.json();
         setUsers(userData as UserData[]);
       } catch (error) {

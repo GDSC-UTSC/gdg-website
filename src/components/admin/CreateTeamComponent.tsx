@@ -10,7 +10,27 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function CreateTeamComponent() {
+// Props interface for callback
+interface TeamMember {
+  userId: string;
+  position: string;
+  addedAt?: string;
+}
+
+interface PlainTeam {
+  id: string;
+  name: string;
+  description: string;
+  members: TeamMember[];
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+interface CreateTeamComponentProps {
+  onTeamCreated?: (newTeam: PlainTeam) => void;
+}
+
+export default function CreateTeamComponent({ onTeamCreated }: CreateTeamComponentProps) {
   const { user } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,11 +52,11 @@ export default function CreateTeamComponent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
-          token, 
-          name: formData.name, 
-          description: formData.description 
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description
         }),
       });
 
@@ -50,8 +70,19 @@ export default function CreateTeamComponent() {
       setDialogOpen(false);
       setFormData({ name: "", description: "" });
       toast.success(result.message);
-      
-      window.location.reload();
+
+      // Update local state instead of reloading
+      if (onTeamCreated) {
+        const newTeam: PlainTeam = {
+          id: result.teamId,
+          name: formData.name,
+          description: formData.description,
+          members: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        onTeamCreated(newTeam);
+      }
     } catch (error) {
       console.error("Error creating team:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to create team";
