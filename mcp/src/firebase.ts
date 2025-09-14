@@ -17,11 +17,5 @@ export function getFirebaseAdmin() {
 
 const firebaseAdmin = getFirebaseAdmin();
 
-// Set emulator hosts if in development
-if (process.env.NODE_ENV === "development") {
-  process.env.FIREBASE_AUTH_EMULATOR_HOST = "localhost:9099";
-  process.env.FIRESTORE_EMULATOR_HOST = "localhost:8080";
-}
-
 export const db = firebaseAdmin.firestore();
 export const auth = firebaseAdmin.auth();

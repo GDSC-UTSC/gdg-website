@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { Auth, connectAuthEmulator, getAuth } from "firebase/auth";
-import { connectFirestoreEmulator, Firestore, getFirestore } from "firebase/firestore";
-import { connectStorageEmulator, FirebaseStorage, getStorage } from "firebase/storage";
+import { Auth, getAuth } from "firebase/auth";
+import { Firestore, getFirestore } from "firebase/firestore";
+import { FirebaseStorage, getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -23,10 +23,5 @@ db = getFirestore(app);
 auth = getAuth(app);
 storage = getStorage(app);
 
-if (process.env.NODE_ENV === "development") {
-  connectFirestoreEmulator(db, "localhost", parseInt(process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT || "8080"));
-  connectAuthEmulator(auth, `http://localhost:${process.env.NEXT_PUBLIC_FIREBASE_AUTH_PORT}`);
-  connectStorageEmulator(storage, "localhost", parseInt(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_PORT || "9199"));
-}
 
 export { auth, db, storage };

@@ -6,12 +6,6 @@ import os
 def initialize_firebase():
     """Initialize Firebase Admin SDK and return Firestore client."""
     try:
-        # --- Configuration for Emulator ---
-        # This is the crucial part for connecting to the emulator
-        os.environ["FIRESTORE_EMULATOR_HOST"] = "127.0.0.1:8080"
-        os.environ["FIREBASE_AUTH_EMULATOR_HOST"] = "127.0.0.1:9099"
-        # ------------------------------------
-
         # Check if Firebase app is already initialized
         if not firebase_admin._apps:
             # Use service account key file
@@ -25,7 +19,7 @@ def initialize_firebase():
 
         # Get Firestore client
         db = firestore.client()
-        print("Firestore client connected to emulator at localhost:8080")
+        print("Firestore client connected")
 
         # positions = db.collection('positions').get()
         # for position in positions:

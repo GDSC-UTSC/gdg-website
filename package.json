@@ -10,7 +10,6 @@
     "start": "next start",
     "prod": "next build && next start",
     "lint": "next lint",
-    "firebase": "cd functions && npm i && npm run build && cd .. && firebase --config=firebase.local.json emulators:start --import=./firebase-data --export-on-exit=./firebase-data",
     "seed": "npx tsx scripts/seed-firestore.ts"
   },
   "dependencies": {

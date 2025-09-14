@@ -16,11 +16,6 @@ export function getFirebaseAdmin() {
 }
 
 const firebaseAdmin = getFirebaseAdmin();
-if (process.env.NODE_ENV === "development") {
-  process.env.FIREBASE_AUTH_EMULATOR_HOST = "localhost:" + process.env.NEXT_PUBLIC_FIREBASE_AUTH_PORT;
-  process.env.FIRESTORE_EMULATOR_HOST = "localhost:" + process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT;
-  process.env.FIREBASE_STORAGE_EMULATOR_HOST = "localhost:" + process.env.NEXT_PUBLIC_FIREBASE_STORAGE_PORT;
-}
 const db = firebaseAdmin.firestore();
 const auth = firebaseAdmin.auth();
 export { auth, db, firebaseAdmin };

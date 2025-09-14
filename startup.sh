@@ -48,4 +48,4 @@ echo "✅ Firebase rules created (firestore.rules & storage.rules)"
 echo "🔧 Building worker..."
 npm run build:worker
 
-echo "🎉 Setup complete! Run 'npm run dev' and 'npm run emulators' to start development"
+echo "🎉 Setup complete! Run 'npm run dev' to start development"
