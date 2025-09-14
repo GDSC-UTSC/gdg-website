@@ -16,7 +16,6 @@ Google Developer Group (GDG) website for University of Toronto Scarborough built
 ### Start Development
 ```bash
 npm run dev          # Start Next.js development server (localhost:3000)
-npm run emulators    # Start Firebase emulators (Auth: 9099, Firestore: 8080, UI: 4000)
 ```
 
 ### Build & Deploy
@@ -28,7 +27,6 @@ npm run lint         # Run ESLint
 
 ### Firebase
 ```bash
-npm run emulators           # Start all emulators with data persistence
 npm run firestore:export   # Export production Firestore data to ./firebase-data
 ```
 
@@ -51,15 +49,12 @@ src/
 ├── contexts/
 │   └── AuthContext.tsx    # Firebase Auth context provider
 ├── lib/
-│   ├── firebase.ts        # Firebase config with emulator setup
+│   ├── firebase.ts        # Firebase config
 │   └── utils.ts           # Utility functions
 └── hooks/                 # Custom React hooks
 ```
 
 ## Firebase Setup
-- **Auth Emulator**: http://localhost:9099
-- **Firestore Emulator**: http://localhost:8080  
-- **Emulator UI**: http://localhost:4000
 - **Data Persistence**: ./firebase-data/ (auto-import/export)
 
 ## Authentication
@@ -78,7 +73,7 @@ Only essential components are kept:
 ## Key Features
 - Responsive design with mobile-first approach
 - Dark theme with gradient backgrounds
-- Firebase Auth with emulator support
+- Firebase Auth
 - Protected account page
 - Dynamic header (Login/Account button based on auth state)
 - Form validation and error handling
@@ -97,7 +92,6 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=
 
 ## Development Notes
 - AuthProvider wraps entire app in layout.tsx (not just providers)
-- Firebase emulators auto-connect in development mode
 - All unused shadcn/ui components have been removed
 - Login form includes both email/password and Google OAuth
 - Global dark background applied via Tailwind CSS

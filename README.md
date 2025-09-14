@@ -29,12 +29,10 @@ This will:
 - Install Firebase CLI tools
 - Install project dependencies
 - Start the Next.js development server (localhost:3000)
-- Launch Firebase emulators (Auth: 9099, Firestore: 8080, UI: 4000)
 
 ## Development Commands
 
 ```bash
-npm run firebase    # Start Firebase emulators
 npm run seed        # Seed the database with sample data
 npm run build:worker # Build the worker for Firebase SSR
 ```
@@ -46,7 +44,7 @@ We welcome contributions from students and developers! This is an open-source pr
 ### Development Guidelines
 
 - Follow the existing code style and TypeScript conventions
-- Test your changes with both development server and Firebase emulators
+- Test your changes with the development server
 - Ensure your code is accessible and responsive
 - Update documentation if needed
 

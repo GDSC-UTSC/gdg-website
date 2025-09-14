@@ -1,8 +1,8 @@
 "use server";
 
 import { FirebaseServerAppSettings, initializeServerApp } from "firebase/app";
-import { connectAuthEmulator, getAuth } from "firebase/auth";
-import { connectFirestoreEmulator, Firestore, getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { Firestore, getFirestore } from "firebase/firestore";
 import { headers } from "next/headers";
 
 const firebaseConfig = {
@@ -23,9 +23,6 @@ export async function getAuthenticatedUser() {
     appSettings.releaseOnDeref = headerObj;
     const serverApp = initializeServerApp(firebaseConfig, appSettings);
     const serverAuth = getAuth(serverApp);
-    if (process.env.NODE_ENV === "development") {
-      connectAuthEmulator(serverAuth, `http://localhost:${process.env.NEXT_PUBLIC_FIREBASE_AUTH_PORT}`);
-    }
     await serverAuth.authStateReady();
 
     return serverAuth.currentUser;
@@ -41,13 +38,6 @@ export async function getAuthenticatedFirestore() {
   appSettings.releaseOnDeref = headers();
   const serverApp = initializeServerApp(firebaseConfig, appSettings);
   const serverFirestore = getFirestore(serverApp);
-  if (process.env.NODE_ENV === "development") {
-    connectFirestoreEmulator(
-      serverFirestore,
-      "localhost",
-      parseInt(process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT || "8080")
-    );
-  }
   return serverFirestore;
 }
 
@@ -58,13 +48,6 @@ export async function getPublicFirestore(): Promise<Firestore> {
   }
   const serverApp = initializeServerApp(firebaseConfig, { authIdToken: undefined });
   const serverFirestore = getFirestore(serverApp);
-  if (process.env.NODE_ENV === "development") {
-    connectFirestoreEmulator(
-      serverFirestore,
-      "localhost",
-      parseInt(process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_PORT || "8080")
-    );
-  }
   db = serverFirestore;
   return serverFirestore;
 }
