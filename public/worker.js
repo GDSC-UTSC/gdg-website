@@ -2,13 +2,13 @@ importScripts("https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"
 importScripts("https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js");
 
 const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-  measurementId: "",
+  apiKey: "hi",
+  authDomain: "hi",
+  projectId: "hi",
+  storageBucket: "hi",
+  messagingSenderId: "hi",
+  appId: "hi",
+  measurementId: "hi",
 };
 
 firebase.initializeApp(firebaseConfig);

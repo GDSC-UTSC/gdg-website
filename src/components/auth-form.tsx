@@ -56,6 +56,15 @@ export function AuthForm({ className, mode = "login", onModeSwitch, ...props }: 
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
+      const token = await auth.currentUser?.getIdToken();
+      if (token) {
+        await fetch("/api/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+      }
+      router.push("/");
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -70,6 +79,14 @@ export function AuthForm({ className, mode = "login", onModeSwitch, ...props }: 
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
+      const token = await auth.currentUser?.getIdToken();
+      if (token) {
+        await fetch("/api/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+      }
       router.push("/");
     } catch (error: any) {
       setError(error.message);

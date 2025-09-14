@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AdminPage() {
+  console.log("AdminPage mounted!");
   const { user, loading } = useAuth();
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);

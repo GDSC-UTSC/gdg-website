@@ -89,7 +89,8 @@ export default function AccountPage() {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      await fetch("/api/logout", { method: "POST" }); // server deletes cookie
+      auth.signOut();
       router.push("/account");
     } catch (error) {
       console.error("Error signing out:", error);
@@ -97,7 +98,7 @@ export default function AccountPage() {
   };
 
   if (loading || !user) {
-    return (
+    return (  
       <div className="min-h-screen flex items-center justify-center">
         <div>Loading...</div>
       </div>
