@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "setup": "sh startup.sh",
-    "dev": "next dev",
+    "dev": "next dev -p 3002",
     "build": "next build",
     "build:worker": "node scripts/build-worker.js",
     "start": "next start",

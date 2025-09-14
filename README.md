@@ -26,14 +26,16 @@ sh startup.sh
 ```
 
 This will:
+
 - Install Firebase CLI tools
 - Install project dependencies
-- Start the Next.js development server (localhost:3000)
+- Start the Next.js development server (localhost:3002)
+
+**⚠️ Important:** Do not change the port from 3002 to 3000 as the pdf service worker and firebase worker configurations WILL cause conflicts with other projects that you might run on 3000. (Clearing browser cache fixes this)
 
 ## Development Commands
 
 ```bash
-npm run seed        # Seed the database with sample data
 npm run build:worker # Build the worker for Firebase SSR
 ```
 
@@ -49,7 +51,3 @@ We welcome contributions from students and developers! This is an open-source pr
 - Update documentation if needed
 
 Questions? [Open a GitHub issue](https://github.com/GDSC-UTSC/gdg-website/issues) or reach out to the GDG UofT Scarborough team!
-
-
-
-

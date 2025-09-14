@@ -20,7 +20,7 @@ yarn-error.log*
 .env*
 
 # generated service worker (contains Firebase credentials)
-/public/worker.js
+public/worker.js
 
 # vercel
 .vercel
