@@ -25,7 +25,7 @@ export interface FirestoreConverter<T> {
 export async function addDocument<T>(
   collectionPath: string,
   data: T,
-  converter: FirestoreConverter<T>,
+  converter: FirestoreConverter<T>
 ): Promise<string> {
   try {
     const db = await getAuthenticatedFirestore();
@@ -38,11 +38,7 @@ export async function addDocument<T>(
 }
 
 // Set a document with a specific ID
-export async function setDocument<T>(
-  documentPath: string,
-  data: T,
-  converter: FirestoreConverter<T>
-): Promise<string> {
+export async function setDocument<T>(documentPath: string, data: T, converter: FirestoreConverter<T>): Promise<string> {
   try {
     const db = await getAuthenticatedFirestore();
     const docRef = doc(db, documentPath).withConverter(converter);
@@ -85,9 +81,7 @@ export async function getDocuments<T>(
 ): Promise<T[]> {
   try {
     const db = options?.public ? await getPublicFirestore() : await getAuthenticatedFirestore();
-    const querySnapshot = await getDocs(
-      collection(db, collectionPath).withConverter(converter)
-    );
+    const querySnapshot = await getDocs(collection(db, collectionPath).withConverter(converter));
     return querySnapshot.docs.map((doc) => converter.fromFirestore(doc, {}));
   } catch (error) {
     console.error(`Error getting documents from ${collectionPath}:`, error);
@@ -109,10 +103,7 @@ export async function getDocumentsWithQuery<T>(
   try {
     const db = options?.public ? await getPublicFirestore() : await getAuthenticatedFirestore();
     const querySnapshot = await getDocs(
-      query(
-        collection(db, collectionPath).withConverter(converter),
-        where(field, operator, value)
-      )
+      query(collection(db, collectionPath).withConverter(converter), where(field, operator, value))
     );
     return querySnapshot.docs.map((doc) => doc.data());
   } catch (error) {
@@ -122,10 +113,7 @@ export async function getDocumentsWithQuery<T>(
 }
 
 // Update a document
-export async function updateDocument<T>(
-  documentPath: string,
-  data: any
-): Promise<void> {
+export async function updateDocument<T>(documentPath: string, data: any): Promise<void> {
   try {
     const db = await getAuthenticatedFirestore();
     await updateDoc(doc(db, documentPath), data);

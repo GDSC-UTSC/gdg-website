@@ -2,8 +2,22 @@ import { getAuthenticatedUser } from "@/lib/firebase/server/index";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const publicRoutes = ["/events", "/projects", "/positions", "/team"];
+  const publicRoutes = ["/events", "/projects", "/team"];
+  const publicPositionRoutes = ["/positions"];
+
+  // Allow public access to main positions page
+  if (publicPositionRoutes.includes(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
+  // Allow public access to other public routes
   if (publicRoutes.includes(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
+  // Check for individual position pages (require authentication)
+  if (request.nextUrl.pathname.startsWith("/positions/") && request.nextUrl.pathname !== "/positions") {
+    // Let the component handle auth check - middleware will just pass through
     return NextResponse.next();
   }
 
