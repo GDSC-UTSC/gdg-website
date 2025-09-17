@@ -11,10 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TagsInput from "@/components/ui/tags-input";
 import { Timestamp } from "firebase/firestore";
+import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { X } from "lucide-react";
 
 type FormData = {
   title: string;
@@ -24,7 +24,7 @@ type FormData = {
   endTime: string;
   location: string;
   registrationDeadline: Date | undefined;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
+  status: "upcoming" | "ongoing" | "past" | "test";
   tags: string[];
   link: string;
   questions: QuestionType[];
@@ -66,20 +66,20 @@ export default function AdminNewEventPage() {
         title: formData.title,
         description: formData.description,
         eventDate: Timestamp.fromDate(formData.eventDate),
-        startTime: formData.startTime || undefined,
-        endTime: formData.endTime || undefined,
-        location: formData.location || undefined,
-        registrationDeadline: formData.registrationDeadline
-          ? Timestamp.fromDate(formData.registrationDeadline)
-          : undefined,
+        startTime: formData.startTime || "",
+        endTime: formData.endTime || "",
+        location: formData.location || "",
         status: formData.status,
         tags: formData.tags,
         organizers: formData.organizers.map(user => user.id),
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         imageUrls: formData.imageUrls,
-        link: formData.link,
+        link: formData.link || "",
         questions: formData.questions,
+        ...(formData.registrationDeadline && {
+          registrationDeadline: Timestamp.fromDate(formData.registrationDeadline)
+        })
       };
 
       const event = new Event(eventData);
@@ -244,15 +244,14 @@ export default function AdminNewEventPage() {
               onChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
-                  status: value as "upcoming" | "ongoing" | "completed" | "cancelled" | "closed",
+                  status: value as "upcoming" | "ongoing" | "past" | "test",
                 }))
               }
               options={[
                 { value: "upcoming", label: "Upcoming" },
                 { value: "ongoing", label: "Ongoing" },
-                { value: "completed", label: "Completed" },
-                { value: "cancelled", label: "Cancelled" },
-                { value: "closed", label: "Closed" },
+                { value: "past", label: "Past" },
+                { value: "test", label: "Test" },
               ]}
             />
 

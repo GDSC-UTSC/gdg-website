@@ -26,7 +26,7 @@ export interface EventType {
   endTime?: string;
   location?: string;
   registrationDeadline?: Timestamp;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
+  status: "upcoming" | "ongoing" | "past" | "test";
   tags?: string[];
   organizers?: string[];
   createdAt?: Timestamp;
@@ -45,7 +45,7 @@ export class Event implements EventType {
   endTime?: string;
   location?: string;
   registrationDeadline?: Timestamp;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
+  status: "upcoming" | "ongoing" | "past" | "test";
   tags?: string[];
   organizers?: string[];
   createdAt?: Timestamp;
@@ -75,14 +75,13 @@ export class Event implements EventType {
 
   static converter = {
     toFirestore: (event: Event) => {
-      return {
+      const data: any = {
         title: event.title,
         description: event.description,
         eventDate: event.eventDate,
         startTime: event.startTime,
         endTime: event.endTime,
         location: event.location,
-        registrationDeadline: event.registrationDeadline,
         status: event.status,
         tags: event.tags,
         organizers: event.organizers,
@@ -92,6 +91,13 @@ export class Event implements EventType {
         link: event.link,
         questions: event.questions,
       };
+
+      // Only include registrationDeadline if it has a value
+      if (event.registrationDeadline) {
+        data.registrationDeadline = event.registrationDeadline;
+      }
+
+      return data;
     },
     fromFirestore: (snapshot: any, options: any) => {
       const data = snapshot.data(options);
@@ -126,11 +132,11 @@ export class Event implements EventType {
   }
 
   get isCompleted(): boolean {
-    return this.status === "completed";
+    return this.status === "past";
   }
 
   get isCancelled(): boolean {
-    return this.status === "cancelled";
+    return this.status === "test";
   }
 
   get isRegistrationOpen(): boolean {
@@ -236,7 +242,7 @@ export class Event implements EventType {
 
   // Event-specific methods
   async updateStatus(
-    newStatus: "upcoming" | "ongoing" | "completed" | "cancelled"
+    newStatus: "upcoming" | "ongoing" | "past" | "test"
   ): Promise<void> {
     this.status = newStatus;
     await this.update();

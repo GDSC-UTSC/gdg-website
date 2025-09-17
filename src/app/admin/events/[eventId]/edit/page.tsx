@@ -39,7 +39,7 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
     endTime: "",
     location: "",
     registrationDeadline: "",
-    status: "upcoming" as "upcoming" | "ongoing" | "completed" | "cancelled" | "closed",
+    status: "upcoming" as "upcoming" | "ongoing" | "past" | "test",
     tags: [] as string[],
     link: "",
     questions: [] as QuestionType[],
@@ -345,9 +345,8 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
                 options={[
                   { value: "upcoming", label: "Upcoming" },
                   { value: "ongoing", label: "Ongoing" },
-                  { value: "completed", label: "Completed" },
-                  { value: "cancelled", label: "Cancelled" },
-                  { value: "closed", label: "Closed" },
+                  { value: "past", label: "Past" },
+                  { value: "test", label: "Test" },
                 ]}
               />
 
