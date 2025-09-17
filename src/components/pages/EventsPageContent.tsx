@@ -1,15 +1,21 @@
-import EventCard from "@/components/events/EventCard";
-import { StaggerContainer, FadeInOnScroll } from "@/components/animations";
-import PageTitle from "@/components/ui/PageTitle";
 import { Event } from "@/app/types/events";
+import { FadeInOnScroll, StaggerContainer } from "@/components/animations";
+import EventCard from "@/components/events/EventCard";
+import PageTitle from "@/components/ui/PageTitle";
 
 export default async function EventsPageContent() {
   let events: Event[] = [];
 
   try {
     const allEvents = await Event.readAll({ server: true, public: true });
+
+    // Filter to only show upcoming, ongoing, and past events (no test events)
+    const publicEvents = allEvents.filter(event =>
+      ["upcoming", "ongoing", "past"].includes(event.status)
+    );
+
     // Sort events by date (newest first)
-    events = allEvents.sort((a, b) => {
+    events = publicEvents.sort((a, b) => {
       const dateA = a.eventDate?.toDate?.() || new Date(0);
       const dateB = b.eventDate?.toDate?.() || new Date(0);
       return dateB.getTime() - dateA.getTime();

@@ -17,7 +17,11 @@ export default function AdminEventsPage() {
       try {
         // For admin, we want to see all events (not just upcoming ones)
         const allEvents = await Event.readAll();
-        setEvents(allEvents);
+
+        const filteredEvents = allEvents.filter(event =>
+          ["upcoming", "ongoing", "past", "test"].includes(event.status)
+        );
+        setEvents(filteredEvents);
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -48,14 +52,14 @@ export default function AdminEventsPage() {
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
         <div className="flex justify-end mb-6">
-          <Button 
+          <Button
             onClick={() => router.push('/admin/events/new')}
             className="px-6 py-2"
           >
             Create New Event
           </Button>
         </div>
-        
+
         <PageTitle
           title="Manage Events"
           description="Manage all events and their registrations from the admin panel."
