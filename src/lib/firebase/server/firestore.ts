@@ -62,7 +62,7 @@ export async function getDocument<T>(
     const db = options?.public ? await getPublicFirestore() : await getAuthenticatedFirestore();
     const docSnap = await getDoc(doc(db, documentPath).withConverter(converter));
     if (docSnap.exists()) {
-      return docSnap.data();
+      return converter.fromFirestore(docSnap, {});
     }
     return null;
   } catch (error) {
@@ -105,7 +105,7 @@ export async function getDocumentsWithQuery<T>(
     const querySnapshot = await getDocs(
       query(collection(db, collectionPath).withConverter(converter), where(field, operator, value))
     );
-    return querySnapshot.docs.map((doc) => doc.data());
+    return querySnapshot.docs.map((doc) => converter.fromFirestore(doc, {}));
   } catch (error) {
     console.error(`Error querying documents from ${collectionPath}:`, error);
     throw error;
