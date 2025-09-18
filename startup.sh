@@ -8,13 +8,14 @@ curl -sL https://firebase.tools | bash
 echo "📦 Installing npm dependencies..."
 npm i
 
-echo "🔧 Creating .env file from .sample.env..."
-if [ -f ".sample.env" ]; then
-    cp .sample.env .env
-    echo "✅ .env created from .sample.env"
-else
-    echo "❌ .sample.env not found"
+echo "🔧 Checking .env file..."
+if [ ! -f ".env" ]; then
+    echo "❌ .env file not found!"
+    echo "📋 Please create a .env file with your Firebase credentials before running this script."
+    echo "💡 You can copy .sample.env as a template: cp .sample.env .env"
     exit 1
+else
+    echo "✅ .env file found"
 fi
 
 echo "🔥 Creating Firebase rules files..."
@@ -45,7 +46,25 @@ EOF
 
 echo "✅ Firebase rules created (firestore.rules & storage.rules)"
 
-echo "🔧 Building worker..."
-npm run build:worker
+echo "⚠️  Before building the worker, please ensure you have configured your .env file with your Firebase credentials."
+echo "📝 Have you updated your .env file with your Firebase project settings? (y/n)"
+read -r env_configured
+
+if [ "$env_configured" = "y" ] || [ "$env_configured" = "Y" ]; then
+    echo "🔧 Building worker..."
+    npm run build:worker
+else
+    echo "❌ Please update your .env file with your Firebase credentials before running 'npm run build:worker'"
+    echo "📋 Required environment variables:"
+    echo "   NEXT_PUBLIC_FIREBASE_API_KEY"
+    echo "   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"
+    echo "   NEXT_PUBLIC_FIREBASE_PROJECT_ID"
+    echo "   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"
+    echo "   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"
+    echo "   NEXT_PUBLIC_FIREBASE_APP_ID"
+    echo "   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID"
+    echo ""
+    echo "🔧 You can run 'npm run build:worker' manually after updating your .env file"
+fi
 
 echo "🎉 Setup complete! Run 'npm run dev' to start development"

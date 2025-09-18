@@ -15,8 +15,10 @@ Google Developer Group (GDG) website for University of Toronto Scarborough built
 
 ### Start Development
 ```bash
-npm run dev          # Start Next.js development server (localhost:3000)
+npm run dev          # Start Next.js development server (localhost:3002)
 ```
+
+**⚠️ Important:** Do not change the port from 3002 as the service worker configuration depends on this specific port to avoid conflicts with other projects.
 
 ### Build & Deploy
 ```bash
