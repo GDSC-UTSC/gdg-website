@@ -47,3 +47,6 @@ __pycache__/
 # mcp
 mcp/build
 mcp/node_modules
+
+
+.DS_Store
