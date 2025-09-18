@@ -24,7 +24,7 @@ export async function getAuthenticatedUser() {
     const serverApp = initializeServerApp(firebaseConfig, appSettings);
     const serverAuth = getAuth(serverApp);
     await serverAuth.authStateReady();
-
+    
     return serverAuth.currentUser;
   } catch (error) {
     console.error("Server auth error:", error);

@@ -89,7 +89,10 @@ self.addEventListener("fetch", (event) => {
       });
     }
     return processRequestPromise.then(() => {
-      return fetch(req);
+      return fetch(req).catch(err => {
+        console.error('Fetch failed in service worker', err);
+        return new Response('Service Worker fetch error', { status: 502 });
+      });
     });
   };
   event.respondWith(getIdTokenPromise().then(requestProcessor, requestProcessor));

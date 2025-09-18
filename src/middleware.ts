@@ -13,8 +13,8 @@ export async function middleware(request: NextRequest) {
   }
   if (request.nextUrl.pathname.startsWith("/superadmin") || request.nextUrl.pathname.startsWith("/api/superadmin")) {
     try {
-      const token = await user.getIdToken();
-
+      const token = await user.getIdToken(true);
+      
       const response = await fetch(new URL(process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL! + "/checkAdminClaims"), {
         method: "POST",
         headers: {
