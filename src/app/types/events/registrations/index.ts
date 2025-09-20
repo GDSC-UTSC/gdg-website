@@ -11,6 +11,7 @@ export type RegistrationType = {
   name: string;
   email: string;
   questions: Record<string, string>;
+  speakers?: string[]; // Add speakers array field
   status: "registered" | "cancelled";
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -21,6 +22,7 @@ export class Registration implements RegistrationType {
   name: string;
   email: string;
   questions: Record<string, string>;
+  speakers?: string[]; // Add speakers array field
   status: "registered" | "cancelled";
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -30,6 +32,7 @@ export class Registration implements RegistrationType {
     this.name = data.name;
     this.email = data.email;
     this.questions = data.questions;
+    this.speakers = data.speakers; // Add speakers field
     this.status = data.status;
     this.createdAt = data.createdAt || (serverTimestamp() as Timestamp);
     this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
@@ -41,6 +44,7 @@ export class Registration implements RegistrationType {
         name: registration.name,
         email: registration.email,
         questions: registration.questions,
+        speakers: registration.speakers, // Add speakers field
         status: registration.status,
         createdAt: registration.createdAt,
         updatedAt: serverTimestamp(),
@@ -53,6 +57,7 @@ export class Registration implements RegistrationType {
         name: data.name,
         email: data.email,
         questions: data.questions,
+        speakers: data.speakers, // Add speakers field
         status: data.status,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,

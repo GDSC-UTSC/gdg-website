@@ -10,8 +10,16 @@ import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 
 
+export enum EventStatus {
+  UPCOMING = "upcoming",
+  ONGOING = "ongoing",
+  PAST = "past",
+  TEST = "test",
+  HIDDEN = "hidden",
+}
+
 export type QuestionType = {
-  type: "text" | "textarea" | "select" | "checkbox" | "file";
+  type: "text" | "textarea" | "select" | "checkbox" | "file" | "speaker";
   label: string;
   options?: string[]; // For select and checkbox types
   required?: boolean;
@@ -26,7 +34,7 @@ export interface EventType {
   endTime?: string;
   location?: string;
   registrationDeadline?: Timestamp;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
+  status: "upcoming" | "ongoing" | "past" | "test" | "hidden"; // Update to match Event class
   tags?: string[];
   organizers?: string[];
   createdAt?: Timestamp;
@@ -45,7 +53,7 @@ export class Event implements EventType {
   endTime?: string;
   location?: string;
   registrationDeadline?: Timestamp;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
+  status: "upcoming" | "ongoing" | "past" | "test" | "hidden";
   tags?: string[];
   organizers?: string[];
   createdAt?: Timestamp;
@@ -125,13 +133,13 @@ export class Event implements EventType {
     return this.status === "ongoing";
   }
 
-  get isCompleted(): boolean {
-    return this.status === "completed";
-  }
+  // get isCompleted(): boolean {
+  //   return this.status === "completed";
+  // }
 
-  get isCancelled(): boolean {
-    return this.status === "cancelled";
-  }
+  // get isCancelled(): boolean {
+  //   return this.status === "cancelled";
+  // }
 
   get isRegistrationOpen(): boolean {
     if (this.status !== "upcoming") return false;
@@ -236,7 +244,7 @@ export class Event implements EventType {
 
   // Event-specific methods
   async updateStatus(
-    newStatus: "upcoming" | "ongoing" | "completed" | "cancelled"
+    newStatus: "upcoming" | "ongoing" | "past" | "test" | "hidden"
   ): Promise<void> {
     this.status = newStatus;
     await this.update();

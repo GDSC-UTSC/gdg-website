@@ -20,7 +20,7 @@ export type PositionType = {
 };
 
 export type QuestionType = {
-  type: "text" | "textarea" | "select" | "checkbox" | "file";
+  type: "text" | "textarea" | "select" | "checkbox" | "file" | "speaker";
   label: string;
   options?: string[]; // For select and checkbox types
   required?: boolean;

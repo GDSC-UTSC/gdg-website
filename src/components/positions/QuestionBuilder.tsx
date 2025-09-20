@@ -128,6 +128,7 @@ export default function QuestionBuilder({
                         { value: "select", label: "Single Select" },
                         { value: "checkbox", label: "Multiple Choice" },
                         { value: "file", label: "File Upload" },
+                        { value: "speaker", label: "Speaker Code" },
                       ]}
                     />
 
@@ -234,6 +235,7 @@ export default function QuestionBuilder({
               { value: "select", label: "Single Select" },
               { value: "checkbox", label: "Multiple Choice" },
               { value: "file", label: "File Upload" },
+              { value: "speaker", label: "Speaker Code" },
             ]}
           />
 

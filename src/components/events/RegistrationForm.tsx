@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Send } from "lucide-react";
@@ -59,6 +60,9 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
       processedValue = value.join(", ");
     } else if (typeof value === "string") {
       processedValue = value;
+    } else if (typeof value === "object" && value !== null) {
+      // Handle objects (like speaker data) - store them as-is
+      processedValue = value;
     } else {
       processedValue = String(value);
     }
@@ -112,11 +116,27 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
     setIsSubmitting(true);
 
     try {
+      // Check for speakers with correct code (111)
+      let speakers: string[] = [];
+      if (event.questions) {
+        event.questions.forEach((question) => {
+          if (question.type === "speaker" && formData[question.label]) {
+            const speakerData = formData[question.label];
+            //for testing purposes, used the speaker code 111
+            if (speakerData.isSpeaker && speakerData.speakerCode === "111") {
+              // Add the registrant's name to speakers array
+              speakers.push(registrantName);
+            }
+          }
+        });
+      }
+
       const registrationData = {
         id: user.uid,
         name: registrantName,
         email: user.email,
         questions: formData,
+        speakers: speakers.length > 0 ? speakers : undefined, // Add speakers array
         status: "registered" as const,
         createdAt: new Date() as any,
         updatedAt: new Date() as any,
@@ -368,6 +388,57 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                             }}
                             className={errors[question.label] ? "border-red-500" : ""}
                           />
+                        )}
+
+                        {question.type === "speaker" && (
+                          <div className="space-y-4">
+                            {/* Are you a speaker question */}
+                            <div className="space-y-3">
+                              <Label className="text-base font-medium">Are you a speaker?</Label>
+                              <RadioGroup
+                                value={formData[question.label]?.isSpeaker === true ? "yes" : formData[question.label]?.isSpeaker === false ? "no" : ""}
+                                onValueChange={(value) => {
+                                  const isSpeaker = value === "yes";
+                                  handleInputChange(question.label, {
+                                    isSpeaker: isSpeaker,
+                                    speakerCode: isSpeaker ? (formData[question.label]?.speakerCode || "") : "",
+                                  });
+                                }}
+                                className="flex gap-4"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="yes" id={`${index}_speaker_yes`} />
+                                  <Label htmlFor={`${index}_speaker_yes`} className="text-sm cursor-pointer">Yes</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="no" id={`${index}_speaker_no`} />
+                                  <Label htmlFor={`${index}_speaker_no`} className="text-sm cursor-pointer">No</Label>
+                                </div>
+                              </RadioGroup>
+                            </div>
+
+                            {/* Speaker code - only show if speaker is selected */}
+                            {formData[question.label]?.isSpeaker === true && (
+                              <div className="space-y-4 p-4 bg-muted/30 rounded-lg border">
+                                <div className="space-y-2">
+                                  <Label htmlFor={`${index}_speaker_code`} className="text-base font-medium">
+                                    Speaker Code
+                                  </Label>
+                                  <Input
+                                    id={`${index}_speaker_code`}
+                                    type="password"
+                                    value={formData[question.label]?.speakerCode || ""}
+                                    onChange={(e) => handleInputChange(question.label, {
+                                      isSpeaker: true,
+                                      speakerCode: e.target.value,
+                                    })}
+                                    placeholder="Enter your speaker code"
+                                    className="w-full"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>

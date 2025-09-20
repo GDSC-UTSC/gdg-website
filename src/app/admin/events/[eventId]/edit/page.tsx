@@ -1,7 +1,8 @@
 "use client";
 
-import { Event, QuestionType } from "@/app/types/events";
+import { Event, EventStatus, QuestionType } from "@/app/types/events";
 import { UserData } from "@/app/types/userdata";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 import UserSearch from "@/components/admin/UserSearch";
 import QuestionBuilder from "@/components/positions/QuestionBuilder";
 import {
@@ -11,15 +12,14 @@ import {
 } from "@/components/positions/questions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import TagsInput from "@/components/ui/tags-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ImageUpload } from "@/components/admin/ImageUpload";
-import { useEffect, useState, use } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import TagsInput from "@/components/ui/tags-input";
 import { Timestamp } from "firebase/firestore";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface AdminEditEventPageProps {
   params: Promise<{ eventId: string }>;
@@ -39,7 +39,7 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
     endTime: "",
     location: "",
     registrationDeadline: "",
-    status: "upcoming" as "upcoming" | "ongoing" | "completed" | "cancelled" | "closed",
+    status: "upcoming" as "upcoming" | "ongoing" | "past" | "test" | "hidden",
     tags: [] as string[],
     link: "",
     questions: [] as QuestionType[],
@@ -343,11 +343,11 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
                 value={formData.status}
                 onChange={(value) => handleInputChange("status", value)}
                 options={[
-                  { value: "upcoming", label: "Upcoming" },
-                  { value: "ongoing", label: "Ongoing" },
-                  { value: "completed", label: "Completed" },
-                  { value: "cancelled", label: "Cancelled" },
-                  { value: "closed", label: "Closed" },
+                  { value: EventStatus.UPCOMING, label: "Upcoming" },
+                  { value: EventStatus.ONGOING, label: "Ongoing" },
+                  { value: EventStatus.PAST, label: "Past" },
+                  { value: EventStatus.TEST, label: "Test" },
+                  { value: EventStatus.HIDDEN, label: "Hidden" },
                 ]}
               />
 
