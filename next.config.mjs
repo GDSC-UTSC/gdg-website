@@ -26,6 +26,19 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=60, s-maxage=60",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

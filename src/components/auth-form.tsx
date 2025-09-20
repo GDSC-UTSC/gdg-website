@@ -53,8 +53,11 @@ export function AuthForm({ className, mode = "login", onModeSwitch, ...props }: 
     try {
       if (isRegisterMode) {
         await createUserWithEmailAndPassword(auth, email, password);
+        router.push("/");
+
       } else {
         await signInWithEmailAndPassword(auth, email, password);
+        router.push("/");
       }
     } catch (error: any) {
       setError(error.message);
