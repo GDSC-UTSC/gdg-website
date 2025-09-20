@@ -5,12 +5,16 @@ export async function POST(request: NextRequest) {
   try {
     const { email, teamId, position, token } = await request.json();
 
-    if (!email || !teamId || !position || !token) {
+    if (!email || !teamId || !position) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     // Verify admin token
     try {
+      const token = request.headers.get("Authorization")?.split("Bearer ")[1];
+      if (!token) {
+        return NextResponse.json({ error: "Missing authentication token" }, { status: 401 });
+      }
       const decodedToken = await auth.verifyIdToken(token);
       console.log("Token verified for user:", decodedToken.uid);
     } catch (tokenError) {
@@ -30,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get team and add member - using admin privileges
-    const teamRef = db.collection('teams').doc(teamId);
+    const teamRef = db.collection("teams").doc(teamId);
     const teamDoc = await teamRef.get();
 
     if (!teamDoc.exists) {

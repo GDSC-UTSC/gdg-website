@@ -59,8 +59,7 @@ export default function AddTeamMemberComponent() {
           email: formData.email,
           teamId: selectedTeamId,
           position: formData.position,
-          token: token,
-        }),
+         }),
       });
 
       const result = await response.json();
