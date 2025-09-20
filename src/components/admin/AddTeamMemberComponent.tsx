@@ -50,7 +50,7 @@ export default function AddTeamMemberComponent() {
     try {
       const token = await user.getIdToken();
 
-      const response = await fetch(process.env.NEXT_PUBLIC_CLOUD_FUNCTIONS_URL! + "/addUserToTeam", {
+      const response = await fetch("/api/teams/addMember", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,8 +59,7 @@ export default function AddTeamMemberComponent() {
           email: formData.email,
           teamId: selectedTeamId,
           position: formData.position,
-          token: token,
-        }),
+         }),
       });
 
       const result = await response.json();
