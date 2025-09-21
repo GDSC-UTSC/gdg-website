@@ -1,8 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Github, Instagram, Linkedin } from "lucide-react";
-import Image from "next/image";
 
 const Footer = () => {
   const socialLinks = [
@@ -12,87 +10,37 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="py-12 border-t ">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+    <footer className="py-8 border-t">
+      <div className="container mx-auto px-4 text-center">
+        <div className="flex justify-center mb-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 121.03 58.57"
+            className="w-16 h-8 text-white"
           >
-            <div className="flex items-center space-x-3 mb-4">
-              <Image
-                src="/gdg-logo.png"
-                alt="GDG @ UTSC"
-                width={32}
-                height={32}
-                className="h-8 w-auto"
-              />
-              <div>
-                <h3 className="font-bold">GDG @ UTSC</h3>
-                <p className="text-xs text-muted-foreground">
-                  Google Developer Group
-                </p>
-              </div>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Building the next generation of developers at the University of
-              Toronto Scarborough.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <h4 className="font-semibold mb-4">Contact</h4>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>University of Toronto Scarborough</p>
-              <p>1265 Military Trail, Scarborough</p>
-              <p>ON M1C 1A4, Canada</p>
-              <p>gdg@utsc.ca</p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <h4 className="font-semibold mb-4">Follow Us</h4>
-            <div className="flex space-x-4">
-              {socialLinks.map((link, index) => (
-                <a
-                  key={index}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-primary transition-colors p-2 rounded-lg hover:bg-accent"
-                  aria-label={link.label}
-                >
-                  {link.icon}
-                </a>
-              ))}
-            </div>
-          </motion.div>
+            <g>
+              <path fill="currentColor"
+                d="M48.47 40.52 14.51 20.91a9.63 9.63 0 0 0-4.83-1.3 9.67 9.67 0 0 0-8.38 4.84C-1.37 29.08.21 34.99 4.84 37.66L38.8 57.27a9.63 9.63 0 0 0 4.83 1.3c3.34 0 6.59-1.73 8.38-4.84 2.67-4.63 1.09-10.54-3.54-13.21ZM116.2 20.91 82.24 1.3A9.63 9.63 0 0 0 77.41 0c-3.34 0-6.59 1.73-8.38 4.84-2.67 4.62-1.09 10.54 3.54 13.21l33.96 19.61a9.63 9.63 0 0 0 4.83 1.3c3.34 0 6.59-1.73 8.38-4.84 2.67-4.63 1.08-10.54-3.54-13.21ZM105.18 39.99l-15.85-9.15-16.77 9.68c-4.63 2.67-6.21 8.58-3.54 13.21a9.656 9.656 0 0 0 13.21 3.54l27.3-15.76c-1.52-.23-3-.74-4.35-1.52ZM15.86 18.58l15.85 9.15 16.77-9.68c4.63-2.67 6.21-8.58 3.54-13.21C49.35.22 43.44-1.37 38.81 1.3l-27.3 15.76c1.52.23 3 .74 4.35 1.52Z" />
+            </g>
+          </svg>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="border-t  pt-8 flex flex-col md:flex-row justify-between items-center"
-        >
-          <p className="text-sm text-muted-foreground mb-4 md:mb-0">
-            © 2024 Google Developer Group @ UTSC. All rights reserved.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Made with ❤️ by the GDG @ UTSC team
-          </p>
-        </motion.div>
+        <div className="flex justify-center space-x-6 mb-6">
+          {socialLinks.map((link, index) => (
+            <a
+              key={index}
+              href={link.href}
+              className="text-muted-foreground hover:text-primary transition-colors"
+              aria-label={link.label}
+            >
+              {link.icon}
+            </a>
+          ))}
+        </div>
+
+        <p className="text-sm text-muted-foreground">
+          © 2025 Google Developer Group @ UTSC, All rights reserved
+        </p>
       </div>
     </footer>
   );

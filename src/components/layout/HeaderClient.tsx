@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 interface HeaderClientProps {
@@ -9,43 +8,30 @@ interface HeaderClientProps {
 
 const HeaderClient = ({ children }: HeaderClientProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
-      // Show/hide header based on scroll direction
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down - hide header
-        setIsHeaderVisible(false);
-      } else {
-        // Scrolling up - show header
-        setIsHeaderVisible(true);
-      }
-
-      setLastScrollY(currentScrollY);
+      // Toggle scrolled state for subtle style changes (no opacity changes)
       setIsScrolled(currentScrollY > 50);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
+
+  // Fully opaque background so content underneath is not visible
+  const backgroundClass = mounted && isScrolled ? "bg-black border-white/40" : "bg-black border-white/20";
 
   return (
-    <motion.header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-background/60 backdrop-blur-lg shadow-md "
-          : "bg-transparent"
-      }`}
-      initial={{ y: -100 }}
-      animate={{ y: isHeaderVisible ? 0 : -100 }}
-      transition={{ duration: 0.3 }}
-    >
-      {children}
-    </motion.header>
+    <header className="fixed top-3 sm:top-6 left-1/2 transform -translate-x-1/2 z-[9999] transition-all duration-300 w-full max-w-6xl px-3 sm:px-6">
+      <div className={`${backgroundClass} rounded-2xl border overflow-hidden transition-all duration-300`}>
+        {children}
+      </div>
+    </header>
   );
 };
 
