@@ -8,7 +8,9 @@ import {
 import { deleteFile, uploadFile } from "@/lib/firebase/client/storage";
 import { serverTimestamp, Timestamp } from "firebase/firestore";
 
+export const EVENTSTATUS = ["upcoming", "ongoing", "past", "test", "hidden"] as const;
 
+export type EventStatusType = (typeof EVENTSTATUS)[number];
 
 export type QuestionType = {
   type: "text" | "textarea" | "select" | "checkbox" | "file";
@@ -26,7 +28,7 @@ export interface EventType {
   endTime?: string;
   location?: string;
   registrationDeadline?: Timestamp;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
+  status: EventStatusType
   tags?: string[];
   organizers?: string[];
   createdAt?: Timestamp;
@@ -45,7 +47,7 @@ export class Event implements EventType {
   endTime?: string;
   location?: string;
   registrationDeadline?: Timestamp;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
+  status: EventStatusType;
   tags?: string[];
   organizers?: string[];
   createdAt?: Timestamp;
@@ -125,13 +127,13 @@ export class Event implements EventType {
     return this.status === "ongoing";
   }
 
-  get isCompleted(): boolean {
-    return this.status === "completed";
-  }
+  // get isCompleted(): boolean {
+  //   return this.status === "past";
+  // }
 
-  get isCancelled(): boolean {
-    return this.status === "cancelled";
-  }
+  // get isCancelled(): boolean {
+  //   return this.status === "cancelled";
+  // }
 
   get isRegistrationOpen(): boolean {
     if (this.status !== "upcoming") return false;
@@ -236,9 +238,9 @@ export class Event implements EventType {
 
   // Event-specific methods
   async updateStatus(
-    newStatus: "upcoming" | "ongoing" | "completed" | "cancelled"
+    status: EventStatusType,
   ): Promise<void> {
-    this.status = newStatus;
+    this.status = status;
     await this.update();
   }
 }
