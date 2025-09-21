@@ -28,7 +28,7 @@ const AboutSection = () => {
   ];
 
   return (
-    <section id="about" className="py-20 bg-secondary/50">
+    <section id="about" className="py-20 bg-black">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -37,8 +37,8 @@ const AboutSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Who We Are</h2>
-          <p className="text-xl text-muted-foreground max-w-4xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Who We Are</h2>
+          <p className="text-xl text-gray-300 max-w-4xl mx-auto">
             GDG @ UTSC is more than just a tech club. We&apos;re a community of
             passionate developers, designers, and innovators who believe in the
             power of technology to change the world. Backed by Google&apos;s
@@ -50,13 +50,15 @@ const AboutSection = () => {
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => (
             <FadeInOnScroll key={index} delay={index * 0.1}>
-              <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 h-full">
+              <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300">
                 <CardContent className="p-8 text-center">
-                  <div className="mb-4 flex justify-center">{feature.icon}</div>
-                  <h3 className="text-xl font-semibold mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
+                  <div className="flex flex-col items-center">
+                    <div className="mb-4 flex justify-center">{feature.icon}</div>
+                    <h3 className="text-xl font-semibold mb-3 text-white">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-300">{feature.description}</p>
+                  </div>
                 </CardContent>
               </Card>
             </FadeInOnScroll>
@@ -68,10 +70,10 @@ const AboutSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="bg-linear-to-r from-card to-accent rounded-2xl p-8 md:p-12 text-center"
+          className="bg-black rounded-2xl p-8 md:p-12 text-center"
         >
-          <h3 className="text-3xl font-bold mb-4">Our Mission</h3>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <h3 className="text-3xl font-bold mb-4 text-white">Our Mission</h3>
+          <p className="text-lg text-gray-300 max-w-3xl mx-auto">
             To foster a vibrant community of developers at UTSC, providing
             access to cutting-edge technologies, industry insights, and
             collaborative learning experiences that prepare students for
