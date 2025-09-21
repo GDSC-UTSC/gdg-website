@@ -53,42 +53,7 @@ const EventsSection = async () => {
           ))}
         </StaggerContainer>
 
-        <div className="bg-secondary/30 rounded-2xl p-8 md:p-12">
-          <h3 className="text-3xl font-bold mb-8 text-center">Past Events</h3>
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {pastEvents.map((event, index) => (
-              <FadeInOnScroll key={index} delay={index * 0.1}>
-                <Link href={`/events/${event.id}`}>
-                  <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 h-full cursor-pointer opacity-75">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs px-2 py-1 rounded-full text-white bg-muted">{event.status}</span>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <CardTitle className="text-xl">{event.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 mb-4">
-                      <p className="text-sm text-muted-foreground flex items-center">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        {event.eventDate?.toDate().toLocaleDateString()} • {event.startTime} - {event.endTime}
-                      </p>
-                      <p className="text-sm text-muted-foreground">📍 {event.location}</p>
-                    </div>
-                    <p className="text-muted-foreground mb-4">{event.description}</p>
-                    <Button
-                      className="w-full bg-gradient-to-r from-muted to-muted/80 text-muted-foreground shadow-md cursor-not-allowed opacity-60"
-                      disabled
-                    >
-                      Event Completed
-                    </Button>
-                  </CardContent>
-                  </Card>
-                </Link>
-              </FadeInOnScroll>
-            ))}
-          </StaggerContainer>
-        </div>
+
       </div>
     </section>
   );
