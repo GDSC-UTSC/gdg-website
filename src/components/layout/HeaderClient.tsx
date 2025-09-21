@@ -7,7 +7,7 @@ interface HeaderClientProps {
 }
 
 const HeaderClient = ({ children }: HeaderClientProps) => {
-  const [scrollOpacity, setScrollOpacity] = useState(1);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -15,26 +15,20 @@ const HeaderClient = ({ children }: HeaderClientProps) => {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      // Fade the header as user scrolls (minimum opacity of 0.7)
-      const opacity = Math.max(0.7, 1 - currentScrollY / 1000);
-      setScrollOpacity(opacity);
+      // Toggle scrolled state for subtle style changes (no opacity changes)
+      setIsScrolled(currentScrollY > 50);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Don't render dynamic styles until mounted to prevent hydration mismatch
-  const dynamicStyle = mounted ? { opacity: scrollOpacity } : { opacity: 1 };
+  // Fully opaque background so content underneath is not visible
+  const backgroundClass = mounted && isScrolled ? "bg-black border-white/40" : "bg-black border-white/20";
 
   return (
-    <header
-      className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 transition-opacity duration-300 w-full max-w-6xl px-6"
-      style={dynamicStyle}
-    >
-      <div className="bg-transparent backdrop-blur-sm rounded-2xl border border-white/20">
-        {children}
-      </div>
+    <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] transition-all duration-300 w-full max-w-6xl px-6">
+      <div className={`${backgroundClass} rounded-2xl border transition-all duration-300`}>{children}</div>
     </header>
   );
 };

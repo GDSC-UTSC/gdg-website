@@ -2,41 +2,30 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { FadeInOnScroll, StaggerContainer } from "@/components/animations";
-import { motion, AnimatePresence } from "framer-motion";
-import { Circle, Github, Menu, ChevronDown } from "lucide-react";
-import { useState } from "react";
-import Image from "next/image";
+import { motion } from "framer-motion";
+import { Circle, Github, Menu } from "lucide-react";
 
 const AboutSection = () => {
-  const [expandedCard, setExpandedCard] = useState<number | null>(null);
-
   const features = [
     {
       icon: <Github className="h-8 w-8 text-google-blue" />,
       title: "Learn by Building",
       description:
         "Hands-on workshops, hackathons, and coding sessions that push your technical boundaries.",
-      image: "/images/learn-building.jpg"
     },
     {
       icon: <Circle className="h-8 w-8 text-google-green" />,
       title: "Industry Connections",
       description:
         "Network with Google engineers, industry professionals, and like-minded developers.",
-      image: "/images/industry-connections.jpg"
     },
     {
       icon: <Menu className="h-8 w-8 text-google-yellow" />,
       title: "Career Growth",
       description:
         "Access to exclusive opportunities, mentorship programs, and career development resources.",
-      image: "/images/career-growth.jpg"
     },
   ];
-
-  const toggleCard = (index: number) => {
-    setExpandedCard(expandedCard === index ? null : index);
-  };
 
   return (
     <section id="about" className="py-20 bg-black">
@@ -61,47 +50,15 @@ const AboutSection = () => {
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => (
             <FadeInOnScroll key={index} delay={index * 0.1}>
-              <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 cursor-pointer">
+              <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300">
                 <CardContent className="p-8 text-center">
-                  <div
-                    className="flex flex-col items-center"
-                    onClick={() => toggleCard(index)}
-                  >
+                  <div className="flex flex-col items-center">
                     <div className="mb-4 flex justify-center">{feature.icon}</div>
                     <h3 className="text-xl font-semibold mb-3 text-white">
                       {feature.title}
                     </h3>
-                    <p className="text-gray-300 mb-4">{feature.description}</p>
-                    <ChevronDown
-                      className={`h-5 w-5 text-white transition-transform duration-200 ${
-                        expandedCard === index ? 'rotate-180' : ''
-                      }`}
-                    />
+                    <p className="text-gray-300">{feature.description}</p>
                   </div>
-
-                  <AnimatePresence>
-                    {expandedCard === index && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden mt-4"
-                      >
-                        <div className="border-t border-gray-300 pt-4">
-                          <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                            <Image
-                              src={feature.image}
-                              alt={feature.title}
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </CardContent>
               </Card>
             </FadeInOnScroll>
