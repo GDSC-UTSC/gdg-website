@@ -27,8 +27,10 @@ const HeaderClient = ({ children }: HeaderClientProps) => {
   const backgroundClass = mounted && isScrolled ? "bg-black border-white/40" : "bg-black border-white/20";
 
   return (
-    <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] transition-all duration-300 w-full max-w-6xl px-6">
-      <div className={`${backgroundClass} rounded-2xl border transition-all duration-300`}>{children}</div>
+    <header className="fixed top-3 sm:top-6 left-1/2 transform -translate-x-1/2 z-[9999] transition-all duration-300 w-full max-w-6xl px-3 sm:px-6">
+      <div className={`${backgroundClass} rounded-2xl border overflow-hidden transition-all duration-300`}>
+        {children}
+      </div>
     </header>
   );
 };
