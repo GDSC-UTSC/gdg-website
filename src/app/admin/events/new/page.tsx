@@ -1,6 +1,6 @@
 "use client";
 
-import { Event, EventType, QuestionType } from "@/app/types/events";
+import { Event, EVENTSTATUS, EventStatusType, EventType, QuestionType } from "@/app/types/events";
 import { UserData } from "@/app/types/userdata";
 import UserSearch from "@/components/admin/UserSearch";
 import QuestionBuilder from "@/components/positions/QuestionBuilder";
@@ -11,10 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TagsInput from "@/components/ui/tags-input";
 import { Timestamp } from "firebase/firestore";
+import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { X } from "lucide-react";
 
 type FormData = {
   title: string;
@@ -24,7 +24,7 @@ type FormData = {
   endTime: string;
   location: string;
   registrationDeadline: Date | undefined;
-  status: "upcoming" | "ongoing" | "completed" | "cancelled" | "closed";
+  status: EventStatusType;
   tags: string[];
   link: string;
   questions: QuestionType[];
@@ -72,7 +72,6 @@ export default function AdminNewEventPage() {
         registrationDeadline: formData.registrationDeadline
           ? Timestamp.fromDate(formData.registrationDeadline)
           : undefined,
-        status: formData.status,
         tags: formData.tags,
         organizers: formData.organizers.map(user => user.id),
         createdAt: Timestamp.now(),
@@ -80,6 +79,7 @@ export default function AdminNewEventPage() {
         imageUrls: formData.imageUrls,
         link: formData.link,
         questions: formData.questions,
+        status: formData.status,
       };
 
       const event = new Event(eventData);
@@ -244,16 +244,13 @@ export default function AdminNewEventPage() {
               onChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
-                  status: value as "upcoming" | "ongoing" | "completed" | "cancelled" | "closed",
+                  status: value as EventStatusType
                 }))
               }
-              options={[
-                { value: "upcoming", label: "Upcoming" },
-                { value: "ongoing", label: "Ongoing" },
-                { value: "completed", label: "Completed" },
-                { value: "cancelled", label: "Cancelled" },
-                { value: "closed", label: "Closed" },
-              ]}
+              options={[...EVENTSTATUS].map((status) => ({
+                value: status,
+                label: status.charAt(0).toUpperCase() + status.slice(1),
+              }))}
             />
 
             <QuestionBuilder

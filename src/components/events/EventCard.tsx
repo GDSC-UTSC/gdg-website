@@ -1,4 +1,5 @@
 import { EventType } from "@/app/types/events";
+import { ScaleIn } from "@/components/animations";
 import {
   Card,
   CardContent,
@@ -6,10 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ScaleIn } from "@/components/animations";
-import { Camera, MapPin, Calendar, Clock } from "lucide-react";
-import Link from "next/link";
+import { Calendar, Camera, Clock, MapPin } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface EventCardProps {
   event: EventType;
@@ -17,7 +17,7 @@ interface EventCardProps {
 
 const EventCard = ({ event }: EventCardProps) => {
   const firstImage = event.imageUrls?.[0];
-  
+
   const formatDate = (timestamp: any) => {
     return timestamp?.toDate?.()?.toLocaleDateString() || "TBD";
   };
@@ -31,7 +31,7 @@ const EventCard = ({ event }: EventCardProps) => {
     const displayHour = hour % 12 || 12;
     return `${displayHour}:${minutes} ${ampm}`;
   };
-  
+
   return (
     <ScaleIn hover className="w-full">
       <Link href={`/events/${event.id}`}>
@@ -51,20 +51,20 @@ const EventCard = ({ event }: EventCardProps) => {
                 <Camera className="w-8 h-8 text-muted-foreground opacity-50" />
               </div>
             )}
-            
+
             {/* Status Badge */}
             <div className="absolute top-3 right-3">
               <span className="px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                {event.status ? event.status.charAt(0).toUpperCase() + event.status.slice(1) : 'Unknown'}
               </span>
             </div>
           </div>
-          
+
           <CardHeader className="flex-shrink-0 pb-3">
             <CardTitle className="text-lg line-clamp-1">{event.title}</CardTitle>
             <CardDescription className="line-clamp-2 text-sm">{event.description}</CardDescription>
           </CardHeader>
-          
+
           <CardContent className="flex-1 flex flex-col justify-between pb-6">
             {/* Event Details */}
             <div className="space-y-2 text-sm">
@@ -80,7 +80,7 @@ const EventCard = ({ event }: EventCardProps) => {
                   </>
                 )}
               </div>
-              
+
               {/* Location */}
               {event.location && (
                 <div className="flex items-center gap-2 text-muted-foreground">
