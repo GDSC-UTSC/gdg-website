@@ -63,7 +63,7 @@ const Header = () => {
                     className="h-12 w-auto sm:h-14"
                   />
                   <div>
-                    <h1 className="text-lg sm:text-xl font-bold">GDG @ UTSC</h1>
+                    <h1 className="text-lg sm:text-xl font-bold">GasdSC</h1>
                     <p className="text-xs text-muted-foreground hidden sm:block">
                       Google Developer Group
                     </p>
