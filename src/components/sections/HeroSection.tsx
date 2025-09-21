@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Spotlight } from "@/components/ui/spotlight";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import HeaderClient from "@/components/layout/HeaderClient";
 
 const HeroSection = () => {
   const scrollToSection = (sectionId: string) => {
@@ -15,6 +17,7 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Header inside hero section */}
 
       {/* Grid pattern background */}
       <div

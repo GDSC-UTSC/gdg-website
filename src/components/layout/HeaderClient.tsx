@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 interface HeaderClientProps {
@@ -8,44 +7,35 @@ interface HeaderClientProps {
 }
 
 const HeaderClient = ({ children }: HeaderClientProps) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [scrollOpacity, setScrollOpacity] = useState(1);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
-      // Show/hide header based on scroll direction
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down - hide header
-        setIsHeaderVisible(false);
-      } else {
-        // Scrolling up - show header
-        setIsHeaderVisible(true);
-      }
-
-      setLastScrollY(currentScrollY);
-      setIsScrolled(currentScrollY > 50);
+      // Fade the header as user scrolls (minimum opacity of 0.7)
+      const opacity = Math.max(0.7, 1 - currentScrollY / 1000);
+      setScrollOpacity(opacity);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
+
+  // Don't render dynamic styles until mounted to prevent hydration mismatch
+  const dynamicStyle = mounted ? { opacity: scrollOpacity } : { opacity: 1 };
 
   return (
-    <motion.header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-background/60 backdrop-blur-lg shadow-md "
-          : "bg-transparent"
-      }`}
-      initial={{ y: -100 }}
-      animate={{ y: isHeaderVisible ? 0 : -100 }}
-      transition={{ duration: 0.3 }}
+    <header
+      className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 transition-opacity duration-300 w-full max-w-6xl px-6"
+      style={dynamicStyle}
     >
-      {children}
-    </motion.header>
+      <div className="bg-transparent backdrop-blur-sm rounded-2xl border border-white/20">
+        {children}
+      </div>
+    </header>
   );
 };
 
