@@ -1,6 +1,6 @@
 "use client";
 
-import { Event, QuestionType } from "@/app/types/events";
+import { Event, EVENTSTATUS, QuestionType } from "@/app/types/events";
 import { UserData } from "@/app/types/userdata";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import UserSearch from "@/components/admin/UserSearch";
@@ -342,13 +342,10 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
                 label="Status"
                 value={formData.status}
                 onChange={(value) => handleInputChange("status", value)}
-                options={[
-                  { value: "upcoming", label: "Upcoming" },
-                  { value: "ongoing", label: "Ongoing" },
-                  { value: "past", label: "Past" },
-                  { value: "test", label: "Test" },
-                  { value: "hidden", label: "Hidden" },
-                ]}
+                options={[...EVENTSTATUS].map((status) => ({
+                  value: status,
+                  label: status.charAt(0).toUpperCase() + status.slice(1),
+                }))}
               />
 
               <QuestionBuilder
