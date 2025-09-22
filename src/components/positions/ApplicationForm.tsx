@@ -171,6 +171,18 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
     return null;
   }
 
+  if (!user) {
+    return (
+      <Card className="p-8 text-center">
+        <h3 className="text-2xl font-semibold mb-4">Apply for This Position</h3>
+        <p className="text-muted-foreground mb-6">Please sign in to apply for this position.</p>
+        <Button size="lg">
+          <a href="/account/login">Sign In to Apply</a>
+        </Button>
+      </Card>
+    );
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-4xl mx-auto">
       <Card className="p-8">
