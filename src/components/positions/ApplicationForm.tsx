@@ -176,7 +176,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
       <Card className="p-8 text-center">
         <h3 className="text-2xl font-semibold mb-4">Apply for This Position</h3>
         <p className="text-muted-foreground mb-6">Please sign in to apply for this position.</p>
-        <Button size="lg">
+        <Button size="lg" color="white">
           <a href="/account/login">Sign In to Apply</a>
         </Button>
       </Card>
