@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Send, Upload } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -177,7 +178,7 @@ export default function ApplicationForm({ position }: ApplicationFormProps) {
         <h3 className="text-2xl font-semibold mb-4">Apply for This Position</h3>
         <p className="text-muted-foreground mb-6">Please sign in to apply for this position.</p>
         <Button asChild size="lg">
-          <a href="/account/login">Sign In to Apply</a>
+          <Link href="/account/login">Sign In to Apply</Link>
         </Button>
       </Card>
     );
