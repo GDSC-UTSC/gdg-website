@@ -177,7 +177,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
       <Card className="p-8 text-center">
         <h3 className="text-2xl font-semibold mb-4">Register for This Event</h3>
         <p className="text-muted-foreground mb-6">Please sign in to register for this event.</p>
-        <Button size="lg">
+        <Button asChild size="lg">
           <a href="/account/login">Sign In to Register</a>
         </Button>
       </Card>
