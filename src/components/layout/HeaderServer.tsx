@@ -51,6 +51,15 @@ const HeaderServer = () => {
                   Team
                 </Button>
               </Link>
+              <Link href="/positions">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white/80 hover:text-white hover:bg-white/10 text-sm px-3 sm:px-4 h-9"
+                >
+                  Positions
+                </Button>
+              </Link>
             </nav>
           </div>
 
