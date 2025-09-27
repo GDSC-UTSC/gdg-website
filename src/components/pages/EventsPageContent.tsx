@@ -9,7 +9,7 @@ export default async function EventsPageContent() {
   try {
     const allEvents = await Event.readAll({ server: true, public: true });
     // Sort events by date (newest first)
-    events = allEvents.sort((a, b) => {
+    events = allEvents.filter((event) => event.isPublic).sort((a, b) => {
       const dateA = a.eventDate?.toDate?.() || new Date(0);
       const dateB = b.eventDate?.toDate?.() || new Date(0);
       return dateB.getTime() - dateA.getTime();

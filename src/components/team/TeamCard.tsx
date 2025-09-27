@@ -46,7 +46,7 @@ const TeamCard = ({ member, user, index }: TeamCardProps) => {
             {user.bio ? (
               <p className="text-muted-foreground text-xs line-clamp-4 leading-relaxed">{user.bio}</p>
             ) : (
-              <p className="text-muted-foreground text-xs italic">No bio available</p>
+              <p className="text-muted-foreground text-xs italic"></p>
             )}
           </div>
 
@@ -70,7 +70,7 @@ const TeamCard = ({ member, user, index }: TeamCardProps) => {
               </Button>
             )}
             {(!user.linkedin && !user.github) && (
-              <div className="text-xs text-muted-foreground opacity-50">No links</div>
+              <div className="text-xs text-muted-foreground opacity-50"></div>
             )}
           </div>
         </CardContent>

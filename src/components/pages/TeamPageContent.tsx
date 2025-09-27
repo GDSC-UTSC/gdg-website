@@ -11,15 +11,20 @@ export default async function TeamPageContent() {
   try {
     // First load all teams
     teams = await Team.readAll({ server: true, public: true });
-    
+
     // Collect all unique user IDs from all teams
     const allMemberIds = new Set<string>();
+    const firstTeam = teams[0];
+    const techTeam = teams.find(team => team.name === "Technology");
+    const techTeamIdx = teams.indexOf(techTeam!);
+    teams[0] = techTeam!;
+    teams[techTeamIdx] = firstTeam;
     teams.forEach(team => {
       team.members.forEach(member => {
         allMemberIds.add(member.userId);
       });
     });
-    
+
     // Load only the users who are team members
     const userPromises = Array.from(allMemberIds).map(async (userId) => {
       try {
@@ -29,12 +34,13 @@ export default async function TeamPageContent() {
         return null;
       }
     });
-    
+
     const userResults = await Promise.all(userPromises);
     users = userResults.filter((user): user is UserData => user !== null);
   } catch (error) {
     console.error("Error fetching team data:", error);
   }
+
 
   return (
     <>
@@ -77,13 +83,6 @@ export default async function TeamPageContent() {
             </FadeInOnScroll>
           );
         })}
-
-        {teams.length === 0 && (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-white mb-2">No Teams Yet</h3>
-            <p className="text-gray-400 mb-6">Check back soon to meet our team!</p>
-          </div>
-        )}
       </div>
     </>
   );

@@ -28,7 +28,7 @@ export interface EventType {
   endTime?: string;
   location?: string;
   registrationDeadline?: Timestamp;
-  status: EventStatusType
+  status: EventStatusType;
   tags?: string[];
   organizers?: string[];
   createdAt?: Timestamp;
@@ -143,6 +143,10 @@ export class Event implements EventType {
     return this.eventDate.toDate() > new Date();
   }
 
+  get isPublic(): boolean {
+    return this.status !== "hidden" && this.status !== "test";
+  }
+
   // Create a new event
   async create(): Promise<string> {
     const collectionPath = "events";
@@ -155,7 +159,7 @@ export class Event implements EventType {
     const documentPath = `events/${id}`;
 
     if (options?.server) {
-      "use server";
+      ("use server");
       const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentServer(documentPath, Event.converter);
     }
@@ -164,11 +168,11 @@ export class Event implements EventType {
   }
 
   // Read all events
-  static async readAll(options?: { server?: boolean, public?: boolean }): Promise<Event[]> {
+  static async readAll(options?: { server?: boolean; public?: boolean }): Promise<Event[]> {
     const collectionPath = "events";
 
     if (options?.server) {
-      "use server";
+      ("use server");
       const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentsServer(collectionPath, Event.converter, { public: options?.public || false });
     }
@@ -194,10 +198,7 @@ export class Event implements EventType {
 
   // Image management methods
   async uploadImage(file: File): Promise<string> {
-    const { downloadURL } = await uploadFile(
-      file,
-      `events/${this.id}/images/${file.name}`
-    );
+    const { downloadURL } = await uploadFile(file, `events/${this.id}/images/${file.name}`);
 
     if (!this.imageUrls) {
       this.imageUrls = [];
@@ -237,9 +238,7 @@ export class Event implements EventType {
   }
 
   // Event-specific methods
-  async updateStatus(
-    status: EventStatusType,
-  ): Promise<void> {
+  async updateStatus(status: EventStatusType): Promise<void> {
     this.status = status;
     await this.update();
   }
