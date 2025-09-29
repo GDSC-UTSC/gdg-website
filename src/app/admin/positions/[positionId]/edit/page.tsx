@@ -118,6 +118,7 @@ export default function AdminEditPositionPage({ params }: AdminEditPositionPageP
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading position...</p>
+            <p className="text-muted-foreground">Please make sure you are on a supported browser (not linkedin or instagram browser)</p>
           </div>
         </div>
       </div>
