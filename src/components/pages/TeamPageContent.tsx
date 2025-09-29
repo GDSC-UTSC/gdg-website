@@ -36,7 +36,7 @@ export default async function TeamPageContent() {
     // Load only the users who are team members
     const userPromises = Array.from(allMemberIds).map(async (userId) => {
       try {
-        return await UserData.read(userId, { server: true });
+        return await UserData.read(userId, { server: true, public: true });
       } catch (error) {
         console.error(`Error loading user ${userId}:`, error);
         return null;
