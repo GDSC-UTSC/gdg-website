@@ -1,8 +1,8 @@
 import { Team } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
-import { StaggerContainer, FadeInOnScroll } from "@/components/animations";
-import PageTitle from "@/components/ui/PageTitle";
+import { FadeInOnScroll, StaggerContainer } from "@/components/animations";
 import TeamCard from "@/components/team/TeamCard";
+import PageTitle from "@/components/ui/PageTitle";
 
 export default async function TeamPageContent() {
   let teams: Team[] = [];
@@ -14,13 +14,21 @@ export default async function TeamPageContent() {
 
     // Collect all unique user IDs from all teams
     const allMemberIds = new Set<string>();
+    // put execs on top and tech second
     const firstTeam = teams[0];
-    const techTeam = teams.find(team => team.name === "Technology");
+    const secondTeam = teams[1];
+    const techTeam = teams.find((team) => team.name === "Technology");
+    const execTeam = teams.find((team) => team.name === "Executive");
+
     const techTeamIdx = teams.indexOf(techTeam!);
-    teams[0] = techTeam!;
+    const execTeamIdx = teams.indexOf(execTeam!);
+
+    teams[0] = execTeam!;
+    teams[1] = techTeam!;
     teams[techTeamIdx] = firstTeam;
-    teams.forEach(team => {
-      team.members.forEach(member => {
+    teams[execTeamIdx] = secondTeam;
+    teams.forEach((team) => {
+      team.members.forEach((member) => {
         allMemberIds.add(member.userId);
       });
     });
@@ -41,7 +49,6 @@ export default async function TeamPageContent() {
     console.error("Error fetching team data:", error);
   }
 
-
   return (
     <>
       <PageTitle title="Our Team" description="Meet the amazing people behind GDG @ UTSC" />
@@ -57,9 +64,7 @@ export default async function TeamPageContent() {
                   {team.name}
                 </h2>
 
-                {team.description && (
-                  <p className="text-muted-foreground text-center mb-8">{team.description}</p>
-                )}
+                {team.description && <p className="text-muted-foreground text-center mb-8">{team.description}</p>}
 
                 {sortedMembers.length === 0 ? (
                   <p className="text-muted-foreground text-center py-8">No team members assigned yet.</p>

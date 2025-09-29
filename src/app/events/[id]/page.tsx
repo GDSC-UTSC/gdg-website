@@ -61,12 +61,14 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
         return "bg-blue-600";
       case "ongoing":
         return "bg-green-600";
-      case "completed":
+      case "past":
         return "bg-gray-600";
-      case "cancelled":
+      case "test":
+        return "bg-yellow-600";
+      case "hidden":
         return "bg-red-600";
-      case "closed":
-        return "bg-orange-600";
+      case "default":
+        return "bg-purple-600";
       default:
         return "bg-gray-600";
     }
@@ -98,7 +100,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
     );
   }
 
-  const isRegistrationAvailable = event.status === "upcoming";
+  const isRegistrationAvailable = event.isUpcoming;
 
   return (
     <div className="min-h-screen gradient-bg py-20">
@@ -137,8 +139,8 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                   </div>
                 )}
               </div>
-              <span className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getStatusColor(event.status)}`}>
-                {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+              <span className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getStatusColor(event.displayStatus)}`}>
+                {event.displayStatus.charAt(0).toUpperCase() + event.displayStatus.slice(1)}
               </span>
             </div>
 
@@ -181,7 +183,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                     label: "Time",
                     value: `${formatTime(event.startTime)}${event.endTime ? ` - ${formatTime(event.endTime)}` : ""}`
                   }] : []),
-                  { label: "Status", value: event.status },
+                  { label: "Status", value: event.displayStatus.charAt(0).toUpperCase() + event.displayStatus.slice(1) },
                   ...(event.registrationDeadline ? [{
                     label: "Registration Deadline",
                     value: formatDate(event.registrationDeadline)

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Calendar, Crown, FolderOpen, Shield, ShieldCheck, UserCheck, Users } from "lucide-react";
+import { Calendar, Crown, FolderOpen, HelpCircle, Shield, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -130,6 +130,41 @@ export default function AdminPage() {
         </motion.div>
 
         <div className="grid gap-6">
+          {/* FAQ Navigation Block */}
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Card
+              className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+              onClick={() => router.push("/admin/faq")}
+            >
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-primary/20">
+                    <HelpCircle className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold">Need Help Getting Started?</div>
+                    <div className="text-sm font-normal text-muted-foreground">Check out our comprehensive FAQ section</div>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Learn how to create events, manage positions, and add team members with our step-by-step guides.
+                </p>
+                <div className="inline-flex items-center text-sm font-medium text-primary group">
+                  View FAQ Section
+                  <svg className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
           {/* Welcome Card */}
           <Card className="border-0 shadow-lg">
             <CardHeader>

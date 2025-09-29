@@ -1,4 +1,4 @@
-import { EventType } from "@/app/types/events";
+import { Event, EventType } from "@/app/types/events";
 import { ScaleIn } from "@/components/animations";
 import {
   Card,
@@ -32,6 +32,38 @@ const EventCard = ({ event }: EventCardProps) => {
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
+  const getDisplayStatus = (event: EventType): string => {
+    if (event.status !== "default") return event.status;
+
+    const now = new Date();
+    const eventDate = event.eventDate.toDate();
+
+    // Create start and end date times
+    let startDateTime = new Date(eventDate);
+    let endDateTime = new Date(eventDate);
+
+    if (event.startTime) {
+      const [hours, minutes] = event.startTime.split(':').map(Number);
+      startDateTime.setHours(hours, minutes, 0, 0);
+    }
+
+    if (event.endTime) {
+      const [hours, minutes] = event.endTime.split(':').map(Number);
+      endDateTime.setHours(hours, minutes, 0, 0);
+    } else if (event.startTime) {
+      // If no end time, assume 1 hour duration
+      const [hours, minutes] = event.startTime.split(':').map(Number);
+      endDateTime.setHours(hours + 1, minutes, 0, 0);
+    } else {
+      // If no times specified, assume end of day
+      endDateTime.setHours(23, 59, 59, 999);
+    }
+
+    if (now < startDateTime) return "upcoming";
+    if (now >= startDateTime && now <= endDateTime) return "ongoing";
+    return "past";
+  };
+
   return (
     <ScaleIn hover className="w-full">
       <Link href={`/events/${event.id}`}>
@@ -55,7 +87,7 @@ const EventCard = ({ event }: EventCardProps) => {
             {/* Status Badge */}
             <div className="absolute top-3 right-3">
               <span className="px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                {event.status ? event.status.charAt(0).toUpperCase() + event.status.slice(1) : 'Unknown'}
+                {getDisplayStatus(event).charAt(0).toUpperCase() + getDisplayStatus(event).slice(1)}
               </span>
             </div>
           </div>
