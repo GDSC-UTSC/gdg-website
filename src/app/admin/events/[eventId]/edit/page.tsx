@@ -1,6 +1,6 @@
 "use client";
 
-import { Event, EVENTSTATUS, QuestionType } from "@/app/types/events";
+import { Event, EVENTSTATUS, EventStatusType, QuestionType } from "@/app/types/events";
 import { UserData } from "@/app/types/userdata";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import UserSearch from "@/components/admin/UserSearch";
@@ -34,7 +34,7 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
     endTime: "",
     location: "",
     registrationDeadline: "",
-    status: "upcoming" as "upcoming" | "ongoing" | "past" | "test" | "hidden",
+    status: "default" as EventStatusType,
     tags: [] as string[],
     link: "",
     questions: [] as QuestionType[],

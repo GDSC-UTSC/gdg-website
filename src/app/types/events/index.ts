@@ -8,7 +8,7 @@ import {
 import { deleteFile, uploadFile } from "@/lib/firebase/client/storage";
 import { serverTimestamp, Timestamp } from "firebase/firestore";
 
-export const EVENTSTATUS = ["upcoming", "ongoing", "past", "test", "hidden"] as const;
+export const EVENTSTATUS = ["test", "hidden", "default"] as const;
 
 export type EventStatusType = (typeof EVENTSTATUS)[number];
 
@@ -120,31 +120,78 @@ export class Event implements EventType {
 
   // Computed properties
   get isUpcoming(): boolean {
-    return this.status === "upcoming";
+    if (this.status !== "default") return false;
+
+    const now = new Date();
+    const eventDateTime = this.getEventStartDateTime();
+
+    return eventDateTime > now;
   }
 
   get isOngoing(): boolean {
-    return this.status === "ongoing";
+    if (this.status !== "default") return false;
+
+    const now = new Date();
+    const startDateTime = this.getEventStartDateTime();
+    const endDateTime = this.getEventEndDateTime();
+
+    return now >= startDateTime && now <= endDateTime;
   }
 
-  // get isCompleted(): boolean {
-  //   return this.status === "past";
-  // }
+  get isPast(): boolean {
+    if (this.status !== "default") return false;
 
-  // get isCancelled(): boolean {
-  //   return this.status === "cancelled";
-  // }
+    const now = new Date();
+    const endDateTime = this.getEventEndDateTime();
+
+    return now > endDateTime;
+  }
+
+  private getEventStartDateTime(): Date {
+    const eventDate = this.eventDate.toDate();
+    if (this.startTime) {
+      const [hours, minutes] = this.startTime.split(':').map(Number);
+      eventDate.setHours(hours, minutes, 0, 0);
+    }
+    return eventDate;
+  }
+
+  private getEventEndDateTime(): Date {
+    const eventDate = this.eventDate.toDate();
+    if (this.endTime) {
+      const [hours, minutes] = this.endTime.split(':').map(Number);
+      eventDate.setHours(hours, minutes, 0, 0);
+    } else if (this.startTime) {
+      // If no end time, assume 1 hour duration
+      const [hours, minutes] = this.startTime.split(':').map(Number);
+      eventDate.setHours(hours + 1, minutes, 0, 0);
+    } else {
+      // If no times specified, assume end of day
+      eventDate.setHours(23, 59, 59, 999);
+    }
+    return eventDate;
+  }
 
   get isRegistrationOpen(): boolean {
-    if (this.status !== "upcoming") return false;
+    if (!this.isUpcoming) return false;
     if (this.registrationDeadline) {
       return this.registrationDeadline.toDate() > new Date();
     }
-    return this.eventDate.toDate() > new Date();
+    return this.getEventStartDateTime() > new Date();
   }
 
   get isPublic(): boolean {
     return this.status !== "hidden" && this.status !== "test";
+  }
+
+  get displayStatus(): string {
+    if (this.status !== "default") return this.status;
+
+    if (this.isUpcoming) return "upcoming";
+    if (this.isOngoing) return "ongoing";
+    if (this.isPast) return "past";
+
+    return "default";
   }
 
   // Create a new event

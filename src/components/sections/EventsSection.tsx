@@ -8,8 +8,8 @@ import Link from "next/link";
 const EventsSection = async () => {
   const events = await Event.readAll({ server: true, public: true });
 
-  const upcomingEvents = events.filter((event) => event.status === "upcoming");
-  const pastEvents = events.filter((event) => event.status === "past");
+  const upcomingEvents = events.filter((event) => event.isUpcoming);
+  const pastEvents = events.filter((event) => event.isPast);
 
   return (
     <section id="events" className="py-20">
@@ -29,7 +29,7 @@ const EventsSection = async () => {
                 <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 h-full cursor-pointer">
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs px-2 py-1 rounded-full text-white ${event.status}`}>{event.status}</span>
+                    <span className={`text-xs px-2 py-1 rounded-full text-white ${event.displayStatus}`}>{event.displayStatus}</span>
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <CardTitle className="text-xl">{event.title}</CardTitle>

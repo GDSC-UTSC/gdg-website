@@ -43,7 +43,7 @@ export default function AdminNewEventPage() {
     endTime: "",
     location: "",
     registrationDeadline: undefined,
-    status: "upcoming",
+    status: "default",
     tags: [],
     link: "",
     questions: [],

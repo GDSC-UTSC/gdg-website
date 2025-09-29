@@ -1,20 +1,20 @@
 "use client";
 
+import { UserData } from "@/app/types/userdata";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { UserData } from "@/app/types/userdata";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, EyeOff, Users, AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft, Calendar, Clock, EyeOff, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 
 const FAQItem = ({
   icon: Icon,
   question,
   answer,
   delay = 0,
-  variant = "default"
+  variant = "default",
 }: {
   icon: any;
   question: string;
@@ -22,11 +22,7 @@ const FAQItem = ({
   delay?: number;
   variant?: "default" | "warning";
 }) => (
-  <motion.div
-    initial={{ y: 20, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ duration: 0.6, delay }}
-  >
+  <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay }}>
     <Card className={`border-0 shadow-lg ${variant === "warning" ? "border-orange-200 bg-orange-50/50" : ""}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
@@ -38,9 +34,7 @@ const FAQItem = ({
       </CardHeader>
       <CardContent>
         <div className="prose prose-sm max-w-none">
-          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-            {answer}
-          </p>
+          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{answer}</p>
         </div>
       </CardContent>
     </Card>
@@ -103,11 +97,7 @@ export default function EventsFAQPage() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-8"
         >
-          <Button
-            variant="ghost"
-            onClick={() => router.push("/admin/faq")}
-            className="mb-4 hover:bg-primary/10"
-          >
+          <Button variant="ghost" onClick={() => router.push("/admin/faq")} className="mb-4 hover:bg-primary/10">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to FAQ
           </Button>
@@ -160,19 +150,6 @@ Without registration questions, the event will display as information-only with 
 
 Test events will not appear on the main events page and are only visible in the admin panel."
             delay={0.4}
-          />
-
-          <FAQItem
-            icon={Calendar}
-            question="How does event timing work (Upcoming, Ongoing, Past)?"
-            answer="Events are automatically categorized based on the 'Event Date' you set:
-
-• **Upcoming Events**: Event date is in the future
-• **Ongoing Events**: Event date is today
-• **Past Events**: Event date has passed
-
-The system uses this date to automatically sort and display events in the appropriate sections on the main website. Make sure to set the correct date and time for proper categorization."
-            delay={0.5}
           />
 
           <FAQItem

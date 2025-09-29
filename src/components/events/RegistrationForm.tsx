@@ -145,7 +145,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
   };
 
   // Check if registration is available
-  const isRegistrationOpen = event.status === "upcoming";
+  const isRegistrationOpen = event.isUpcoming;
 
   if (!isRegistrationOpen) {
     return (
@@ -399,7 +399,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
               <Button
                 type="submit"
-                disabled={isSubmitting || event.status !== "upcoming"}
+                disabled={isSubmitting || !event.isUpcoming}
                 className="w-full h-12 text-lg font-semibold"
                 size="lg"
               >

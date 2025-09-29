@@ -1,20 +1,20 @@
 "use client";
 
+import { UserData } from "@/app/types/userdata";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { UserData } from "@/app/types/userdata";
 import { motion } from "framer-motion";
-import { ArrowLeft, Users, AlertTriangle, Plus, RotateCcw, AlertCircle } from "lucide-react";
+import { AlertCircle, AlertTriangle, ArrowLeft, Plus, RotateCcw, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 
 const FAQItem = ({
   icon: Icon,
   question,
   answer,
   delay = 0,
-  variant = "default"
+  variant = "default",
 }: {
   icon: any;
   question: string;
@@ -22,39 +22,49 @@ const FAQItem = ({
   delay?: number;
   variant?: "default" | "warning" | "info" | "danger";
 }) => (
-  <motion.div
-    initial={{ y: 20, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ duration: 0.6, delay }}
-  >
-    <Card className={`border-0 shadow-lg ${
-      variant === "warning" ? "border-orange-200 bg-orange-50/50" :
-      variant === "info" ? "border-blue-200 bg-blue-50/50" :
-      variant === "danger" ? "border-red-200 bg-red-50/50" : ""
-    }`}>
+  <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay }}>
+    <Card
+      className={`border-0 shadow-lg ${
+        variant === "warning"
+          ? "border-orange-200 bg-orange-50/50"
+          : variant === "info"
+          ? "border-blue-200 bg-blue-50/50"
+          : variant === "danger"
+          ? "border-red-200 bg-red-50/50"
+          : ""
+      }`}
+    >
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${
-            variant === "warning" ? "bg-orange-100" :
-            variant === "info" ? "bg-blue-100" :
-            variant === "danger" ? "bg-red-100" :
-            "bg-primary/10"
-          }`}>
-            <Icon className={`h-5 w-5 ${
-              variant === "warning" ? "text-orange-600" :
-              variant === "info" ? "text-blue-600" :
-              variant === "danger" ? "text-red-600" :
-              "text-primary"
-            }`} />
+          <div
+            className={`p-2 rounded-lg ${
+              variant === "warning"
+                ? "bg-orange-100"
+                : variant === "info"
+                ? "bg-blue-100"
+                : variant === "danger"
+                ? "bg-red-100"
+                : "bg-primary/10"
+            }`}
+          >
+            <Icon
+              className={`h-5 w-5 ${
+                variant === "warning"
+                  ? "text-orange-600"
+                  : variant === "info"
+                  ? "text-blue-600"
+                  : variant === "danger"
+                  ? "text-red-600"
+                  : "text-primary"
+              }`}
+            />
           </div>
           {question}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="prose prose-sm max-w-none">
-          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-            {answer}
-          </p>
+          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{answer}</p>
         </div>
       </CardContent>
     </Card>
@@ -117,11 +127,7 @@ export default function TeamFAQPage() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-8"
         >
-          <Button
-            variant="ghost"
-            onClick={() => router.push("/admin/faq")}
-            className="mb-4 hover:bg-primary/10"
-          >
+          <Button variant="ghost" onClick={() => router.push("/admin/faq")} className="mb-4 hover:bg-primary/10">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to FAQ
           </Button>
@@ -132,9 +138,7 @@ export default function TeamFAQPage() {
             </div>
             <h1 className="text-3xl font-bold">Team Management FAQ</h1>
           </div>
-          <p className="text-muted-foreground text-lg">
-            Learn how to add and manage team members effectively
-          </p>
+          <p className="text-muted-foreground text-lg">Learn how to add and manage team members effectively</p>
         </motion.div>
 
         {/* FAQ Items */}
@@ -186,24 +190,9 @@ Remember: the order you add team members is the order they'll appear on the webs
           <FAQItem
             icon={Users}
             question="What information should I include for each team member?"
-            answer="For each team member, consider including:
+            answer="If you add a member by email, they must sign in and update their own profile from their side before their details show correctly on the website.
 
-**Required Information:**
-• Full name
-• Position/role title
-
-**Recommended Information:**
-• Professional profile picture
-• Brief bio highlighting their role and expertise
-• Educational background (if relevant)
-• Key skills or specializations
-
-**Optional Information:**
-• LinkedIn profile
-• GitHub profile
-• Personal website
-• Other relevant social media
-• Fun facts or interests (for personality)"
+If you want LinkedIn or GitHub to appear on the team card, the member needs to add those links in their profile themselves. Changes to their profile will automatically update the team card on the website."
             delay={0.5}
           />
 
