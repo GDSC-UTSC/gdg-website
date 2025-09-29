@@ -9,7 +9,7 @@ const EventsSection = async () => {
   const events = await Event.readAll({ server: true, public: true });
 
   const upcomingEvents = events.filter((event) => event.status === "upcoming");
-  const pastEvents = events.filter((event) => event.status === "completed");
+  const pastEvents = events.filter((event) => event.status === "past");
 
   return (
     <section id="events" className="py-20">
@@ -42,7 +42,7 @@ const EventsSection = async () => {
                     </p>
                     <p className="text-sm text-muted-foreground">📍 {event.location}</p>
                   </div>
-                  <p className="text-muted-foreground mb-4">{event.description}</p>
+                  <p className="text-muted-foreground mb-4 line-clamp-3">{event.description}</p>
                   <Button className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     Register Now
                   </Button>
