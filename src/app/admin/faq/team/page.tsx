@@ -26,11 +26,11 @@ const FAQItem = ({
     <Card
       className={`border-0 shadow-lg ${
         variant === "warning"
-          ? "border-orange-200 bg-orange-50/50"
+          ? "border-orange-500/30 bg-orange-500/5"
           : variant === "info"
-          ? "border-blue-200 bg-blue-50/50"
+          ? "border-blue-500/30 bg-blue-500/5"
           : variant === "danger"
-          ? "border-red-200 bg-red-50/50"
+          ? "border-red-500/30 bg-red-500/5"
           : ""
       }`}
     >
@@ -39,22 +39,22 @@ const FAQItem = ({
           <div
             className={`p-2 rounded-lg ${
               variant === "warning"
-                ? "bg-orange-100"
+                ? "bg-orange-500/20"
                 : variant === "info"
-                ? "bg-blue-100"
+                ? "bg-blue-500/20"
                 : variant === "danger"
-                ? "bg-red-100"
+                ? "bg-red-500/20"
                 : "bg-primary/10"
             }`}
           >
             <Icon
               className={`h-5 w-5 ${
                 variant === "warning"
-                  ? "text-orange-600"
+                  ? "text-orange-400"
                   : variant === "info"
-                  ? "text-blue-600"
+                  ? "text-blue-400"
                   : variant === "danger"
-                  ? "text-red-600"
+                  ? "text-red-400"
                   : "text-primary"
               }`}
             />
@@ -63,8 +63,81 @@ const FAQItem = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="prose prose-sm max-w-none">
-          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{answer}</p>
+        <div className="space-y-4">
+          <div
+            className="text-muted-foreground leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: answer
+                .split("\n\n")
+                .map((paragraph) => {
+                  // Function to convert markdown to HTML
+                  const formatText = (text: string): string => {
+                    return text
+                      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
+                      .replace(/\*(.*?)\*/g, "<em>$1</em>");
+                  };
+
+                  if (paragraph.includes("•")) {
+                    const lines = paragraph.split("\n");
+                    const intro = lines.find((line) => !line.trim().startsWith("•"));
+                    const bullets = lines.filter((line) => line.trim().startsWith("•"));
+
+                    return `<div class="space-y-3">
+                    ${intro ? `<p class="mb-3">${formatText(intro)}</p>` : ""}
+                    <ul class="list-disc pl-6 space-y-2">
+                      ${bullets
+                        .map((bullet) => {
+                          const text = bullet.replace(/^•\s*/, "").trim();
+                          return `<li>${formatText(text)}</li>`;
+                        })
+                        .join("")}
+                    </ul>
+                  </div>`;
+                  } else if (paragraph.match(/^\d+\./m)) {
+                    const lines = paragraph.split("\n");
+                    const intro = lines.find((line) => !line.match(/^\d+\./));
+                    const items = lines.filter((line) => line.match(/^\d+\./));
+
+                    return `<div class="space-y-3">
+                    ${intro ? `<p class="mb-3">${formatText(intro)}</p>` : ""}
+                    <ol class="list-decimal pl-6 space-y-2">
+                      ${items
+                        .map((item) => {
+                          const match = item.match(/^(\d+\.)\s*(.*)/);
+                          if (match) {
+                            const text = match[2];
+                            return `<li>${formatText(text)}</li>`;
+                          }
+                          return "";
+                        })
+                        .join("")}
+                    </ol>
+                  </div>`;
+                  } else if (paragraph.includes("-")) {
+                    const lines = paragraph.split("\n");
+                    const intro = lines.find((line) => !line.trim().startsWith("-"));
+                    const dashes = lines.filter((line) => line.trim().startsWith("-"));
+
+                    if (dashes.length > 0) {
+                      return `<div class="space-y-3">
+                      ${intro ? `<p class="mb-3">${formatText(intro)}</p>` : ""}
+                      <ul class="list-disc pl-6 space-y-2">
+                        ${dashes
+                          .map((dash) => {
+                            const text = dash.replace(/^-\s*/, "").trim();
+                            return `<li>${formatText(text)}</li>`;
+                          })
+                          .join("")}
+                      </ul>
+                    </div>`;
+                    }
+                  }
+
+                  return `<p class="mb-4 last:mb-0">${formatText(paragraph)}</p>`;
+                })
+                .join(""),
+            }}
+          />
         </div>
       </CardContent>
     </Card>
@@ -212,20 +285,6 @@ To remove a team member:
 
 **Note**: Remember that removing and re-adding affects the display order. If you need to maintain order, only remove members who are actually leaving the team."
             delay={0.6}
-          />
-
-          <FAQItem
-            icon={Users}
-            question="How are team members organized and displayed?"
-            answer="Team members are typically organized by:
-
-• **Leadership roles first** (President, Vice President, etc.)
-• **Department heads** (Technical, Marketing, Events, etc.)
-• **General members** within each department
-• **Order of addition** within each category
-
-The display order on the public website follows the sequence in which you add team members to the system. Plan this hierarchy before adding members to avoid reorganization later."
-            delay={0.7}
           />
         </div>
 

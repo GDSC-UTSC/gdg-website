@@ -1,20 +1,20 @@
 "use client";
 
+import { UserData } from "@/app/types/userdata";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { UserData } from "@/app/types/userdata";
 import { motion } from "framer-motion";
-import { ArrowLeft, UserPlus, FileText, Mail, User, AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft, FileText, Mail, User, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 
 const FAQItem = ({
   icon: Icon,
   question,
   answer,
   delay = 0,
-  variant = "default"
+  variant = "default",
 }: {
   icon: any;
   question: string;
@@ -22,36 +22,108 @@ const FAQItem = ({
   delay?: number;
   variant?: "default" | "warning" | "info";
 }) => (
-  <motion.div
-    initial={{ y: 20, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ duration: 0.6, delay }}
-  >
-    <Card className={`border-0 shadow-lg ${
-      variant === "warning" ? "border-orange-200 bg-orange-50/50" :
-      variant === "info" ? "border-blue-200 bg-blue-50/50" : ""
-    }`}>
+  <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay }}>
+    <Card
+      className={`border-0 shadow-lg ${
+        variant === "warning"
+          ? "border-orange-500/30 bg-orange-500/5"
+          : variant === "info"
+          ? "border-blue-500/30 bg-blue-500/5"
+          : ""
+      }`}
+    >
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${
-            variant === "warning" ? "bg-orange-100" :
-            variant === "info" ? "bg-blue-100" :
-            "bg-primary/10"
-          }`}>
-            <Icon className={`h-5 w-5 ${
-              variant === "warning" ? "text-orange-600" :
-              variant === "info" ? "text-blue-600" :
-              "text-primary"
-            }`} />
+          <div
+            className={`p-2 rounded-lg ${
+              variant === "warning" ? "bg-orange-500/20" : variant === "info" ? "bg-blue-500/20" : "bg-primary/10"
+            }`}
+          >
+            <Icon
+              className={`h-5 w-5 ${
+                variant === "warning" ? "text-orange-400" : variant === "info" ? "text-blue-400" : "text-primary"
+              }`}
+            />
           </div>
           {question}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="prose prose-sm max-w-none">
-          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-            {answer}
-          </p>
+        <div className="space-y-4">
+          <div
+            className="text-muted-foreground leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: answer
+                .split("\n\n")
+                .map((paragraph) => {
+                  // Function to convert markdown to HTML
+                  const formatText = (text: string) => {
+                    return text
+                      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
+                      .replace(/\*(.*?)\*/g, "<em>$1</em>");
+                  };
+
+                  if (paragraph.includes("•")) {
+                    const lines = paragraph.split("\n");
+                    const intro = lines.find((line) => !line.trim().startsWith("•"));
+                    const bullets = lines.filter((line) => line.trim().startsWith("•"));
+
+                    return `<div class="space-y-3">
+                    ${intro ? `<p class="mb-3">${formatText(intro)}</p>` : ""}
+                    <ul class="list-disc pl-6 space-y-2">
+                      ${bullets
+                        .map((bullet) => {
+                          const text = bullet.replace(/^•\s*/, "").trim();
+                          return `<li>${formatText(text)}</li>`;
+                        })
+                        .join("")}
+                    </ul>
+                  </div>`;
+                  } else if (paragraph.match(/^\d+\./m)) {
+                    const lines = paragraph.split("\n");
+                    const intro = lines.find((line) => !line.match(/^\d+\./));
+                    const items = lines.filter((line) => line.match(/^\d+\./));
+
+                    return `<div class="space-y-3">
+                    ${intro ? `<p class="mb-3">${formatText(intro)}</p>` : ""}
+                    <ol class="list-decimal pl-6 space-y-2">
+                      ${items
+                        .map((item) => {
+                          const match = item.match(/^(\d+\.)\s*(.*)/);
+                          if (match) {
+                            const text = match[2];
+                            return `<li>${formatText(text)}</li>`;
+                          }
+                          return "";
+                        })
+                        .join("")}
+                    </ol>
+                  </div>`;
+                  } else if (paragraph.includes("-")) {
+                    const lines = paragraph.split("\n");
+                    const intro = lines.find((line) => !line.trim().startsWith("-"));
+                    const dashes = lines.filter((line) => line.trim().startsWith("-"));
+
+                    if (dashes.length > 0) {
+                      return `<div class="space-y-3">
+                      ${intro ? `<p class="mb-3">${formatText(intro)}</p>` : ""}
+                      <ul class="list-disc pl-6 space-y-2">
+                        ${dashes
+                          .map((dash) => {
+                            const text = dash.replace(/^-\s*/, "").trim();
+                            return `<li>${formatText(text)}</li>`;
+                          })
+                          .join("")}
+                      </ul>
+                    </div>`;
+                    }
+                  }
+
+                  return `<p class="mb-4 last:mb-0">${formatText(paragraph)}</p>`;
+                })
+                .join(""),
+            }}
+          />
         </div>
       </CardContent>
     </Card>
@@ -114,11 +186,7 @@ export default function PositionsFAQPage() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-8"
         >
-          <Button
-            variant="ghost"
-            onClick={() => router.push("/admin/faq")}
-            className="mb-4 hover:bg-primary/10"
-          >
+          <Button variant="ghost" onClick={() => router.push("/admin/faq")} className="mb-4 hover:bg-primary/10">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to FAQ
           </Button>
@@ -201,11 +269,14 @@ Examples of good custom questions:
             question="How do I manage applications and communicate with applicants?"
             answer="Once applications start coming in:
 
-1. View all applications in the admin panel under the specific position
-2. Review applicant information and responses
-3. Download resumes and additional files
-4. Use the applicant's email to reach out for interviews or updates
-5. Update application status (under review, accepted, rejected, etc.)
+1. Go to https://gdgutsc.ca/admin/positions in your admin panel
+2. Find your specific position and click the **'View Applications'** button
+3. Review all applicant information, responses, and files
+4. Download resumes and additional documents
+5. Use the applicant's email to reach out for interviews or updates
+6. Update application status (under review, accepted, rejected, etc.)
+
+**Important**: All applications are automatically stored in Firebase and can be accessed through the admin panel. You don't need to set up any additional storage or database connections.
 
 **Tip**: Keep track of your hiring process by updating application statuses regularly to stay organized."
             delay={0.6}

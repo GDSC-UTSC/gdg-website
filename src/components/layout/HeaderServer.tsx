@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Instagram, Linkedin } from "lucide-react";
 import Link from "next/link";
 import HeaderClient from "./HeaderClient";
 
@@ -33,15 +34,6 @@ const HeaderServer = () => {
                   Events
                 </Button>
               </Link>
-              <Link href="/projects">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white/80 hover:text-white hover:bg-white/10 text-sm px-3 sm:px-4 h-9"
-                >
-                  Projects
-                </Button>
-              </Link>
               <Link href="/team">
                 <Button
                   variant="ghost"
@@ -63,12 +55,33 @@ const HeaderServer = () => {
             </nav>
           </div>
 
-          {/* Right side - Account Button */}
-          <Link href="/account">
-            <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-5 h-9">
-              Account
-            </Button>
-          </Link>
+          {/* Right side - Social Icons and Account Button */}
+          <div className="flex items-center gap-6">
+            {/* Social Media Icons */}
+            <div className="flex items-center gap-2">
+              <a
+                href="https://www.linkedin.com/company/gdscutsc/posts/"
+                className="text-white/70 hover:text-white transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/gdgutsc/"
+                className="text-white/70 hover:text-white transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+            </div>
+
+            {/* Account Button */}
+            <Link href="/account">
+              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-5 h-9">
+                Account
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </HeaderClient>
