@@ -164,13 +164,13 @@ export default function AccountPage() {
             onClick={() => router.push("/account/positions")}
           >
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <CardTitle className="text-xs font-medium flex items-center gap-2">
                 <Users className="h-4 w-4 text-orange-500" />
-                Positions
+                Applications
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xs text-muted-foreground">Manage positions</p>
+              <p className="text-xs text-muted-foreground">View the applications you've submitted</p>
             </CardContent>
           </Card>
 
