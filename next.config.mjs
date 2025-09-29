@@ -7,6 +7,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    minimumCacheTTL: 2592000,
     remotePatterns: [
       {
         protocol: "https",
@@ -28,15 +29,6 @@ const nextConfig = {
   },
   async headers() {
     return [
-      {
-        source: "/_next/image?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fgdg-website-314a4.firebasestorage.app%2Fo%2Fusers(.*)",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=2678400, s-maxage=2678400, immutable",
-          },
-        ],
-      },
       {
         source: "/(.*)",
         headers: [
