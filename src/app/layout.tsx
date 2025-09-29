@@ -7,7 +7,7 @@ import { Inter } from "next/font/google";
 import type React from "react";
 import "./globals.css";
 import { Providers } from "./providers";
-
+import { Analytics } from "@vercel/analytics/next"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -38,6 +38,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="bg-black">
+      <Analytics />
       <body className={`${inter.className} bg-black`}>
         <ServiceWorker>
           <AuthProvider>
