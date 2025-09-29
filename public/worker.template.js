@@ -70,7 +70,6 @@ self.addEventListener("fetch", (event) => {
         headers.append(key, val);
       });
       headers.append("Authorization", "Bearer " + idToken);
-      console.log("headers token", idToken);
       processRequestPromise = getBodyContent(req).then((body) => {
         try {
           req = new Request(req.url, {
