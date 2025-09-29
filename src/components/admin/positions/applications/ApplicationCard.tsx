@@ -63,10 +63,10 @@ export default function ApplicationCard({ application, user, position, index }: 
                 {user?.bio && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{user.bio}</p>}
 
                 <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                  <span>Applied {application.createdAt.toDate().toLocaleDateString()}</span>
-                  {Object.keys(application.quesitons || {}).length > 0 && (
-                    <span>{Object.keys(application.quesitons || {}).length} responses</span>
-                  )}
+                  <span>
+                    Applied{" "}
+                    {application.createdAt.toDate().toLocaleDateString()}
+                  </span>
                 </div>
 
                 {/* Social Links and File Icons */}
@@ -114,11 +114,12 @@ export default function ApplicationCard({ application, user, position, index }: 
           </div>
 
           <div className="flex items-center gap-3">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(application.status)}`}>
-              {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-            </span>
-
-            <Button variant="outline" size="sm" onClick={toggleExpansion} className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleExpansion}
+              className="flex items-center gap-2"
+            >
               View Details
               {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </Button>
@@ -136,13 +137,19 @@ export default function ApplicationCard({ application, user, position, index }: 
           >
             <h4 className="text-lg font-semibold mb-4">Application Responses</h4>
 
-            {application.quesitons && Object.keys(application.quesitons).length > 0 ? (
+            {application.questions &&
+            Object.keys(application.questions).length > 0 ? (
               <div className="space-y-4">
-                {Object.entries(application.quesitons).map(([questionKey, answer], questionIndex) => {
-                  // Find the corresponding question from position data
-                  const questionData = position?.questions?.find(
-                    (q, idx) => questionKey === `question_${idx}` || questionKey === q.label
-                  );
+                {Object.entries(application.questions)
+                  .filter(([questionKey]) => questionKey !== "Resume" && questionKey !== "Resume_text")
+                  .map(
+                  ([questionKey, answer], questionIndex) => {
+                    // Find the corresponding question from position data
+                    const questionData = position?.questions?.find(
+                      (q, idx) =>
+                        questionKey === `question_${idx}` ||
+                        questionKey === q.label
+                    );
 
                   return (
                     <div key={questionIndex} className="p-4 bg-muted/20 rounded-lg">

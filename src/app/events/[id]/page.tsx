@@ -80,6 +80,9 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center py-12">
             <p className="text-gray-400">Loading event...</p>
+            <p className="text-muted-foreground">
+              Please make sure you are on a supported browser (not linkedin or instagram browser)
+            </p>
           </div>
         </div>
       </div>
@@ -139,7 +142,11 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                   </div>
                 )}
               </div>
-              <span className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getStatusColor(event.displayStatus)}`}>
+              <span
+                className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getStatusColor(
+                  event.displayStatus
+                )}`}
+              >
                 {event.displayStatus.charAt(0).toUpperCase() + event.displayStatus.slice(1)}
               </span>
             </div>
@@ -162,12 +169,12 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
             config={{
               images: {
                 urls: event.imageUrls || [],
-                altTextPrefix: event.title
+                altTextPrefix: event.title,
               },
               about: {
                 title: "About This Event",
-                description: event.description
-              }
+                description: event.description,
+              },
             }}
             delay={0.1}
             className="lg:col-span-2"
@@ -179,25 +186,44 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                 title: "Event Details",
                 items: [
                   { label: "Date", value: formatDate(event.eventDate) },
-                  ...(event.startTime ? [{
-                    label: "Time",
-                    value: `${formatTime(event.startTime)}${event.endTime ? ` - ${formatTime(event.endTime)}` : ""}`
-                  }] : []),
-                  { label: "Status", value: event.displayStatus.charAt(0).toUpperCase() + event.displayStatus.slice(1) },
-                  ...(event.registrationDeadline ? [{
-                    label: "Registration Deadline",
-                    value: formatDate(event.registrationDeadline)
-                  }] : [])
-                ]
+                  ...(event.startTime
+                    ? [
+                        {
+                          label: "Time",
+                          value: `${formatTime(event.startTime)}${
+                            event.endTime ? ` - ${formatTime(event.endTime)}` : ""
+                          }`,
+                        },
+                      ]
+                    : []),
+                  {
+                    label: "Status",
+                    value: event.displayStatus.charAt(0).toUpperCase() + event.displayStatus.slice(1),
+                  },
+                  ...(event.registrationDeadline
+                    ? [
+                        {
+                          label: "Registration Deadline",
+                          value: formatDate(event.registrationDeadline),
+                        },
+                      ]
+                    : []),
+                ],
               },
-              tags: event.tags && event.tags.length > 0 ? {
-                title: "Tags",
-                items: event.tags
-              } : undefined,
-              profiles: event.organizers && event.organizers.length > 0 ? {
-                title: "Event Organizers",
-                userIds: event.organizers
-              } : undefined
+              tags:
+                event.tags && event.tags.length > 0
+                  ? {
+                      title: "Tags",
+                      items: event.tags,
+                    }
+                  : undefined,
+              profiles:
+                event.organizers && event.organizers.length > 0
+                  ? {
+                      title: "Event Organizers",
+                      userIds: event.organizers,
+                    }
+                  : undefined,
             }}
             delay={0.2}
           />

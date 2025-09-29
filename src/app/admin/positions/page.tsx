@@ -38,6 +38,7 @@ export default function AdminPositionsPage() {
           />
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading positions...</p>
+            <p className="text-muted-foreground">Please make sure you are on a supported browser (not linkedin or instagram browser)</p>
           </div>
         </div>
       </div>
@@ -48,14 +49,14 @@ export default function AdminPositionsPage() {
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
         <div className="flex justify-end mb-6">
-          <Button 
+          <Button
             onClick={() => router.push('/admin/positions/new')}
             className="px-6 py-2"
           >
             Create New Position
           </Button>
         </div>
-        
+
         <PageTitle
           title="Manage Positions"
           description="Manage all positions and their applications from the admin panel."

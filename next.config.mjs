@@ -21,7 +21,7 @@ const nextConfig = {
         hostname: "firebasestorage.googleapis.com",
       },
     ],
-    formats: ["image/webp", "image/avif"],
+    formats: ["image/webp"],
   },
   experimental: {
     optimizePackageImports: ["lucide-react"],
