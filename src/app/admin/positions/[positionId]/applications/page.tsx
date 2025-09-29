@@ -59,7 +59,7 @@ export default function AdminApplicationsPage({
 
         // Fetch all applications for this position
         const fetchedApplications = await Application.readAll(positionId);
-
+        console.log(fetchedApplications);
         // For each application, fetch the corresponding user data
         const applicationsWithUsers = await Promise.all(
           fetchedApplications.map(async (application) => {
