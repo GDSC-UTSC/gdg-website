@@ -90,12 +90,6 @@ export default function ApplicationCard({
                     Applied{" "}
                     {application.createdAt.toDate().toLocaleDateString()}
                   </span>
-                  {Object.keys(application.quesitons || {}).length > 0 && (
-                    <span>
-                      {Object.keys(application.quesitons || {}).length}{" "}
-                      responses
-                    </span>
-                  )}
                 </div>
 
                 {/* Social Links and File Icons */}
@@ -135,15 +129,6 @@ export default function ApplicationCard({
           </div>
 
           <div className="flex items-center gap-3">
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(
-                application.status
-              )}`}
-            >
-              {application.status.charAt(0).toUpperCase() +
-                application.status.slice(1)}
-            </span>
-
             <Button
               variant="outline"
               size="sm"
@@ -173,10 +158,12 @@ export default function ApplicationCard({
               Application Responses
             </h4>
 
-            {application.quesitons &&
-            Object.keys(application.quesitons).length > 0 ? (
+            {application.questions &&
+            Object.keys(application.questions).length > 0 ? (
               <div className="space-y-4">
-                {Object.entries(application.quesitons).map(
+                {Object.entries(application.questions)
+                  .filter(([questionKey]) => questionKey !== "Resume" && questionKey !== "Resume_text")
+                  .map(
                   ([questionKey, answer], questionIndex) => {
                     // Find the corresponding question from position data
                     const questionData = position?.questions?.find(
