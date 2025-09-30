@@ -6,6 +6,7 @@ import { UserData } from "@/app/types/userdata";
 import ApplicationCard from "@/components/admin/positions/applications/ApplicationCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import FloatingAiAssistant from "@/components/ui/FloatingAiAssistant";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -317,6 +318,12 @@ export default function AdminApplicationsPage({
             )
           )}
         </motion.div>
+
+        {/* AI Assistant for applicant review */}
+        <FloatingAiAssistant
+          positionId={position.id}
+          context={`Reviewing ${applications.length} applications for ${position.name}. Current filters: ${statusFilter} status, searching "${searchTerm}", sorted by ${sortBy} ${sortOrder}. Position description: ${position.description}`}
+        />
       </div>
     </div>
   );

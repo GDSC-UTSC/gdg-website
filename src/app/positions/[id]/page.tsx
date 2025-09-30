@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
+import FloatingAiAssistant from '../../../components/ui/FloatingAiAssistant';
 
 interface PositionDetailPageProps {
   params: Promise<{ id: string }>;
@@ -19,7 +20,7 @@ export default function PositionDetailPage({
   const { id } = use(params);
   const [position, setPosition] = useState<Position | null>(null);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchPosition = async () => {
@@ -168,6 +169,8 @@ export default function PositionDetailPage({
         >
           <ApplicationForm position={position} />
         </motion.div>
+
+        
       </div>
     </div>
   );
