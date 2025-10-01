@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Bot, Send, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from 'react-markdown';
 
 interface FloatingAiAssistantProps {
   positionId?: string;
@@ -13,31 +14,51 @@ interface FloatingAiAssistantProps {
 
 function AIChatCard({ className, positionId, context }: FloatingAiAssistantProps) {
   const [messages, setMessages] = useState<{ sender: "ai" | "user"; text: string }[]>([
-    { sender: "ai", text: "👋 Hello! I'm your AI assistant for reviewing applicants." },
+    { sender: "ai", text: "👋 Hello! I'm your AI assistant for reviewing applicants. I can help you analyze qualifications, compare candidates, suggest interview questions, and provide insights on application quality. What would you like to know?" },
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
-    setMessages([...messages, { sender: "user", text: input }]);
 
-    // Log context for debugging
-    console.log('Position ID:', positionId);
-    console.log('Context:', context);
-
+    const userMessage = input;
+    setMessages([...messages, { sender: "user", text: userMessage }]);
     setInput("");
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { sender: "ai", text: "🤖 This is a sample AI response for applicant review." }]);
+    try {
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          positionId,
+          context,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
+      setMessages((prev) => [...prev, { sender: "ai", text: data.response }]);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      setMessages((prev) => [...prev, {
+        sender: "ai",
+        text: "Sorry, I'm having trouble connecting right now. Please try again."
+      }]);
+    } finally {
       setIsTyping(false);
-    }, 1200);
+    }
   };
 
   return (
-    <div className={cn("relative w-[360px] h-[460px] rounded-2xl overflow-hidden p-[2px]", className)}>
+    <div className={cn("relative w-[480px] h-[500px] rounded-2xl overflow-hidden p-[2px]", className)}>
       {/* Animated Outer Border */}
       <motion.div
         className="absolute inset-0 rounded-2xl border-2 border-white/20"
@@ -95,7 +116,25 @@ function AIChatCard({ className, positionId, context }: FloatingAiAssistantProps
                   : "bg-white/30 text-black font-semibold self-end"
               )}
             >
-              {msg.text}
+              {msg.sender === "ai" ? (
+                <div className="prose prose-sm prose-invert max-w-none">
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                      strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+                      em: ({ children }) => <em className="italic">{children}</em>,
+                      ul: ({ children }) => <ul className="list-disc list-inside mb-2">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal list-inside mb-2">{children}</ol>,
+                      li: ({ children }) => <li className="mb-1">{children}</li>,
+                      code: ({ children }) => <code className="bg-white/20 px-1 py-0.5 rounded text-xs">{children}</code>,
+                    }}
+                  >
+                    {msg.text}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                msg.text
+              )}
             </motion.div>
           ))}
 
