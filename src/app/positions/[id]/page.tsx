@@ -1,10 +1,13 @@
 "use client";
 
 import { Position } from "@/app/types/positions";
+import { Application } from "@/app/types/positions/applications";
 import ApplicationForm from "@/components/positions/ApplicationForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
+import { CheckCircle } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
@@ -18,12 +21,20 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
   const [position, setPosition] = useState<Position | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
+  const [hasApplied, setHasApplied] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPosition = async () => {
       try {
         const fetchedPosition = await Position.read(id);
         setPosition(fetchedPosition);
+
+        if (user?.email) {
+          // check if this user has already applied
+          const applied = await Application.hasApplied(id, user.email);
+          setHasApplied(applied);
+        }
       } catch (error) {
         console.error("Error fetching position:", error);
       } finally {
@@ -90,13 +101,12 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
             className="flex items-center justify-center gap-4 flex-wrap"
           >
             <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
-                position.isActive
-                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                  : position.isDraft
+              className={`px-3 py-1 rounded-full text-sm font-medium ${position.isActive
+                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                : position.isDraft
                   ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
                   : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-              }`}
+                }`}
             >
               {position.status.charAt(0).toUpperCase() + position.status.slice(1)}
             </span>
@@ -139,6 +149,32 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
             </div>
           </Card>
         </motion.div>
+
+        {/* Already Applied Banner */}
+        {hasApplied && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="mb-8"
+          >
+            <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+              <div className="p-6">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
+                      You Already Applied
+                    </h3>
+                    <p className="text-green-700 dark:text-green-300">
+                      You have already submitted an application for this position. You may reapply to update your application.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <ApplicationForm position={position} />
