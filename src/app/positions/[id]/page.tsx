@@ -34,12 +34,6 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
           // check if this user has already applied
           const applied = await Application.hasApplied(id, user.email);
           setHasApplied(applied);
-
-          if (applied) {
-            console.log("✅ You already applied to this position.");
-          } else {
-            console.log("🆕 You have not applied yet.");
-          }
         }
       } catch (error) {
         console.error("Error fetching position:", error);
