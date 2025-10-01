@@ -8,6 +8,7 @@ import {
   TextareaInput,
 } from "@/components/positions/questions";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import TagsInput from "@/components/ui/tags-input";
 import { Timestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -122,12 +123,21 @@ export default function AdminNewPositionPage() {
               ]}
             />
 
-            <QuestionBuilder
-              questions={formData.questions}
-              onChange={(questions) =>
-                setFormData((prev) => ({ ...prev, questions }))
-              }
-            />
+            <div className="space-y-4">
+              <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    <strong>Note:</strong> All positions will include default questions for Full Name, Resume and email
+                  </p>
+                </CardContent>
+              </Card>
+              <QuestionBuilder
+                questions={formData.questions}
+                onChange={(questions) =>
+                  setFormData((prev) => ({ ...prev, questions }))
+                }
+              />
+            </div>
 
             <div className="flex gap-4 pt-8 justify-center">
               <Button

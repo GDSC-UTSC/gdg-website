@@ -1,6 +1,6 @@
 "use client";
 
-import { Event, EVENTSTATUS, QuestionType } from "@/app/types/events";
+import { Event, EVENTSTATUS, EventStatusType, QuestionType } from "@/app/types/events";
 import { UserData } from "@/app/types/userdata";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import UserSearch from "@/components/admin/UserSearch";
@@ -34,7 +34,7 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
     endTime: "",
     location: "",
     registrationDeadline: "",
-    status: "upcoming" as "upcoming" | "ongoing" | "past" | "test" | "hidden",
+    status: "default" as EventStatusType,
     tags: [] as string[],
     link: "",
     questions: [] as QuestionType[],
@@ -158,6 +158,7 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
         <div className="container mx-auto px-4">
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading event...</p>
+            <p className="text-muted-foreground">Please make sure you are on a supported browser (not linkedin or instagram browser)</p>
           </div>
         </div>
       </div>

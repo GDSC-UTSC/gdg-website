@@ -13,6 +13,7 @@ import { auth } from "@/lib/firebase/client";
 import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
 import { Calendar, FolderOpen, Shield, Users } from "lucide-react";
+import Link from 'next/link';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -160,24 +161,24 @@ export default function AccountPage() {
 
           <Card
             className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
-            onClick={() => router.push("/admin/positions")}
+            onClick={() => router.push("/account/positions")}
           >
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <CardTitle className="text-xs font-medium flex items-center gap-2">
                 <Users className="h-4 w-4 text-orange-500" />
-                Positions
+                Applications
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xs text-muted-foreground">Manage positions</p>
+              <p className="text-xs text-muted-foreground">View the applications you've submitted</p>
             </CardContent>
           </Card>
 
           {userData?.isAdmin && (
-            <Card
+            <Link href="/admin"
               className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
-              onClick={() => router.push("/admin")}
             >
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Shield className="h-4 w-4 text-red-500" />
@@ -187,7 +188,8 @@ export default function AccountPage() {
               <CardContent>
                 <p className="text-xs text-muted-foreground">Access admin dashboard</p>
               </CardContent>
-            </Card>
+              </Card>
+            </Link>
           )}
         </div>
         <Card className="border-0 shadow-lg">

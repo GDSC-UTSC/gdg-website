@@ -28,29 +28,29 @@ export default function AccountPositionsPage() {
 
       try {
         setIsLoadingPositions(true);
-        
+
         // Load user data to get associations
         const userData = await UserData.read(user.uid);
         if (userData) {
           setUserData(userData);
-          
+
           // Get user's position applications from associations
           const applicationIds = userData.associations?.applications || [];
-          
+
           if (applicationIds.length > 0) {
             // Load all positions and filter by user's applications
             const allPositions = await Position.readAll();
-            const userPositions = allPositions.filter(position => 
+            const userPositions = allPositions.filter(position =>
               applicationIds.includes(position.id)
             );
-            
+
             // Sort positions by date (newest first)
             const sortedPositions = userPositions.sort((a, b) => {
               const dateA = a.updatedAt?.toDate?.() || new Date(0);
               const dateB = b.updatedAt?.toDate?.() || new Date(0);
               return dateB.getTime() - dateA.getTime();
             });
-            
+
             setPositions(sortedPositions);
           }
         }
@@ -90,7 +90,9 @@ export default function AccountPositionsPage() {
           title="My Applications"
           description="Position applications you've submitted within the GDG team."
         />
-
+        <p className="text-muted-foreground flex items-center justify-center gap-2 mb-6 text-sm">
+          NOTE: It might take a few minutes for your applications to appear here.
+        </p>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {positions.map((position, index) => (
             <motion.div

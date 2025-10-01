@@ -1,8 +1,8 @@
 import { Team } from "@/app/types/team";
 import { UserData } from "@/app/types/userdata";
-import { StaggerContainer, FadeInOnScroll } from "@/components/animations";
-import PageTitle from "@/components/ui/PageTitle";
+import { FadeInOnScroll, StaggerContainer } from "@/components/animations";
 import TeamCard from "@/components/team/TeamCard";
+import PageTitle from "@/components/ui/PageTitle";
 
 export default async function TeamPageContent() {
   let teams: Team[] = [];
@@ -11,25 +11,38 @@ export default async function TeamPageContent() {
   try {
     // First load all teams
     teams = await Team.readAll({ server: true, public: true });
-    
+
     // Collect all unique user IDs from all teams
     const allMemberIds = new Set<string>();
-    teams.forEach(team => {
-      team.members.forEach(member => {
+    // put execs on top and tech second
+    const firstTeam = teams[0];
+    const secondTeam = teams[1];
+    const techTeam = teams.find((team) => team.name === "Technology");
+    const execTeam = teams.find((team) => team.name === "Executive");
+
+    const techTeamIdx = teams.indexOf(techTeam!);
+    const execTeamIdx = teams.indexOf(execTeam!);
+
+    teams[0] = execTeam!;
+    teams[1] = techTeam!;
+    teams[techTeamIdx] = firstTeam;
+    teams[execTeamIdx] = secondTeam;
+    teams.forEach((team) => {
+      team.members.forEach((member) => {
         allMemberIds.add(member.userId);
       });
     });
-    
+
     // Load only the users who are team members
     const userPromises = Array.from(allMemberIds).map(async (userId) => {
       try {
-        return await UserData.read(userId, { server: true });
+        return await UserData.read(userId, { server: true, public: true });
       } catch (error) {
         console.error(`Error loading user ${userId}:`, error);
         return null;
       }
     });
-    
+
     const userResults = await Promise.all(userPromises);
     users = userResults.filter((user): user is UserData => user !== null);
   } catch (error) {
@@ -51,9 +64,7 @@ export default async function TeamPageContent() {
                   {team.name}
                 </h2>
 
-                {team.description && (
-                  <p className="text-muted-foreground text-center mb-8">{team.description}</p>
-                )}
+                {team.description && <p className="text-muted-foreground text-center mb-8">{team.description}</p>}
 
                 {sortedMembers.length === 0 ? (
                   <p className="text-muted-foreground text-center py-8">No team members assigned yet.</p>
@@ -77,13 +88,6 @@ export default async function TeamPageContent() {
             </FadeInOnScroll>
           );
         })}
-
-        {teams.length === 0 && (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-white mb-2">No Teams Yet</h3>
-            <p className="text-gray-400 mb-6">Check back soon to meet our team!</p>
-          </div>
-        )}
       </div>
     </>
   );

@@ -7,6 +7,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    minimumCacheTTL: 2592000,
     remotePatterns: [
       {
         protocol: "https",
@@ -21,7 +22,7 @@ const nextConfig = {
         hostname: "firebasestorage.googleapis.com",
       },
     ],
-    formats: ["image/webp", "image/avif"],
+    formats: ["image/webp"],
   },
   experimental: {
     optimizePackageImports: ["lucide-react"],

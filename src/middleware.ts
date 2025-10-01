@@ -2,7 +2,7 @@ import { getAuthenticatedUser } from "@/lib/firebase/server/index";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  if (!request.nextUrl.pathname.startsWith("/admin")) {
+  if (!request.nextUrl.pathname.startsWith("/admin") && !request.nextUrl.pathname.startsWith("/api/admin")) {
     return NextResponse.next();
   }
 

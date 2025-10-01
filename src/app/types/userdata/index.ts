@@ -113,13 +113,13 @@ export class UserData implements UserDataType {
     return this.id;
   }
 
-  static async read(id: string, options?: { server?: boolean }): Promise<UserData | null> {
+  static async read(id: string, options?: { server?: boolean; public?: boolean }): Promise<UserData | null> {
     const documentPath = `users/${id}`;
 
     if (options?.server) {
       ("use server");
       const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
-      return await getDocumentServer(documentPath, UserData.converter);
+      return await getDocumentServer(documentPath, UserData.converter, { public: options?.public });
     }
     return await getDocument(documentPath, UserData.converter);
   }

@@ -5,7 +5,15 @@ import {
   updateDocument,
 } from "@/lib/firebase/client/firestore";
 import { uploadFile } from "@/lib/firebase/client/storage";
-import { serverTimestamp, Timestamp } from "firebase/firestore";
+import {
+  serverTimestamp,
+  Timestamp,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase/client"; // make sure this points to your firestore instance
 
 export type ApplicationType = {
   id: string;
@@ -37,16 +45,14 @@ export class Application implements ApplicationType {
   }
 
   static converter = {
-    toFirestore: (application: Application) => {
-      return {
-        name: application.name,
-        email: application.email,
-        questions: application.questions,
-        status: application.status,
-        createdAt: application.createdAt,
-        updatedAt: serverTimestamp(),
-      };
-    },
+    toFirestore: (application: Application) => ({
+      name: application.name,
+      email: application.email,
+      questions: application.questions,
+      status: application.status,
+      createdAt: application.createdAt,
+      updatedAt: serverTimestamp(),
+    }),
     fromFirestore: (snapshot: any, options: any) => {
       const data = snapshot.data(options);
       return new Application({
@@ -76,19 +82,26 @@ export class Application implements ApplicationType {
 
     if (options?.server) {
       "use server";
-      const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
+      const { getDocument: getDocumentServer } = await import(
+        "@/lib/firebase/server/firestore"
+      );
       return await getDocumentServer(documentPath, Application.converter);
     }
 
     return await getDocument(documentPath, Application.converter);
   }
 
-  static async readAll(positionId: string, options?: { server?: boolean }): Promise<Application[]> {
+  static async readAll(
+    positionId: string,
+    options?: { server?: boolean }
+  ): Promise<Application[]> {
     const collectionPath = `positions/${positionId}/applications`;
 
     if (options?.server) {
       "use server";
-      const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
+      const { getDocuments: getDocumentsServer } = await import(
+        "@/lib/firebase/server/firestore"
+      );
       return await getDocumentsServer(collectionPath, Application.converter);
     }
 
@@ -112,6 +125,16 @@ export class Application implements ApplicationType {
   async delete() {
     // should not be able to delete ANY application for historical reasons
     return;
+  }
+
+  static async hasApplied(
+    positionId: string,
+    email: string
+  ): Promise<boolean> {
+    const colRef = collection(db, `positions/${positionId}/applications`);
+    const q = query(colRef, where("email", "==", email));
+    const snapshot = await getDocs(q);
+    return !snapshot.empty;
   }
 
   async uploadFile(

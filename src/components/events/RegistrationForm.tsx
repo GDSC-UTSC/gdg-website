@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, Send } from "lucide-react";
+import { AlertCircle, Link, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -145,7 +145,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
   };
 
   // Check if registration is available
-  const isRegistrationOpen = event.status === "upcoming";
+  const isRegistrationOpen = event.isUpcoming;
 
   if (!isRegistrationOpen) {
     return (
@@ -177,8 +177,8 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
       <Card className="p-8 text-center">
         <h3 className="text-2xl font-semibold mb-4">Register for This Event</h3>
         <p className="text-muted-foreground mb-6">Please sign in to register for this event.</p>
-        <Button size="lg">
-          <a href="/account/login">Sign In to Register</a>
+        <Button asChild size="lg">
+          <Link href="/account/login">Sign In to Register</Link>
         </Button>
       </Card>
     );
@@ -399,7 +399,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
               <Button
                 type="submit"
-                disabled={isSubmitting || event.status !== "upcoming"}
+                disabled={isSubmitting || !event.isUpcoming}
                 className="w-full h-12 text-lg font-semibold"
                 size="lg"
               >

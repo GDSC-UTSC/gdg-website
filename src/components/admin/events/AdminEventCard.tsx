@@ -24,12 +24,14 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
         return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
       case "ongoing":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-      case "completed":
+      case "past":
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
-      case "cancelled":
+      case "test":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "hidden":
         return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      case "closed":
-        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+      case "default":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
     }
@@ -41,7 +43,7 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-semibold">{event.title}</h3>
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
-            {event.status}
+            {event.status === "default" ? event.displayStatus : event.status}
           </span>
         </div>
 
