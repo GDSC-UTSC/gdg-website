@@ -106,7 +106,7 @@ export default function ContributingPage() {
 
           <ol className="list-decimal list-inside space-y-3 text-gray-300">
             <li>
-              <strong>Reach out to me here</strong>
+              <strong>Reach out here</strong>
               <p className="ml-6 text-gray-400">
                 Visit <a href="https://albert-huynh-portfolio.lovable.app/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">me's portfolio</a> and send a message expressing your interest.
               </p>
@@ -168,7 +168,7 @@ export default function ContributingPage() {
       <div className="bg-gradient-to-r from-green-500/20 to-emerald-600/20 border border-green-500/30 rounded-lg p-8 text-center">
         <h2 className="text-3xl font-bold mb-4 text-green-400">Ready to Join?</h2>
         <p className="text-gray-300 mb-6 text-lg">
-          Reach out to me and let's build something amazing together!
+          Reach out and let's build something amazing together!
         </p>
         <a
           href="https://albert-huynh-portfolio.lovable.app/"
@@ -176,7 +176,7 @@ export default function ContributingPage() {
           rel="noopener noreferrer"
           className="inline-block bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold px-8 py-4 rounded-lg hover:opacity-90 transition-opacity text-lg"
         >
-          Contact me →
+          Contact us →
         </a>
       </div>
 
