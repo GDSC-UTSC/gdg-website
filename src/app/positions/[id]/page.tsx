@@ -125,6 +125,31 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
           transition={{ delay: 0.2 }}
           className="mb-12"
         >
+          {/* Already Applied Banner */}
+        {hasApplied && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="mb-8"
+          >
+            <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+              <div className="p-6">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
+                      You Already Applied
+                    </h3>
+                    <p className="text-green-700 dark:text-green-300">
+                      You have already submitted an application for this position. You may reapply to update your application.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        )}
           <Card className="p-8">
             <h2 className="text-2xl font-semibold mb-6">Position Description</h2>
             <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed">
@@ -150,31 +175,7 @@ export default function PositionDetailPage({ params }: PositionDetailPageProps) 
           </Card>
         </motion.div>
 
-        {/* Already Applied Banner */}
-        {hasApplied && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="mb-8"
-          >
-            <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-              <div className="p-6">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
-                      You Already Applied
-                    </h3>
-                    <p className="text-green-700 dark:text-green-300">
-                      You have already submitted an application for this position. You may reapply to update your application.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        )}
+
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <ApplicationForm position={position} />
