@@ -115,17 +115,16 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
         setIsSubmitting(false);
         return;
       }
-
       const updatedEvent = new Event({
         ...event,
         title: formData.title.trim(),
         description: formData.description.trim(),
-        eventDate: Timestamp.fromDate(new Date(formData.eventDate)),
+        eventDate: Timestamp.fromDate(new Date(formData.eventDate + 'T00:00:00')),
         startTime: formData.startTime,
         endTime: formData.endTime,
         location: formData.location,
         registrationDeadline: formData.registrationDeadline
-          ? Timestamp.fromDate(new Date(formData.registrationDeadline))
+          ? Timestamp.fromDate(new Date(formData.registrationDeadline + 'T00:00:00'))
           : undefined,
         status: formData.status,
         tags: formData.tags,

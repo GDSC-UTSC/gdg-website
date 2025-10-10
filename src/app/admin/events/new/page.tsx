@@ -65,12 +65,12 @@ export default function AdminNewEventPage() {
         id: "",
         title: formData.title,
         description: formData.description,
-        eventDate: Timestamp.fromDate(formData.eventDate),
+        eventDate: Timestamp.fromDate(new Date(formData.eventDate + 'T00:00:00')),
         startTime: formData.startTime || undefined,
         endTime: formData.endTime || undefined,
         location: formData.location || undefined,
         registrationDeadline: formData.registrationDeadline
-          ? Timestamp.fromDate(formData.registrationDeadline)
+          ? Timestamp.fromDate(new Date(formData.registrationDeadline + 'T00:00:00'))
           : undefined,
         tags: formData.tags,
         organizers: formData.organizers.map(user => user.id),
