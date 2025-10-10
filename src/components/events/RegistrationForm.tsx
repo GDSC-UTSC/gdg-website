@@ -158,10 +158,6 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
     );
   }
 
-  if (!event.questions || event.questions.length === 0) {
-    return null;
-  }
-
   if (loadingRegistration) {
     return (
       <Card className="p-8">

@@ -28,29 +28,29 @@ export default function AccountEventsPage() {
 
       try {
         setIsLoadingEvents(true);
-        
+
         // Load user data to get associations
         const userData = await UserData.read(user.uid);
         if (userData) {
           setUserData(userData);
-          
+
           // Get user's event registrations from associations
           const registrationIds = userData.associations?.registrations || [];
-          
+
           if (registrationIds.length > 0) {
             // Load all events and filter by user's registrations
             const allEvents = await Event.readAll();
-            const userEvents = allEvents.filter(event => 
+            const userEvents = allEvents.filter(event =>
               registrationIds.includes(event.id)
             );
-            
+
             // Sort events by date (newest first)
             const sortedEvents = userEvents.sort((a, b) => {
               const dateA = a.eventDate?.toDate?.() || new Date(0);
               const dateB = b.eventDate?.toDate?.() || new Date(0);
               return dateB.getTime() - dateA.getTime();
             });
-            
+
             setEvents(sortedEvents);
           }
         }
@@ -90,7 +90,9 @@ export default function AccountEventsPage() {
           title="My Events"
           description="Events you've registered for within the GDG community."
         />
-
+        <p className="text-muted-foreground flex items-center justify-center gap-2 mb-6 text-sm">
+        Please note that it might take a few minutes for your registrations to appear here. Try hard refreshing the page (Ctrl + Shift + R) if it doesn't appear.
+        </p>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {events.map((event, index) => (
             <motion.div
