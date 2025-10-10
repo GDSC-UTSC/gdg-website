@@ -173,7 +173,7 @@ export class Event implements EventType {
   }
 
   get isRegistrationOpen(): boolean {
-    if (!this.isUpcoming) return false;
+    if (this.status === "test") return false;
     if (this.registrationDeadline) {
       return this.registrationDeadline.toDate() > new Date();
     }

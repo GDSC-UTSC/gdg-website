@@ -145,7 +145,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
   };
 
   // Check if registration is available
-  const isRegistrationOpen = event.isUpcoming;
+  const isRegistrationOpen = event.isRegistrationOpen;
 
   if (!isRegistrationOpen) {
     return (
