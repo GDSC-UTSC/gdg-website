@@ -36,6 +36,7 @@ export default function AccountPositionsPage() {
 
           // Get user's position applications from associations
           const applicationIds = userData.associations?.applications || [];
+          console.log("applicationIds", applicationIds);
 
           if (applicationIds.length > 0) {
             // Load all positions and filter by user's applications
@@ -91,7 +92,7 @@ export default function AccountPositionsPage() {
           description="Position applications you've submitted within the GDG team."
         />
         <p className="text-muted-foreground flex items-center justify-center gap-2 mb-6 text-sm">
-          NOTE: It might take a few minutes for your applications to appear here.
+          NOTE: It might take a few minutes for your applications to appear here. Try hard refreshing the page (Ctrl + Shift + R) if it doesn't appear.
         </p>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {positions.map((position, index) => (
