@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FileUpload } from "@/components/ui/file-upload";
 import { useAuth } from "@/contexts/AuthContext";
+import { uploadFile } from "@/lib/firebase/client/storage";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Link, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -52,8 +54,11 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
   const handleInputChange = (questionLabel: string, value: any) => {
     let processedValue: any;
 
-    // Handle File objects - store them as-is
+    // Handle File objects and File arrays - store them as-is
     if (value instanceof File) {
+      processedValue = value;
+    } else if (Array.isArray(value) && value.length > 0 && value[0] instanceof File) {
+      // Handle File array (from FileUpload component)
       processedValue = value;
     } else if (Array.isArray(value)) {
       processedValue = value.join(", ");
@@ -94,8 +99,13 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
           newErrors[question.label] = `${question.label} is required`;
         } else if (typeof value === "string" && value.trim() === "") {
           newErrors[question.label] = `${question.label} is required`;
-        } else if (question.type === "file" && !(value instanceof File)) {
-          newErrors[question.label] = `${question.label} is required`;
+        } else if (question.type === "file") {
+          // Handle both single File and File array
+          const hasFile = value instanceof File ||
+            (Array.isArray(value) && value.length > 0 && value[0] instanceof File);
+          if (!hasFile) {
+            newErrors[question.label] = `${question.label} is required`;
+          }
         }
       }
     });
@@ -112,11 +122,45 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
     setIsSubmitting(true);
 
     try {
+      // Process form data and upload files
+      const processedQuestions: Record<string, any> = {};
+
+      for (const [questionLabel, value] of Object.entries(formData)) {
+        // Find the question to check if it's a file type
+        const question = event.questions?.find((q) => q.label === questionLabel);
+
+        if (question?.type === "file") {
+          // Handle file upload
+          const files = Array.isArray(value) ? value : [value];
+
+          if (files.length > 0 && files[0] instanceof File) {
+            const file = files[0]; // Single file upload
+            const sanitizedQuestionName = questionLabel.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+            const fileExtension = file.name.split(".").pop();
+            const fileName = `${sanitizedQuestionName}.${fileExtension}`;
+            const filePath = `events/${event.id}/registrations/${user.uid}/${questionLabel}`;
+
+            try {
+              const uploadResult = await uploadFile(file, filePath);
+              processedQuestions[questionLabel] = uploadResult.downloadURL;
+              toast.success(`File uploaded: ${file.name}`);
+            } catch (uploadError) {
+              console.error("File upload error:", uploadError);
+              toast.error(`Failed to upload file: ${file.name}`);
+              throw uploadError;
+            }
+          }
+        } else {
+          // Non-file questions
+          processedQuestions[questionLabel] = value;
+        }
+      }
+
       const registrationData = {
         id: user.uid,
         name: registrantName,
         email: user.email,
-        questions: formData,
+        questions: processedQuestions,
         status: "registered" as const,
         createdAt: new Date() as any,
         updatedAt: new Date() as any,
@@ -267,7 +311,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
 
           {/* Registration Questions */}
           <AnimatePresence mode="wait">
-            {event.questions.map((question, index) => (
+            {event.questions?.map((question, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
@@ -353,17 +397,26 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
                         )}
 
                         {question.type === "file" && (
-                          <Input
-                            id={`question_${index}`}
-                            type="file"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                handleInputChange(question.label, file);
+                          <div className="space-y-2">
+                            {formData[question.label] && typeof formData[question.label] === "string" && (
+                              <div className="text-sm text-muted-foreground p-3 border border-border rounded-md bg-muted/30">
+                                Already submitted
+                              </div>
+                            )}
+                            <FileUpload
+                              files={
+                                Array.isArray(formData[question.label]) && formData[question.label][0] instanceof File
+                                  ? formData[question.label]
+                                  : []
                               }
-                            }}
-                            className={errors[question.label] ? "border-red-500" : ""}
-                          />
+                              setFiles={(files) => handleInputChange(question.label, files)}
+                              accept="*/*"
+                              maxSize={10}
+                              multiple={false}
+                              showPreview={true}
+                              className={errors[question.label] ? "border-red-500 rounded-md border p-3" : ""}
+                            />
+                          </div>
                         )}
                       </div>
                     </div>
@@ -389,7 +442,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: event.questions.length * 0.1 + 0.2 }}
+            transition={{ delay: (event.questions?.length || 0) * 0.1 + 0.2 }}
             className="flex gap-4 pt-6 border-t border-border/50"
           >
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">

@@ -103,8 +103,6 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
     );
   }
 
-  const isRegistrationAvailable = event.isUpcoming;
-
   return (
     <div className="min-h-screen gradient-bg py-20">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -119,31 +117,33 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex justify-between items-start mb-6"
+            className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6"
           >
-            <div>
-              <h1 className="text-5xl font-bold text-white mb-4">{event.title}</h1>
-              <div className="flex items-center gap-6 text-gray-400 mb-4">
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">{event.title}</h1>
+              <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6 text-gray-400 mb-4">
                 <div className="flex items-center gap-2">
                   <Calendar size={16} />
-                  <span>{formatDate(event.eventDate)}</span>
+                  <span className="text-sm md:text-base">{formatDate(event.eventDate)}</span>
                 </div>
                 {event.startTime && (
                   <div className="flex items-center gap-2">
                     <Clock size={16} />
-                    <span>{formatTime(event.startTime)}</span>
-                    {event.endTime && <span>- {formatTime(event.endTime)}</span>}
+                    <span className="text-sm md:text-base">
+                      {formatTime(event.startTime)}
+                      {event.endTime && <span> - {formatTime(event.endTime)}</span>}
+                    </span>
                   </div>
                 )}
                 {event.location && (
                   <div className="flex items-center gap-2">
                     <MapPin size={16} />
-                    <span>{event.location}</span>
+                    <span className="text-sm md:text-base">{event.location}</span>
                   </div>
                 )}
               </div>
               <span
-                className={`px-3 py-1 rounded-full text-white text-sm font-medium ${getStatusColor(
+                className={`inline-block px-3 py-1 rounded-full text-white text-sm font-medium ${getStatusColor(
                   event.displayStatus
                 )}`}
               >
@@ -151,7 +151,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
               </span>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 md:flex-shrink-0">
               {event.link && (
                 <Button asChild>
                   <a href={event.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
