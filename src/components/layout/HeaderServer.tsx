@@ -3,6 +3,7 @@ import { Instagram, Linkedin, Menu } from "lucide-react";
 import Link from "next/link";
 import HeaderClient from "./HeaderClient";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { AdminButton, AdminButtonMobile } from "./AdminButton";
 
 const HeaderServer = () => {
   return (
@@ -76,6 +77,9 @@ const HeaderServer = () => {
               </a>
             </div>
 
+            {/* Admin Button (conditionally rendered) */}
+            <AdminButton />
+
             {/* Account Button */}
             <Link href="/account">
               <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-5 h-9">
@@ -144,6 +148,11 @@ const HeaderServer = () => {
 
                 {/* Divider */}
                 <div className="border-t border-white/20" />
+
+                {/* Admin Button (conditionally rendered) */}
+                <SheetClose asChild>
+                  <AdminButtonMobile />
+                </SheetClose>
 
                 {/* Account Button */}
                 <SheetClose asChild>
