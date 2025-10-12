@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Search, Users, Clock } from "lucide-react";
 import RegistrationCard from "@/components/admin/events/registrations/RegistrationCard";
+import { FieldResponsive } from '../../../../../components/ui/MailingServiceForm';
 
 interface AdminRegistrationsPageProps {
   params: Promise<{ eventId: string }>;
@@ -267,6 +268,17 @@ export default function AdminRegistrationsPage({ params }: AdminRegistrationsPag
                 </Select>
               </div>
             </div>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mb-8"
+        >
+          <Card className='p-6'>
+            <FieldResponsive />
           </Card>
         </motion.div>
 
