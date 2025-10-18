@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -12,32 +12,54 @@ import {
   FieldSeparator,
   FieldSet,
 } from "@/components/ui/field";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
 
 export function FieldResponsive() {
-  // State for the textarea content
   const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        placeholder: "Hello, world!",
+      }),
+    ],
+    content: "",
+    immediatelyRender: false,
+  });
 
   const handleClear = () => {
-    setMessage(""); // Reset the textarea
+    editor?.commands.clearContent();
   };
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: implement actual sending logic
+    const message = editor?.getHTML() || "";
     console.log("Sending email:", { subject, message });
     handleClear();
   };
 
+  // ✅ Prevent render until client-side
+  if (!isMounted) return null;
+
   return (
     <div className="w-full max-w-4xl">
-      <form>
+      <form onSubmit={handleSend}>
         <FieldSet>
           <FieldLegend>Send email to attendees</FieldLegend>
-          <FieldDescription>Fill in the contents of the email.</FieldDescription>
+          <FieldDescription>
+            Fill in the contents of the email.
+          </FieldDescription>
           <FieldSeparator />
+
           <FieldGroup>
             {/* Subject Input */}
             <Field orientation="responsive">
@@ -56,31 +78,37 @@ export function FieldResponsive() {
                 className="sm:min-w-[400px]"
               />
             </Field>
-          <FieldSeparator />
+
+            <FieldSeparator />
+
+            {/* Message Editor */}
             <Field orientation="responsive">
               <FieldContent>
-                <FieldLabel htmlFor="message">Message</FieldLabel>
+                <FieldLabel>Message</FieldLabel>
                 <FieldDescription>
-                  Write your email you want to send to all attendees. The GDG Banner will automatically be applied.
+                  Write your email for attendees. The GDG Banner will automatically be applied.
                 </FieldDescription>
               </FieldContent>
-              <Textarea
-                id="message"
-                placeholder="Hello, world!"
-                required
-                rows={4}
-                className="min-h-[200px] sm:min-w-[400px]"
-                value={message}             // Controlled value
-                onChange={(e) => setMessage(e.target.value)} // Update state
-              />
+
+            <EditorContent
+              editor={editor}
+              className="
+                border rounded-md sm:min-w-[400px] p-2 h-64 w-full flex flex-col
+                [&_.ProseMirror]:flex-1 [&_.ProseMirror]:min-h-0 [&_.ProseMirror]:h-full
+                [&_.ProseMirror]:m-0 [&_.ProseMirror]:overflow-auto
+                [&_.ProseMirror]:outline-none
+              "
+            />
             </Field>
+
             <FieldSeparator />
+
             <Field orientation="responsive">
               <Button type="submit">Send to attendees</Button>
               <Button
                 type="button"
                 variant="outline"
-                onClick={handleClear}       // Reset on click
+                onClick={handleClear}
               >
                 Clear
               </Button>
