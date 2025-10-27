@@ -1,23 +1,17 @@
 "use client";
 
+import { Event } from "@/app/types/events";
 import { Registration } from "@/app/types/events/registrations";
 import { UserData } from "@/app/types/userdata";
-import { Event } from "@/app/types/events";
+import RegistrationCard from "@/components/admin/events/registrations/RegistrationCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import { useEffect, useState, use, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
-import { Search, Users, Clock } from "lucide-react";
-import RegistrationCard from "@/components/admin/events/registrations/RegistrationCard";
+import { Clock, Search, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useMemo, useState } from "react";
 
 interface AdminRegistrationsPageProps {
   params: Promise<{ eventId: string }>;
@@ -136,7 +130,6 @@ export default function AdminRegistrationsPage({ params }: AdminRegistrationsPag
     return filtered;
   }, [registrations, searchTerm, statusFilter, sortBy, sortOrder]);
 
-
   if (loading) {
     return (
       <div className="min-h-screen py-12">
@@ -158,9 +151,7 @@ export default function AdminRegistrationsPage({ params }: AdminRegistrationsPag
             <p className="text-muted-foreground mb-6">
               The event you're looking for doesn't exist or has been removed.
             </p>
-            <Button onClick={() => router.push("/admin/events")}>
-              Back to Admin Events
-            </Button>
+            <Button onClick={() => router.push("/admin/events")}>Back to Admin Events</Button>
           </div>
         </div>
       </div>
@@ -172,11 +163,7 @@ export default function AdminRegistrationsPage({ params }: AdminRegistrationsPag
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Header */}
         <div className="mb-6">
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/events/${eventId}`)}
-            className="mb-4"
-          >
+          <Button variant="outline" onClick={() => router.push(`/events/${eventId}`)} className="mb-4">
             ← Back to Event Details
           </Button>
         </div>
@@ -248,7 +235,7 @@ export default function AdminRegistrationsPage({ params }: AdminRegistrationsPag
                 <Select
                   value={`${sortBy}-${sortOrder}`}
                   onValueChange={(value) => {
-                    const [field, order] = value.split('-');
+                    const [field, order] = value.split("-");
                     setSortBy(field as SortOption);
                     setSortOrder(order as "asc" | "desc");
                   }}
@@ -265,6 +252,12 @@ export default function AdminRegistrationsPage({ params }: AdminRegistrationsPag
                     <SelectItem value="email-desc">Email Z-A</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="md:w-48">
+                <Button onClick={() => router.push(`/admin/events/${eventId}/registrations/checkin`)}>
+                  Check-in Participants
+                </Button>
               </div>
             </div>
           </Card>
@@ -283,8 +276,7 @@ export default function AdminRegistrationsPage({ params }: AdminRegistrationsPag
               <p className="text-muted-foreground">
                 {registrations.length === 0
                   ? "No registrations have been submitted for this event yet."
-                  : "No registrations match your current filters."
-                }
+                  : "No registrations match your current filters."}
               </p>
             </Card>
           ) : (
