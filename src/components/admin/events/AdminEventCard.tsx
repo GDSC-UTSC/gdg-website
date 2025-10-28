@@ -64,8 +64,8 @@ export default function AdminEventCard({ event }: AdminEventCardProps) {
         </div>
 
         <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
-          <span>Created: {event.createdAt?.toDate().toLocaleDateString()}</span>
-          <span>Updated: {event.updatedAt?.toDate().toLocaleDateString()}</span>
+          <span>Created: {event.createdAt?.toDate?.()?.toLocaleDateString() || "Unknown"}</span>
+          <span>Updated: {event.updatedAt?.toDate?.()?.toLocaleDateString() || "Unknown"}</span>
         </div>
 
         <div className="space-y-2 mt-auto">
