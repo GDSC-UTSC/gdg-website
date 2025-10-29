@@ -1,6 +1,7 @@
 "use client";
 import { Registration } from "@/app/types/events/registrations";
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
+import { serverTimestamp, Timestamp } from "firebase/firestore";
 import { use, useState } from "react";
 
 interface AdminRegistrationsCheckinPageProps {
@@ -14,13 +15,16 @@ export default function AdminRegistrationsCheckinPage({ params }: AdminRegistrat
     null
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [scanningDisabled, setScanningDisabled] = useState(false);
+
   const handleScan = async (detectedCodes: IDetectedBarcode[]) => {
-    if (detectedCodes.length === 0) return;
+    if (detectedCodes.length === 0 || scanningDisabled) return;
 
     const scannedUID = detectedCodes[0].rawValue;
     console.log("Scanned UID:", scannedUID);
 
     try {
+      setScanningDisabled(true); // Disable scanning to prevent multiple scans
       setScanStatus("loading");
       setErrorMessage("");
 
@@ -30,7 +34,10 @@ export default function AdminRegistrationsCheckinPage({ params }: AdminRegistrat
       if (!registration) {
         setErrorMessage(`No registration found for user: ${scannedUID}`);
         setScanStatus("error");
-        setTimeout(() => setScanStatus("idle"), 3000);
+        setTimeout(() => {
+          setScanStatus("idle");
+          setScanningDisabled(false); // Re-enable scanning
+        }, 3000);
         return;
       }
 
@@ -38,7 +45,10 @@ export default function AdminRegistrationsCheckinPage({ params }: AdminRegistrat
       if (registration.status === "cancelled") {
         setErrorMessage(`Registration cancelled for: ${registration.name}`);
         setScanStatus("error");
-        setTimeout(() => setScanStatus("idle"), 3000);
+        setTimeout(() => {
+          setScanStatus("idle");
+          setScanningDisabled(false); // Re-enable scanning
+        }, 3000);
         return;
       }
 
@@ -53,12 +63,15 @@ export default function AdminRegistrationsCheckinPage({ params }: AdminRegistrat
         setTimeout(() => {
           setScanStatus("idle");
           setScannedUser(null);
+          setScanningDisabled(false); // Re-enable scanning
         }, 3000);
         return;
       }
 
       // Check in the user
-      await registration.updateCheckIn(eventId);
+      registration.checkIn = true;
+      registration.checkInTime = serverTimestamp() as Timestamp;
+      await registration.update(eventId);
 
       setScannedUser({
         name: registration.name,
@@ -71,12 +84,16 @@ export default function AdminRegistrationsCheckinPage({ params }: AdminRegistrat
       setTimeout(() => {
         setScanStatus("idle");
         setScannedUser(null);
+        setScanningDisabled(false); // Re-enable scanning
       }, 3000);
     } catch (error) {
       console.error("Error during check-in:", error);
       setErrorMessage("Failed to process check-in. Please try again.");
       setScanStatus("error");
-      setTimeout(() => setScanStatus("idle"), 3000);
+      setTimeout(() => {
+        setScanStatus("idle");
+        setScanningDisabled(false); // Re-enable scanning
+      }, 3000);
     }
   };
 

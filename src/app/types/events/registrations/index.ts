@@ -106,12 +106,6 @@ export class Registration implements RegistrationType {
     await this.update(eventId);
   }
 
-  async updateCheckIn(eventId: string): Promise<void> {
-    this.checkIn = true;
-    this.checkInTime = serverTimestamp() as Timestamp;
-    await this.update(eventId);
-  }
-
   async delete() {
     // should not be able to delete ANY registration for historical reasons
     return;
