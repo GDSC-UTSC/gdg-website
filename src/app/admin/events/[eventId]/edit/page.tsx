@@ -259,7 +259,7 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
                     size="sm"
                     onClick={changeTimeToYesterday}
                   >
-                    Set Deadline to Yesterday
+                    Close Event Registration Now
                   </Button>
                 </div>
 
