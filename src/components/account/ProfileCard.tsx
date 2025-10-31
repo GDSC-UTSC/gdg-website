@@ -102,7 +102,9 @@ export function ProfileCard({ userId }: ProfileCardProps) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
             >
-              <h3 className="text-lg font-semibold text-foreground line-clamp-2 leading-tight min-h-[3.5rem] flex items-start">{userData.publicName || "User"}</h3>
+              <h3 className="text-lg font-semibold text-foreground line-clamp-2 leading-tight min-h-[3.5rem] flex items-start">
+                {userData.publicName || "User"}
+              </h3>
             </motion.div>
 
             <motion.div
@@ -141,6 +143,19 @@ export function ProfileCard({ userId }: ProfileCardProps) {
           </motion.div>
         </CardContent>
       </Card>
+
+      {/* QR code (no external package required) */}
+      <div className="mt-8 flex justify-center">
+        <div className="w-full max-w-xs sm:max-w-sm rounded-md border bg-white p-4 shadow-sm">
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(
+              String(userId)
+            )}`}
+            alt="User ID QR"
+            className="w-full h-full"
+          />
+        </div>
+      </div>
     </motion.div>
   );
 }
