@@ -19,6 +19,12 @@ export type QuestionType = {
   required?: boolean;
 };
 
+export type CheckedInUser = {
+  uid: string;
+  name: string;
+  checkInTime: Timestamp;
+};
+
 export interface EventType {
   id: string;
   title: string;
@@ -36,6 +42,7 @@ export interface EventType {
   imageUrls?: string[];
   link?: string;
   questions?: QuestionType[];
+  checkedInUsers?: CheckedInUser[];
 }
 
 export class Event implements EventType {
@@ -55,6 +62,7 @@ export class Event implements EventType {
   imageUrls?: string[];
   link?: string;
   questions?: QuestionType[];
+  checkedInUsers?: CheckedInUser[];
 
   constructor(data: EventType) {
     this.id = data.id;
@@ -73,6 +81,7 @@ export class Event implements EventType {
     this.imageUrls = data.imageUrls;
     this.link = data.link;
     this.questions = data.questions || [];
+    this.checkedInUsers = data.checkedInUsers || [];
   }
 
   static converter = {
@@ -93,6 +102,7 @@ export class Event implements EventType {
         imageUrls: event.imageUrls,
         link: event.link,
         questions: event.questions,
+        checkedInUsers: event.checkedInUsers || [],
       };
     },
     fromFirestore: (snapshot: any, options: any) => {
@@ -114,6 +124,7 @@ export class Event implements EventType {
         imageUrls: data.imageUrls,
         link: data.link,
         questions: data.questions || [],
+        checkedInUsers: data.checkedInUsers || [],
       });
     },
   };
@@ -150,7 +161,7 @@ export class Event implements EventType {
   private getEventStartDateTime(): Date {
     const eventDate = this.eventDate.toDate();
     if (this.startTime) {
-      const [hours, minutes] = this.startTime.split(':').map(Number);
+      const [hours, minutes] = this.startTime.split(":").map(Number);
       eventDate.setHours(hours, minutes, 0, 0);
     }
     return eventDate;
@@ -159,11 +170,11 @@ export class Event implements EventType {
   private getEventEndDateTime(): Date {
     const eventDate = this.eventDate.toDate();
     if (this.endTime) {
-      const [hours, minutes] = this.endTime.split(':').map(Number);
+      const [hours, minutes] = this.endTime.split(":").map(Number);
       eventDate.setHours(hours, minutes, 0, 0);
     } else if (this.startTime) {
       // If no end time, assume 1 hour duration
-      const [hours, minutes] = this.startTime.split(':').map(Number);
+      const [hours, minutes] = this.startTime.split(":").map(Number);
       eventDate.setHours(hours + 1, minutes, 0, 0);
     } else {
       // If no times specified, assume end of day

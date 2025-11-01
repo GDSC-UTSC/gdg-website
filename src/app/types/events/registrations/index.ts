@@ -7,8 +7,6 @@ export type RegistrationType = {
   email: string;
   questions: Record<string, string>;
   status: "registered" | "cancelled";
-  checkIn: boolean;
-  checkInTime?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };
@@ -19,8 +17,6 @@ export class Registration implements RegistrationType {
   email: string;
   questions: Record<string, string>;
   status: "registered" | "cancelled";
-  checkIn: boolean;
-  checkInTime?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 
@@ -30,8 +26,6 @@ export class Registration implements RegistrationType {
     this.email = data.email;
     this.questions = data.questions;
     this.status = data.status;
-    this.checkIn = data.checkIn || false;
-    this.checkInTime = data.checkInTime;
     this.createdAt = data.createdAt || (serverTimestamp() as Timestamp);
     this.updatedAt = data.updatedAt || (serverTimestamp() as Timestamp);
   }
@@ -43,8 +37,6 @@ export class Registration implements RegistrationType {
         email: registration.email,
         questions: registration.questions,
         status: registration.status,
-        checkIn: registration.checkIn,
-        checkInTime: registration.checkInTime,
         createdAt: registration.createdAt,
         updatedAt: serverTimestamp(),
       };
@@ -57,8 +49,6 @@ export class Registration implements RegistrationType {
         email: data.email,
         questions: data.questions,
         status: data.status,
-        checkIn: data.checkIn || false,
-        checkInTime: data.checkInTime,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
       });
@@ -118,9 +108,5 @@ export class Registration implements RegistrationType {
 
   get isCancelled(): boolean {
     return this.status === "cancelled";
-  }
-
-  get isCheckedIn(): boolean {
-    return this.checkIn === true;
   }
 }

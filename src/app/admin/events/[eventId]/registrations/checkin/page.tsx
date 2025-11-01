@@ -1,7 +1,8 @@
 "use client";
+import { Event } from "@/app/types/events";
 import { Registration } from "@/app/types/events/registrations";
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
-import { serverTimestamp, Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import { use, useState } from "react";
 
 interface AdminRegistrationsCheckinPageProps {
@@ -21,12 +22,43 @@ export default function AdminRegistrationsCheckinPage({ params }: AdminRegistrat
     if (detectedCodes.length === 0 || scanningDisabled) return;
 
     const scannedUID = detectedCodes[0].rawValue;
-    console.log("Scanned UID:", scannedUID);
 
     try {
       setScanningDisabled(true); // Disable scanning to prevent multiple scans
       setScanStatus("loading");
       setErrorMessage("");
+
+      // Read the event first to check checkedInUsers array
+      const event = await Event.read(eventId);
+
+      if (!event) {
+        setErrorMessage(`Event not found`);
+        setScanStatus("error");
+        setTimeout(() => {
+          setScanStatus("idle");
+          setScanningDisabled(false); // Re-enable scanning
+        }, 3000);
+        return;
+      }
+
+      // Check if user is already checked in
+      const isAlreadyCheckedIn = event.checkedInUsers?.some((user) => user.uid === scannedUID);
+
+      if (isAlreadyCheckedIn) {
+        const checkedInUser = event.checkedInUsers?.find((user) => user.uid === scannedUID);
+        setScannedUser({
+          name: checkedInUser?.name || scannedUID,
+          email: "", // Email not stored in checkedInUsers
+          alreadyCheckedIn: true,
+        });
+        setScanStatus("success");
+        setTimeout(() => {
+          setScanStatus("idle");
+          setScannedUser(null);
+          setScanningDisabled(false); // Re-enable scanning
+        }, 3000);
+        return;
+      }
 
       // Look up registration in Firestore
       const registration = await Registration.read(eventId, scannedUID);
@@ -52,26 +84,16 @@ export default function AdminRegistrationsCheckinPage({ params }: AdminRegistrat
         return;
       }
 
-      // Check if already checked in
-      if (registration.checkIn) {
-        setScannedUser({
-          name: registration.name,
-          email: registration.email,
-          alreadyCheckedIn: true,
-        });
-        setScanStatus("success");
-        setTimeout(() => {
-          setScanStatus("idle");
-          setScannedUser(null);
-          setScanningDisabled(false); // Re-enable scanning
-        }, 3000);
-        return;
+      // Check in the user by appending to event.checkedInUsers array
+      if (!event.checkedInUsers) {
+        event.checkedInUsers = [];
       }
-
-      // Check in the user
-      registration.checkIn = true;
-      registration.checkInTime = serverTimestamp() as Timestamp;
-      await registration.update(eventId);
+      event.checkedInUsers.push({
+        uid: scannedUID,
+        name: registration.name,
+        checkInTime: Timestamp.now(),
+      });
+      await event.update();
 
       setScannedUser({
         name: registration.name,
