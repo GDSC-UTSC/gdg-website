@@ -8,8 +8,9 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { useAuth } from "@/contexts/AuthContext";
 import { uploadFile } from "@/lib/firebase/client/storage";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, Link, Send } from "lucide-react";
+import { AlertCircle, Link as LinkIcon, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -217,9 +218,7 @@ export default function RegistrationForm({ event }: RegistrationFormProps) {
       <Card className="p-8 text-center">
         <h3 className="text-2xl font-semibold mb-4">Register for This Event</h3>
         <p className="text-muted-foreground mb-6">Please sign in to register for this event.</p>
-        <Button asChild size="lg">
-          <Link href="/account/login">Sign In to Register</Link>
-        </Button>
+        <Link href="/account/login" className="underline underline-offset-4 hover:no-underline">Sign In to Register</Link>
       </Card>
     );
   }

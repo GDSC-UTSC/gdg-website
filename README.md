@@ -2,9 +2,10 @@
     <picture>
         <img alt="GDG Logo" src="./public/gdg-logo.png" height="34">
     </picture>
-    GDG Website
 </h1>
-
+<h1>
+Google Developer Group (UTSC) Website
+</h1>
 Google Developer Group (GDG) at University of Toronto Scarborough - An open-source student-led community focused on building technology solutions and fostering developer growth through workshops, projects, and collaboration.
 
 ## About The Project
