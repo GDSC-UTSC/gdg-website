@@ -1,9 +1,4 @@
-import {
-  getDocument,
-  getDocuments,
-  setDocument,
-  updateDocument,
-} from "@/lib/firebase/client/firestore";
+import { getDocument, getDocuments, setDocument, updateDocument } from "@/lib/firebase/client/firestore";
 import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 export type RegistrationType = {
@@ -66,35 +61,24 @@ export class Registration implements RegistrationType {
     return this.id;
   }
 
-  static async read(
-    eventId: string,
-    userId: string,
-    options?: { server?: boolean }
-  ): Promise<Registration | null> {
+  static async read(eventId: string, userId: string, options?: { server?: boolean }): Promise<Registration | null> {
     const documentPath = `events/${eventId}/registrations/${userId}`;
 
     if (options?.server) {
       ("use server");
-      const { getDocument: getDocumentServer } = await import(
-        "@/lib/firebase/server/firestore"
-      );
+      const { getDocument: getDocumentServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentServer(documentPath, Registration.converter);
     }
 
     return await getDocument(documentPath, Registration.converter);
   }
 
-  static async readAll(
-    eventId: string,
-    options?: { server?: boolean }
-  ): Promise<Registration[]> {
+  static async readAll(eventId: string, options?: { server?: boolean }): Promise<Registration[]> {
     const collectionPath = `events/${eventId}/registrations`;
 
     if (options?.server) {
       ("use server");
-      const { getDocuments: getDocumentsServer } = await import(
-        "@/lib/firebase/server/firestore"
-      );
+      const { getDocuments: getDocumentsServer } = await import("@/lib/firebase/server/firestore");
       return await getDocumentsServer(collectionPath, Registration.converter);
     }
 
@@ -107,10 +91,7 @@ export class Registration implements RegistrationType {
     await updateDocument(documentPath, converter.toFirestore(this));
   }
 
-  async updateStatus(
-    eventId: string,
-    status: "registered" | "cancelled"
-  ): Promise<void> {
+  async updateStatus(eventId: string, status: "registered" | "cancelled"): Promise<void> {
     this.status = status;
     await this.update(eventId);
   }
