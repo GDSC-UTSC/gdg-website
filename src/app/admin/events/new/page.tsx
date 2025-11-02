@@ -61,16 +61,26 @@ export default function AdminNewEventPage() {
         return;
       }
 
+      // Create date at midnight in local timezone
+      const eventDateAtMidnight = new Date(formData.eventDate);
+      eventDateAtMidnight.setHours(0, 0, 0, 0);
+
+      let registrationDeadlineAtMidnight;
+      if (formData.registrationDeadline) {
+        registrationDeadlineAtMidnight = new Date(formData.registrationDeadline);
+        registrationDeadlineAtMidnight.setHours(0, 0, 0, 0);
+      }
+
       const eventData: EventType = {
         id: "",
         title: formData.title,
         description: formData.description,
-        eventDate: Timestamp.fromDate(new Date(formData.eventDate + 'T00:00:00')),
+        eventDate: Timestamp.fromDate(eventDateAtMidnight),
         startTime: formData.startTime || undefined,
         endTime: formData.endTime || undefined,
         location: formData.location || undefined,
-        registrationDeadline: formData.registrationDeadline
-          ? Timestamp.fromDate(new Date(formData.registrationDeadline + 'T00:00:00'))
+        registrationDeadline: registrationDeadlineAtMidnight
+          ? Timestamp.fromDate(registrationDeadlineAtMidnight)
           : undefined,
         tags: formData.tags,
         organizers: formData.organizers.map(user => user.id),

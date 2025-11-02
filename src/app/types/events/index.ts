@@ -86,24 +86,28 @@ export class Event implements EventType {
 
   static converter = {
     toFirestore: (event: Event) => {
-      return {
+      const data: Record<string, any> = {
         title: event.title,
         description: event.description,
         eventDate: event.eventDate,
-        startTime: event.startTime,
-        endTime: event.endTime,
-        location: event.location,
-        registrationDeadline: event.registrationDeadline,
         status: event.status,
-        tags: event.tags,
-        organizers: event.organizers,
-        createdAt: event.createdAt,
         updatedAt: serverTimestamp(),
-        imageUrls: event.imageUrls,
-        link: event.link,
-        questions: event.questions,
+        questions: event.questions || [],
         checkedInUsers: event.checkedInUsers || [],
       };
+
+      // Only add optional fields if they have values
+      if (event.startTime !== undefined) data.startTime = event.startTime;
+      if (event.endTime !== undefined) data.endTime = event.endTime;
+      if (event.location !== undefined) data.location = event.location;
+      if (event.registrationDeadline !== undefined) data.registrationDeadline = event.registrationDeadline;
+      if (event.tags !== undefined) data.tags = event.tags;
+      if (event.organizers !== undefined) data.organizers = event.organizers;
+      if (event.createdAt !== undefined) data.createdAt = event.createdAt;
+      if (event.imageUrls !== undefined) data.imageUrls = event.imageUrls;
+      if (event.link !== undefined) data.link = event.link;
+
+      return data;
     },
     fromFirestore: (snapshot: any, options: any) => {
       const data = snapshot.data(options);
