@@ -151,6 +151,15 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
     }
   };
 
+  const changeTimeToYesterday = () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const formatted = yesterday.toISOString().split("T")[0];
+    handleInputChange("registrationDeadline", formatted);
+    toast.success(`Registration deadline set to ${formatted}`);
+  };
+
+
   if (loading) {
     return (
       <div className="min-h-screen py-12">
@@ -241,6 +250,17 @@ export default function AdminEditEventPage({ params }: AdminEditEventPageProps) 
                       onChange={(e) => handleInputChange("registrationDeadline", e.target.value)}
                     />
                   </div>
+                </div>
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+
+                <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={changeTimeToYesterday}
+                  >
+                    Close Event Registration Now
+                  </Button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

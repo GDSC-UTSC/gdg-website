@@ -19,6 +19,12 @@ export type QuestionType = {
   required?: boolean;
 };
 
+export type CheckedInUser = {
+  uid: string;
+  name: string;
+  checkInTime: Timestamp;
+};
+
 export interface EventType {
   id: string;
   title: string;
@@ -36,6 +42,7 @@ export interface EventType {
   imageUrls?: string[];
   link?: string;
   questions?: QuestionType[];
+  checkedInUsers?: CheckedInUser[];
 }
 
 export class Event implements EventType {
@@ -55,6 +62,7 @@ export class Event implements EventType {
   imageUrls?: string[];
   link?: string;
   questions?: QuestionType[];
+  checkedInUsers?: CheckedInUser[];
 
   constructor(data: EventType) {
     this.id = data.id;
@@ -73,27 +81,33 @@ export class Event implements EventType {
     this.imageUrls = data.imageUrls;
     this.link = data.link;
     this.questions = data.questions || [];
+    this.checkedInUsers = data.checkedInUsers || [];
   }
 
   static converter = {
     toFirestore: (event: Event) => {
-      return {
+      const data: Record<string, any> = {
         title: event.title,
         description: event.description,
         eventDate: event.eventDate,
-        startTime: event.startTime,
-        endTime: event.endTime,
-        location: event.location,
-        registrationDeadline: event.registrationDeadline,
         status: event.status,
-        tags: event.tags,
-        organizers: event.organizers,
-        createdAt: event.createdAt,
         updatedAt: serverTimestamp(),
-        imageUrls: event.imageUrls,
-        link: event.link,
-        questions: event.questions,
+        questions: event.questions || [],
+        checkedInUsers: event.checkedInUsers || [],
       };
+
+      // Only add optional fields if they have values
+      if (event.startTime !== undefined) data.startTime = event.startTime;
+      if (event.endTime !== undefined) data.endTime = event.endTime;
+      if (event.location !== undefined) data.location = event.location;
+      if (event.registrationDeadline !== undefined) data.registrationDeadline = event.registrationDeadline;
+      if (event.tags !== undefined) data.tags = event.tags;
+      if (event.organizers !== undefined) data.organizers = event.organizers;
+      if (event.createdAt !== undefined) data.createdAt = event.createdAt;
+      if (event.imageUrls !== undefined) data.imageUrls = event.imageUrls;
+      if (event.link !== undefined) data.link = event.link;
+
+      return data;
     },
     fromFirestore: (snapshot: any, options: any) => {
       const data = snapshot.data(options);
@@ -114,6 +128,7 @@ export class Event implements EventType {
         imageUrls: data.imageUrls,
         link: data.link,
         questions: data.questions || [],
+        checkedInUsers: data.checkedInUsers || [],
       });
     },
   };
@@ -150,7 +165,7 @@ export class Event implements EventType {
   private getEventStartDateTime(): Date {
     const eventDate = this.eventDate.toDate();
     if (this.startTime) {
-      const [hours, minutes] = this.startTime.split(':').map(Number);
+      const [hours, minutes] = this.startTime.split(":").map(Number);
       eventDate.setHours(hours, minutes, 0, 0);
     }
     return eventDate;
@@ -159,11 +174,11 @@ export class Event implements EventType {
   private getEventEndDateTime(): Date {
     const eventDate = this.eventDate.toDate();
     if (this.endTime) {
-      const [hours, minutes] = this.endTime.split(':').map(Number);
+      const [hours, minutes] = this.endTime.split(":").map(Number);
       eventDate.setHours(hours, minutes, 0, 0);
     } else if (this.startTime) {
       // If no end time, assume 1 hour duration
-      const [hours, minutes] = this.startTime.split(':').map(Number);
+      const [hours, minutes] = this.startTime.split(":").map(Number);
       eventDate.setHours(hours + 1, minutes, 0, 0);
     } else {
       // If no times specified, assume end of day
