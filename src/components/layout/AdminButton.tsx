@@ -13,11 +13,9 @@ export const AdminButton = () => {
   }
 
   return (
-    <Link href="/admin">
       <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-5 h-9">
-        Admin
+      <a href="/admin">Admin</a>
       </Button>
-    </Link>
   );
 };
 
