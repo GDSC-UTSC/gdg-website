@@ -8,7 +8,6 @@ import { motion } from "framer-motion";
 import { GithubIcon, LinkedinIcon, User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import ReactQRCode from "react-qr-code";
 
 interface ProfileCardProps {
   userId: string;
@@ -144,18 +143,6 @@ export function ProfileCard({ userId }: ProfileCardProps) {
           </motion.div>
         </CardContent>
       </Card>
-      <div className="mt-8 flex justify-center">
-        <div className="w-full max-w-xs sm:max-w-sm rounded-md border bg-white p-4 shadow-sm">
-          <ReactQRCode
-            value={String(userId)}
-            level="M"
-            fgColor="#000000"
-            bgColor="#ffffff"
-            style={{ width: "100%", height: "100%" }}
-            viewBox="0 0 256 256"
-          />
-        </div>
-      </div>
     </motion.div>
   );
 }

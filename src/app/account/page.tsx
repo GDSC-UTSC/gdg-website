@@ -16,6 +16,7 @@ import { Calendar, FolderOpen, Shield, Users } from "lucide-react";
 import Link from 'next/link';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import ReactQRCode from "react-qr-code";
 
 export default function AccountPage() {
   const { user, loading } = useAuth();
@@ -248,6 +249,22 @@ export default function AccountPage() {
         </Card>
         Users will be able to view your profile card below:
         <ProfileCard userId={user.uid} />
+      <div className="mt-8 flex flex-col items-center justify-center gap-4">
+        <div className="text-center">
+          Sign into events using this QR code:
+        </div>
+
+        <div className="w-full max-w-xs sm:max-w-sm rounded-md border bg-white p-4 shadow-sm">
+          <ReactQRCode
+            value={user.uid}
+            level="M"
+            fgColor="#000000"
+            bgColor="#ffffff"
+            style={{ width: "100%", height: "100%" }}
+            viewBox="0 0 256 256"
+          />
+        </div>
+      </div>
       </div>
     </motion.div>
   );
