@@ -43,7 +43,8 @@ npm run build:worker # Build the worker for Firebase SSR
 ## Contributing
 
 We welcome contributions from students and developers! This is an open-source project designed to help the GDG community learn and grow together.
-Read the [https://www.gdgutsc.ca/docs](docs) to learn more about project conventions and architecture
+
+Read the [docs](https://www.gdgutsc.ca/docs) to learn more about project conventions and architecture.
 ### Development Guidelines
 
 - Follow the existing code style and TypeScript conventions
