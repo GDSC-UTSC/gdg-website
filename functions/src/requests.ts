@@ -3,10 +3,8 @@ import { Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { onRequest } from "firebase-functions/v2/https";
 
-// Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
   if (process.env.NODE_ENV === "development") {
-    // Running in dev mode with environment variables
     admin.initializeApp({
       credential: admin.credential.cert({
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -15,7 +13,6 @@ if (!admin.apps.length) {
       }),
     });
   } else {
-    // Running in production - use default credentials
     admin.initializeApp();
   }
 }
