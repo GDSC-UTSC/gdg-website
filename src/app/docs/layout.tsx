@@ -7,6 +7,7 @@ const docLinks = [
   { href: "/docs/frontend", label: "Frontend" },
   { href: "/docs/backend", label: "Backend" },
   { href: "/docs/firebase", label: "Firebase" },
+  { href: "/docs/cloud-functions", label: "Cloud Functions" },
   { href: "/docs/deployment", label: "Deployment" },
   { href: "/docs/mcp", label: "MCP Server" },
   { href: "/docs/contributing", label: "Contributing" },

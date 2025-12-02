@@ -14,5 +14,4 @@ export {
 // Import and re-export request functions
 export {
   checkAdminClaims,
-  addUserToTeam,
 } from "./requests";
