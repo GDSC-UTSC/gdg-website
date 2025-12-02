@@ -113,6 +113,23 @@ export default function DocsPage() {
             </div>
           </Link>
 
+          {/* Cloud Functions */}
+          <Link href="/docs/cloud-functions" className="block group">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-6 hover:border-blue-500/50 transition-colors">
+              <div className="flex items-start gap-4">
+                <div className="text-3xl">5️⃣</div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-2 group-hover:text-blue-400 transition-colors">
+                    Cloud Functions
+                  </h3>
+                  <p className="text-gray-400">
+                    Learn how we use Cloud Functions for serverless functions.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
           {/* Deployment */}
           <Link href="/docs/deployment" className="block group">
             <div className="bg-white/5 border border-white/10 rounded-lg p-6 hover:border-blue-500/50 transition-colors">
