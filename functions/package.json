@@ -3,6 +3,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "dev": "concurrently \"npm run build:watch\" \"firebase emulators:start --only functions --inspect-functions\"",
     "serve": "npm run build",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@types/webpack": "^5.28.1",
+    "concurrently": "^9.2.1",
     "firebase-functions-test": "^3.1.0",
     "tapable": "^2.2.1",
     "typescript": "^5.7.3"
