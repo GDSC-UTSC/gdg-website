@@ -7,7 +7,9 @@
       "Bash(mv:*)",
       "Bash(rm:*)",
       "Bash(npm run lint)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(cat:*)",
+      "Bash(firebase login:list:*)"
     ],
     "deny": []
   }

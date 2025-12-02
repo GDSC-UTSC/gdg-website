@@ -5,7 +5,19 @@ import { onRequest } from "firebase-functions/v2/https";
 
 // Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
-  admin.initializeApp();
+  if (process.env.NODE_ENV === "development") {
+    // Running in dev mode with environment variables
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+      }),
+    });
+  } else {
+    // Running in production - use default credentials
+    admin.initializeApp();
+  }
 }
 
 /**
@@ -28,7 +40,7 @@ export const checkAdminClaims = onRequest(async (request, response) => {
     }
 
     const decodedToken = await admin.auth().verifyIdToken(token);
-
+    console.log("decodedToken", decodedToken);
     response.json({
       isAdmin: decodedToken.admin || false,
       isSuperAdmin: decodedToken.superadmin || false,
@@ -95,7 +107,7 @@ export const addUserToTeam = onRequest(async (request, response) => {
 
     // Check if user is already a member
     const existingMemberIndex = members.findIndex((m: any) => m.userId === userId);
-    
+
     if (existingMemberIndex >= 0) {
       // Update existing member position
       members[existingMemberIndex] = { userId, position };

@@ -6,7 +6,17 @@ import { beforeUserCreated, HttpsError } from "firebase-functions/v2/identity";
 
 // Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
-  admin.initializeApp();
+  if (process.env.NODE_ENV === "development") {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+      }),
+    });
+  } else {
+    admin.initializeApp();
+  }
 }
 
 /**
@@ -19,7 +29,7 @@ export const beforecreated = beforeUserCreated(async (event) => {
     logger.error("No user data found");
     throw new HttpsError("invalid-argument", "User could not be created");
   }
-  
+
   const userDocument = {
     publicName: user.displayName || "",
     updatedAt: Timestamp.now(),
