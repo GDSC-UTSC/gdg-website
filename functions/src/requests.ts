@@ -37,7 +37,6 @@ export const checkAdminClaims = onRequest(async (request, response) => {
     }
 
     const decodedToken = await admin.auth().verifyIdToken(token);
-    console.log("decodedToken", decodedToken);
     response.json({
       isAdmin: decodedToken.admin || false,
       isSuperAdmin: decodedToken.superadmin || false,
