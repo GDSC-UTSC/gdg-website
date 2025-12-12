@@ -6,7 +6,7 @@ export type RegistrationType = {
   name: string;
   email: string;
   questions: Record<string, string>;
-  status: "registered" | "cancelled";
+  status: "registered" | "cancelled" | "accepted" | "rejected" | "waitlisted";
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };
@@ -16,7 +16,7 @@ export class Registration implements RegistrationType {
   name: string;
   email: string;
   questions: Record<string, string>;
-  status: "registered" | "cancelled";
+  status: "registered" | "cancelled" | "accepted" | "rejected" | "waitlisted";
   createdAt: Timestamp;
   updatedAt: Timestamp;
 
@@ -91,7 +91,7 @@ export class Registration implements RegistrationType {
     await updateDocument(documentPath, converter.toFirestore(this));
   }
 
-  async updateStatus(eventId: string, status: "registered" | "cancelled"): Promise<void> {
+  async updateStatue(eventId: string, status: "registered" | "cancelled" | "accepted" | "rejected" | "waitlisted"): Promise<void> {
     this.status = status;
     await this.update(eventId);
   }

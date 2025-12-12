@@ -135,7 +135,6 @@ export class Event implements EventType {
 
   // Computed properties
   get isUpcoming(): boolean {
-    if (this.status !== "default") return false;
 
     const now = new Date();
     const eventDateTime = this.getEventStartDateTime();
@@ -144,8 +143,6 @@ export class Event implements EventType {
   }
 
   get isOngoing(): boolean {
-    if (this.status !== "default") return false;
-
     const now = new Date();
     const startDateTime = this.getEventStartDateTime();
     const endDateTime = this.getEventEndDateTime();
@@ -154,8 +151,6 @@ export class Event implements EventType {
   }
 
   get isPast(): boolean {
-    if (this.status !== "default") return false;
-
     const now = new Date();
     const endDateTime = this.getEventEndDateTime();
 
@@ -188,7 +183,6 @@ export class Event implements EventType {
   }
 
   get isRegistrationOpen(): boolean {
-    if (this.status === "test") return false;
     if (this.registrationDeadline) {
       return this.registrationDeadline.toDate() > new Date();
     }
@@ -200,8 +194,6 @@ export class Event implements EventType {
   }
 
   get displayStatus(): string {
-    if (this.status !== "default") return this.status;
-
     if (this.isUpcoming) return "upcoming";
     if (this.isOngoing) return "ongoing";
     if (this.isPast) return "past";
