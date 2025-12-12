@@ -23,7 +23,7 @@ type RegistrationWithUser = {
 };
 
 type SortOption = "name" | "email" | "date" | "status";
-type StatusFilter = "all" | "registered" | "cancelled";
+type StatusFilter = "all" | "registered" | "accepted" | "rejected" | "waitlisted" | "cancelled";
 
 export default function AdminRegistrationsPage({ params }: AdminRegistrationsPageProps) {
   const router = useRouter();
@@ -225,6 +225,9 @@ export default function AdminRegistrationsPage({ params }: AdminRegistrationsPag
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="registered">Registered</SelectItem>
+                    <SelectItem value="accepted">Accepted</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="waitlisted">Waitlisted</SelectItem>
                     <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
