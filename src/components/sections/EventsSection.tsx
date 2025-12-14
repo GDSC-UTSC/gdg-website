@@ -1,16 +1,13 @@
 import { Event } from "@/app/types/events";
-import { StaggerContainer, FadeInOnScroll } from "@/components/animations";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "lucide-react";
-import Link from "next/link";
+import { FadeInOnScroll, StaggerContainer } from "@/components/animations";
+import EventCard from "../events/EventCard";
 
 const EventsSection = async () => {
   const events = await Event.readAll({ server: true, public: true });
 
-  const upcomingEvents = events.filter((event) => event.isUpcoming);
-  const pastEvents = events.filter((event) => event.isPast);
-
+  const upcomingEvents = events.filter((event) => event.isUpcoming && event.isPublic);
+  const pastEvents = events.filter((event) => event.isPast && event.isPublic);
+  const publicEvents = [...upcomingEvents, ...pastEvents];
   return (
     <section id="events" className="py-20">
       <div className="container mx-auto px-4">
@@ -23,37 +20,12 @@ const EventsSection = async () => {
         </div>
 
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {upcomingEvents.map((event, index) => (
+          {publicEvents.map((event, index) => (
             <FadeInOnScroll key={index} delay={index * 0.1}>
-              <Link href={`/events/${event.id}`}>
-                <Card className="bg-card/50 backdrop-blur-xs hover:bg-card/80 transition-all duration-300 h-full cursor-pointer">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs px-2 py-1 rounded-full text-white ${event.displayStatus}`}>{event.displayStatus}</span>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <CardTitle className="text-xl">{event.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 mb-4">
-                    <p className="text-sm text-muted-foreground flex items-center">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {event.eventDate?.toDate().toLocaleDateString()} • {event.startTime} - {event.endTime}
-                    </p>
-                    <p className="text-sm text-muted-foreground">📍 {event.location}</p>
-                  </div>
-                  <p className="text-muted-foreground mb-4 line-clamp-3">{event.description}</p>
-                  <Button className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                    Register Now
-                  </Button>
-                </CardContent>
-                </Card>
-              </Link>
+              <EventCard event={event} />
             </FadeInOnScroll>
           ))}
         </StaggerContainer>
-
-
       </div>
     </section>
   );
