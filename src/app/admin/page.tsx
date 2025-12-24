@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Calendar, Crown, FolderOpen, HelpCircle, Shield, ShieldCheck, UserCheck, Users } from "lucide-react";
+import { Calendar, Crown, FolderOpen, HelpCircle, Mail, Shield, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -185,7 +185,7 @@ export default function AdminPage() {
           </Card>
 
           {/* Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card
               className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
               onClick={() => router.push("/admin/events")}
@@ -243,6 +243,21 @@ export default function AdminPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-xs text-muted-foreground">Manage positions</p>
+              </CardContent>
+            </Card>
+
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+              onClick={() => router.push("/admin/mail")}
+            >
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-pink-500" />
+                  Send Email
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">Send emails to members</p>
               </CardContent>
             </Card>
 
