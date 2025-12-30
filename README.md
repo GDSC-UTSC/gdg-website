@@ -4,13 +4,13 @@
     </picture>
 </h1>
 <h1>
-Google Developer Group (UTSC) Website
+Google Developer Group (UTSC) Infra
 </h1>
 Google Developer Group (GDG) at University of Toronto Scarborough - An open-source student-led community focused on building technology solutions and fostering developer growth through workshops, projects, and collaboration.
 
 ## About The Project
 
-This is the official website for the University of Toronto Scarborough Google Developer Group. Built with Next.js 15, TypeScript, Tailwind CSS v4, and Firebase, featuring modern development practices and comprehensive tooling for student developers.
+This is the official monorepo for the University of Toronto Scarborough Google Developer Group. This repo includes a variety of projects including the main [website](https://www.gdgutsc.ca/), Build With AI's [website](https://bwai.gdgutsc.ca/) and more. 
 
 ## Features
 
