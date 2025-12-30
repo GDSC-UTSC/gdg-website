@@ -10,7 +10,7 @@ Google Developer Group (GDG) at University of Toronto Scarborough - An open-sour
 
 ## About The Project
 
-This is the official monorepo for the University of Toronto Scarborough Google Developer Group. This repo includes a variety of projects including the main [website](https://www.gdgutsc.ca/), Build With AI's [website](https://bwai.gdgutsc.ca/) and more. 
+This is the official monorepo for the University of Toronto Scarborough Google Developer Group. This repo includes a variety of projects including the main [website](https://www.gdgutsc.ca/), Build With AI's [website](https://bwai.gdgutsc.ca/) and more.
 
 ## Features
 
@@ -37,7 +37,7 @@ This will:
 ## Development Commands
 
 ```bash
-npm run build:worker # Build the worker for Firebase SSR
+pnpm run build:worker # Build the worker for Firebase SSR
 ```
 
 ## Contributing
