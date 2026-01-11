@@ -7,7 +7,8 @@ import { Inter } from "next/font/google";
 import type React from "react";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default function RootLayout({
             <Footer />
           </AuthProvider>
         </ServiceWorker>
+        <SpeedInsights />
       </body>
     </html>
   );
