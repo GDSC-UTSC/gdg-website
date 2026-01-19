@@ -2,6 +2,7 @@ import * as admin from "firebase-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { beforeUserCreated, HttpsError } from "firebase-functions/v2/identity";
 
 // Initialize Firebase Admin if not already initialized
@@ -122,3 +123,80 @@ export const createCollaboration = onDocumentWritten(
     }
   }
 );
+
+/**
+ * Send confirmation email on submission for:
+ * - positions/{positionId}/applications/{userId}
+ * - events/{eventId}/registrations/{userId}
+ */
+export const sendSubmissionConfirmationEmail = onDocumentCreated(
+  [
+    "positions/{positionId}/applications/{userId}",
+    "events/{eventId}/registrations/{userId}",
+  ],
+  async (event: any) => {
+    const path = event.document?.name ?? "";
+    const userId = event.params.userId;
+
+    try {
+      // Get user email from Auth
+      const userRecord = await admin.auth().getUser(userId);
+      const email = userRecord.email;
+
+      if (!email) {
+        logger.warn(`No email found for user ${userId}`);
+        return;
+      }
+
+      // Determine which type of submission this is
+      const isApplication = path.includes("/applications/");
+      const isRegistration = path.includes("/registrations/");
+
+      let subject = "";
+      let html = "";
+      let text = "";
+
+      if (isApplication) {
+        const positionId = event.params.positionId;
+
+        const posSnap = await admin.firestore()
+          .collection("positions")
+          .doc(positionId)
+          .get();
+
+        const title = posSnap.exists
+          ? (posSnap.data() as any)?.title ?? "the position"
+          : "the position";
+
+        subject = `Application received: ${title}`;
+        html = applicationHtml(title);
+        text = `We received your application for ${title}.`;
+      }
+
+      if (isRegistration) {
+        const eventId = event.params.eventId;
+
+        const eventSnap = await admin.firestore()
+          .collection("events")
+          .doc(eventId)
+          .get();
+
+        const title = eventSnap.exists
+          ? (eventSnap.data() as any)?.title ?? "the event"
+          : "the event";
+
+        subject = `Registration confirmed: ${title}`;
+        html = registrationHtml(title);
+        text = `Thanks for registering for ${title}.`;
+      }
+
+      // Send email
+      await sendSesEmail(email, subject, html, text);
+
+      logger.info(`Sent confirmation email to ${email}`);
+    } catch (error) {
+      logger.error("Error sending confirmation email:", error);
+    }
+  }
+);
+
