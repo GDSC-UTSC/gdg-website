@@ -40,6 +40,15 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/sponsorship",
+        destination: "https://drive.google.com/file/d/1YS9dVPr4wuEucKAQCheL7adLa81LieR0/preview",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
