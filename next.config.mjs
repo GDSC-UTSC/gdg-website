@@ -44,7 +44,7 @@ const nextConfig = {
     return [
       {
         source: "/sponsorship",
-        destination: "https://drive.google.com/file/d/1YS9dVPr4wuEucKAQCheL7adLa81LieR0/preview",
+        destination: "https://drive.google.com/file/d/1YS9dVPr4wuEucKAQCheL7adLa81LieR0/view",
         permanent: false,
       },
     ];
